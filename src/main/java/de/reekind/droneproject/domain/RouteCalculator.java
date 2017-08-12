@@ -58,14 +58,14 @@ public class RouteCalculator {
 
             //Get Orders
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT orderId, orderTime, addressId, weight, orderStatus, droneId from orders ORDER BY orderId ASC");
+            rs = stmt.executeQuery("SELECT orderId, orderTime, adressID, weight, status, droneId from orders ORDER BY orderId ASC");
 
             while (rs.next()) {
                 Order order = new Order(rs.getInt("orderId"),
                                         rs.getDate("orderTime"),
-                                        rs.getInt("addressId"),
+                                        rs.getInt("adressID"),
                                         rs.getFloat("weight"),
-                                        rs.getInt("orderStatus"));
+                                        rs.getInt("status"));
                 listOfOrders.add(order);
             }
             // Now we have all orders in our data structure
@@ -93,13 +93,13 @@ public class RouteCalculator {
 
             //Get Orders
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT droneId, droneTypeId, droneStatus from drones");
+            rs = stmt.executeQuery("SELECT droneId, droneTypeId, status from drones");
 
             while (rs.next()) {
                 // TODO: Set relative for droneTypes?
                 Drone drone = new Drone(rs.getInt("droneId"),
                                         rs.getInt("droneTypeId"),
-                                        rs.getInt("droneStatus"));
+                                        rs.getInt("status"));
                 listOfDrones.add(drone);
             }
             // Now we have all drones in our data structure
@@ -107,17 +107,16 @@ public class RouteCalculator {
             //Get dronetypes
             // Join to only get the relevant types
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT droneTypeId, maxWeight, maxPackageCount, maxRange. maxSpeed from dronetypes " +
+            rs = stmt.executeQuery("SELECT dronetypes.droneTypeId, maxWeight, maxPackageCount, dronetypes.maxRange from dronetypes " +
                                         "LEFT JOIN drones ON dronetypes.droneTypeId = drones.droneTypeId " +
-                                        "WHERE dronetype NOT NULL " +
+                                        "WHERE drones.droneTypeID IS NOT NULL " +
                                         "GROUP BY droneTypeId");
             while (rs.next()) {
                 // TODO: Set relative for droneTypes
                 DroneType droneType = new DroneType(rs.getInt("droneTypeId"),
                         rs.getFloat("maxWeight"),
                         rs.getInt("maxPackageCount"),
-                        rs.getFloat("maxRange"),
-                        rs.getFloat("maxSpeed"));
+                        rs.getFloat("maxRange"));
                 listOfDroneTypes.add(droneType);
             }
 
@@ -151,7 +150,7 @@ public class RouteCalculator {
         // TODO: fix Location and Type
         for (Drone drone: listOfDrones)
         {
-            VehicleImpl.Builder vehicleBuilder = VehicleImpl.Builder.newInstance(Integer.toString(drone.getID()));
+            VehicleImpl.Builder vehicleBuilder = VehicleImpl.Builder.newInstance(Integer.toString(drone.getDroneId()));
             vehicleBuilder.setStartLocation(Location.newInstance(10, 10));
             //vehicleBuilder.setType();
             // Only for test, returns wrong type!!!!
@@ -167,8 +166,8 @@ public class RouteCalculator {
         {
             // TODO: Get builder working
             double locX = o.getAddressId();
-            Service service1 = Service.Builder.newInstance("1").addSizeDimension(0, 1).setLocation(Location.newInstance(5, 7)).build();
-
+            Service service1 = Service.Builder.newInstance(Integer.toString(o.getOrderId())).addSizeDimension(0, 1).setLocation(Location.newInstance(5, 7)).build();
+            listOfServices.add(service1);
         }
     }
 

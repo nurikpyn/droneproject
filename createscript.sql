@@ -32,3 +32,14 @@ CREATE TABLE dronetypes (
   , maxSpeed FLOAT NOT NULL
   , PRIMARY KEY (droneTypeID)
 );
+-- auto-generated definition
+create table users
+(
+  userID int auto_increment
+    primary key,
+  email varchar(250) not null,
+  passwordHash varchar(250) not null,
+  userType int not null
+)
+;
+

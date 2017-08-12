@@ -7,12 +7,11 @@ public class DroneType {
     private float maxRange;
     private float maxSpeed;
 
-    public DroneType(int _droneTypeId, float _maxWeight, int _maxPackageCount, float _maxRange, float _maxSpeed) {
+    public DroneType(int _droneTypeId, float _maxWeight, int _maxPackageCount, float _maxRange) {
         this.droneTypeId = _droneTypeId;
         this.maxWeight = _maxWeight;
         this.maxPackageCount = _maxPackageCount;
         this.maxRange = _maxRange;
-        this.maxSpeed = _maxSpeed;
     }
 
     public int getDroneTypeId() {

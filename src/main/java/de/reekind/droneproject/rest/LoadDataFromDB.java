@@ -25,12 +25,12 @@ public class LoadDataFromDB {
             rs = stmt.executeQuery("SELECT droneID, droneTypeID, status from drones");
 
             while (rs.next()) {
-                Drone drone = new Drone(rs.getInt(1));
-                droneList.add(drone);
+                // drone = new Drone(rs.getInt(1));
+                //droneList.add(drone);
             }
 
             for (Drone drone : droneList) {
-                System.out.println(drone.getID());
+               // System.out.println(drone.getID());
             }
 
             // Do something with the Connection

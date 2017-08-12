@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@SuppressWarnings("restriction")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonFormat(shape= JsonFormat.Shape.ARRAY)
@@ -18,9 +17,14 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 public class Drone {
 
+    @XmlElement(name = "id")
     private int droneId;
+    @XmlElement(name = "typeid")
     private int droneTypeId;
+    @XmlElement(name = "status")
     private int droneStatus;
+    @XmlElement(name = "location")
+    private Location location;
     /**
      * Blank constructor
      */
@@ -36,19 +40,6 @@ public class Drone {
         this.droneStatus = _droneStatus;
     }
 
-    public Drone(int ID) {
-        this.id = ID;
-    }
-    @XmlElement(name = "id")
-    private int id;
-
-    @XmlElement(name = "location")
-    private Location location;
-
-    public int getID() {
-        return id;
-    }
-
 
     public Location getLocation() {
         return location;
@@ -57,5 +48,29 @@ public class Drone {
     public void setLocation(Location location) {
         this.location = location;
         //TODO Set Location in DB (only on shutdown?)
+    }
+
+    public int getDroneId() {
+        return droneId;
+    }
+
+    public void setDroneId(int droneId) {
+        this.droneId = droneId;
+    }
+
+    public int getDroneTypeId() {
+        return droneTypeId;
+    }
+
+    public void setDroneTypeId(int droneTypeId) {
+        this.droneTypeId = droneTypeId;
+    }
+
+    public int getDroneStatus() {
+        return droneStatus;
+    }
+
+    public void setDroneStatus(int droneStatus) {
+        this.droneStatus = droneStatus;
     }
 }
