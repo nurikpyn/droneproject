@@ -17,6 +17,10 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Drone resource placeholder for json/xml representation
  */
 public class Drone {
+
+    private int droneId;
+    private int droneTypeId;
+    private int droneStatus;
     /**
      * Blank constructor
      */
@@ -24,6 +28,14 @@ public class Drone {
         //TODO get new ID
         //TODO create constructor for ID and Location
     }
+    // New Constructor for use in RouteCalculator
+    public Drone(int _droneId, int _droneTypeId, int _droneStatus)
+    {
+        this.droneId = _droneId;
+        this.droneTypeId = _droneTypeId;
+        this.droneStatus = _droneStatus;
+    }
+
     public Drone(int ID) {
         this.id = ID;
     }
