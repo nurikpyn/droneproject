@@ -1,52 +1,38 @@
 package de.reekind.droneproject.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonFormat(shape= JsonFormat.Shape.ARRAY)
 
-/**
- * Drone resource placeholder for json/xml representation
- */
 public class Drone {
 
-    @XmlElement(name = "id")
+    @XmlElement(name = "droneid")
     private int droneId;
-    @XmlElement(name = "typeid")
-    private int droneTypeId;
-    @XmlElement(name = "status")
+    @XmlElement(name = "dronetype")
+    private DroneType droneType;
+
+    @XmlElement(name = "dronestatus")
     private int droneStatus;
-    @XmlElement(name = "location")
-    private Location location;
-    /**
-     * Blank constructor
-     */
-    public Drone() {
-        //TODO get new ID
-        //TODO create constructor for ID and Location
-    }
+    @XmlElement(name = "dronelocation")
+    private Location droneLocation;
+
     // New Constructor for use in RouteCalculator
-    public Drone(int _droneId, int _droneTypeId, int _droneStatus)
+    public Drone(int _droneId, DroneType _droneType, int _droneStatus)
     {
         this.droneId = _droneId;
-        this.droneTypeId = _droneTypeId;
+        this.droneType = _droneType;
         this.droneStatus = _droneStatus;
     }
 
-
     public Location getLocation() {
-        return location;
+        return droneLocation;
     }
 
     public void setLocation(Location location) {
-        this.location = location;
+        this.droneLocation = location;
         //TODO Set Location in DB (only on shutdown?)
     }
 
@@ -58,13 +44,6 @@ public class Drone {
         this.droneId = droneId;
     }
 
-    public int getDroneTypeId() {
-        return droneTypeId;
-    }
-
-    public void setDroneTypeId(int droneTypeId) {
-        this.droneTypeId = droneTypeId;
-    }
 
     public int getDroneStatus() {
         return droneStatus;
@@ -72,5 +51,13 @@ public class Drone {
 
     public void setDroneStatus(int droneStatus) {
         this.droneStatus = droneStatus;
+    }
+
+    public DroneType getDroneType() {
+        return droneType;
+    }
+
+    public void setDroneType(DroneType droneType) {
+        this.droneType = droneType;
     }
 }

@@ -1,6 +1,10 @@
 package de.reekind.droneproject.rest;
 
+import de.reekind.droneproject.ProblemSolverHelper;
+import de.reekind.droneproject.domain.RouteCalculator;
 import de.reekind.droneproject.resources.DroneResource;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -14,7 +18,7 @@ public class DroneProjectRestServer extends Application {
     @Override
     public Set<Class<?>> getClasses() {
         HashSet h = new HashSet<Class<?>>();
-        h.add( DroneResource.class );
+        h.add( RouteCalculator.class );
         return h;
     }
 }

@@ -1,21 +1,39 @@
 package de.reekind.droneproject.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.sql.Timestamp;
 import java.util.*;
 
+
+
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+@JsonFormat(shape= JsonFormat.Shape.ARRAY)
 public class Order {
 
+    @XmlElement(name = "orderid")
     private int orderId;
-    private Date orderTime;
-    private int addressId;
+    @XmlElement(name = "ordertime")
+    private Timestamp orderTime;
+    @XmlElement(name = "weight")
     private float weight;
+    @XmlElement(name = "status")
     private int status;
+    @XmlElement(name = "droneid")
     private int droneId;
+    @XmlElement(name = "location")
+    private Location location;
 
- Order(int _orderId, Date _orderTime, int _addressId, float _weight, int _status)
+ Order(int _orderId, Timestamp _orderTime, double adressLatitude, double adressLongitude, float _weight, int _status)
  {
     this.orderId = _orderId;
     this.orderTime = _orderTime;
-    this.addressId = _addressId;
+     this.location = new Location(adressLatitude, adressLongitude);
     this.weight = _weight;
     this.status = _status;
     // -1 to signify NOT SET
@@ -34,16 +52,8 @@ public class Order {
         return orderTime;
     }
 
-    public void setOrderTime(Date orderTime) {
+    public void setOrderTime(Timestamp orderTime) {
         this.orderTime = orderTime;
-    }
-
-    public int getAddressId() {
-        return addressId;
-    }
-
-    public void setAddressId(int addressId) {
-        this.addressId = addressId;
     }
 
     public float getWeight() {
@@ -68,5 +78,13 @@ public class Order {
 
     public void setDroneId(int droneId) {
         this.droneId = droneId;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
     }
 }

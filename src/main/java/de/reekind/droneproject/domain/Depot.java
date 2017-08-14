@@ -4,7 +4,7 @@ package de.reekind.droneproject.domain;
  * Created by timbe on 07.08.2017.
  */
 public class Depot {
-    private int ID;
+    private int depotID;
     private Location location;
 
     public Location getLocation() {
@@ -15,11 +15,11 @@ public class Depot {
         this.location = location;
     }
 
-    public int getID() {
-        return ID;
+    public int getDepotID() {
+        return depotID;
     }
 
-    public void setID(int ID) {
-        this.ID = ID;
+    public void setDepotID(int ID) {
+        this.depotID = ID;
     }
 }

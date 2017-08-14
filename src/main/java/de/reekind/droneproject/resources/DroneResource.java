@@ -14,15 +14,12 @@ import java.util.List;
 @Path("/drones")
 public class DroneResource {
     public DroneResource(){
-        Drone xy = new Drone();
-        xy.setDroneId(1);
-        xy.setDroneStatus(1);
-        xy.setDroneTypeId(1);
+        //Drone xy = new Drone(1,1,1);
+       // xy.setDroneId(1);
+       // xy.setDroneStatus(1);
+       // xy.setDroneTypeId(1);
 
-        drones.add(xy);
-        drones.add(xy);
-        drones.add(xy);
-        drones.add(xy);
+        ///drones.add(xy);
 
     }
     @JsonProperty("drone")

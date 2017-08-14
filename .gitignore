@@ -1,5 +1,5 @@
 .idea/
 drone-project.iml
-src/main/resources/
 src/test/
 target/
+out/

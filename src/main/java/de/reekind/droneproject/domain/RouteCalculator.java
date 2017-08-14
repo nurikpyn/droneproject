@@ -8,26 +8,46 @@ import com.graphhopper.jsprit.core.problem.job.Service;
 import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolution;
 import com.graphhopper.jsprit.core.problem.vehicle.Vehicle;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleImpl;
-import com.graphhopper.jsprit.core.problem.vehicle.VehicleType;
-import com.graphhopper.jsprit.core.problem.vehicle.VehicleTypeImpl;
 import com.graphhopper.jsprit.core.reporting.SolutionPrinter;
 import com.graphhopper.jsprit.core.util.Solutions;
+import de.reekind.droneproject.rest.DroneProjectRestServer;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import java.sql.*;
 import java.util.*;
 
 // Hauptklasse für Verarbeitung
+@Path("/")
 public class RouteCalculator {
 
-    public List<Order> listOfOrders = new ArrayList<Order>();
+
+    private static final Logger logger = LogManager.getLogger(DroneProjectRestServer.class);
+    private static Connection conn;
+
+
+    @Path("/orders")
+    @GET
+    @Produces({ MediaType.APPLICATION_XML})
+    public ArrayList<Order> getListOfOrders() {
+        return listOfOrders;
+    }
+
+    public ArrayList<Order> listOfOrders = new ArrayList<Order>();
     public List<Drone> listOfDrones = new ArrayList<Drone>();
     public List<DroneType> listOfDroneTypes = new ArrayList<DroneType>();
 
     public List<Service> listOfServices = new ArrayList<Service>();
-    public List<VehicleType> listOfVehicleTypes = new ArrayList<VehicleType>();
     public List<Vehicle> listOfVehicles = new ArrayList<Vehicle>();
 
-    public void calculateRoute()
+    @Path("/route")
+    @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    public VehicleRoutingProblemSolution calculateRoute()
     {
         // Get orders from DB
         getOrdersFromDB();
@@ -35,37 +55,36 @@ public class RouteCalculator {
         // Also get dronetypes
         getDronesAndTypesFromDB();
         // Define VehicleTypes and Vehicles
-        createVRPVehicleTypes();
         createVRPVehicles();
         // Add services to problem
         createVRPServices();
         // Solve problem
-        solveVRPProblem();
+       return  solveVRPProblem();
     }
 
     private void getOrdersFromDB()
     {
-        // TODO: configure connection
-        Connection conn;
-
-
         try
         {
             conn = DriverManager.getConnection("jdbc:mysql://pphvs02.reekind.de/reekind_dronepr?" +
-                                                    "user=reekind_dronepr&password=NW4LcAQYV195");
+                    "user=reekind_dronepr&password=NW4LcAQYV195");
             Statement stmt;
             ResultSet rs;
 
             //Get Orders
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT orderId, orderTime, adressID, weight, status, droneId from orders ORDER BY orderId ASC");
+            rs = stmt.executeQuery("SELECT orderId, orderTime, adresses.latitude, adresses.longtitude, weight, orderStatus, droneId " +
+                    "FROM orders " +
+                    "JOIN adresses on adresses.adressID = orders.adressID " +
+                    "ORDER BY orderId ASC");
 
             while (rs.next()) {
                 Order order = new Order(rs.getInt("orderId"),
-                                        rs.getDate("orderTime"),
-                                        rs.getInt("adressID"),
+                                        rs.getTimestamp("orderTime"),
+                                        rs.getDouble("latitude"),
+                                        rs.getDouble("longtitude"),
                                         rs.getFloat("weight"),
-                                        rs.getInt("status"));
+                                        rs.getInt("orderStatus"));
                 listOfOrders.add(order);
             }
             // Now we have all orders in our data structure
@@ -76,41 +95,28 @@ public class RouteCalculator {
             System.out.println("SQLException: " + ex.getMessage());
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            logger.error("Fehler beim laden der Orders", ex);
         }
     }
 
 
     private void getDronesAndTypesFromDB() {
-        // TODO: configure connection
-        Connection conn;
-
         try
         {
-            conn =  DriverManager.getConnection("jdbc:mysql://pphvs02.reekind.de/reekind_dronepr?" +
+            conn = DriverManager.getConnection("jdbc:mysql://pphvs02.reekind.de/reekind_dronepr?" +
                     "user=reekind_dronepr&password=NW4LcAQYV195");
             Statement stmt;
             ResultSet rs;
-
-            //Get Orders
-            stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT droneId, droneTypeId, status from drones");
-
-            while (rs.next()) {
-                // TODO: Set relative for droneTypes?
-                Drone drone = new Drone(rs.getInt("droneId"),
-                                        rs.getInt("droneTypeId"),
-                                        rs.getInt("status"));
-                listOfDrones.add(drone);
-            }
-            // Now we have all drones in our data structure
-
             //Get dronetypes
             // Join to only get the relevant types
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT dronetypes.droneTypeId, maxWeight, maxPackageCount, dronetypes.maxRange from dronetypes " +
-                                        "LEFT JOIN drones ON dronetypes.droneTypeId = drones.droneTypeId " +
-                                        "WHERE drones.droneTypeID IS NOT NULL " +
-                                        "GROUP BY droneTypeId");
+            rs = stmt.executeQuery("SELECT dronetypes.droneTypeId, maxWeight, maxPackageCount, dronetypes.maxRange " +
+                    "FROM dronetypes " +
+                    "LEFT JOIN drones ON dronetypes.droneTypeId = drones.droneTypeId " +
+                    "WHERE drones.droneTypeID IS NOT NULL " +
+                    "GROUP BY droneTypeId");
             while (rs.next()) {
                 // TODO: Set relative for droneTypes
                 DroneType droneType = new DroneType(rs.getInt("droneTypeId"),
@@ -120,30 +126,32 @@ public class RouteCalculator {
                 listOfDroneTypes.add(droneType);
             }
 
-            // Do something with the Connection
+            //Get Drones
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT droneId, droneTypeID, droneStatus from drones");
+
+            while (rs.next()) {
+                int droneTypeIndex = listOfDroneTypes.indexOf(new DroneType(rs.getInt(2)));
+
+                DroneType droneType = null;
+                if (droneTypeIndex > -1) {
+                    droneType = listOfDroneTypes.get(droneTypeIndex);
+                }
+                // TODO: Set relative for droneTypes?
+                Drone drone = new Drone(rs.getInt("droneId"),
+                        droneType,
+                                        rs.getInt("droneStatus"));
+                listOfDrones.add(drone);
+            }
+            // Now we have all drones in our data structure
+
         } catch (SQLException ex) {
-            // handle any errors
             System.out.println("SQLException: " + ex.getMessage());
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
         }
     }
 
-
-    private void createVRPVehicleTypes()
-    {
-        // TODO: create vehicleTypes here, edit dimensions
-        int WEIGHT_INDEX = 0;
-        int RANGE_INDEX = 1;
-        for (DroneType dt: listOfDroneTypes)
-        {
-            VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance(Integer.toString(dt.getDroneTypeId()));
-            vehicleTypeBuilder.addCapacityDimension(WEIGHT_INDEX, (int) dt.getMaxWeight());
-            vehicleTypeBuilder.addCapacityDimension(RANGE_INDEX, (int) dt.getMaxRange());
-            VehicleType vehicleType = vehicleTypeBuilder.build();
-            listOfVehicleTypes.add(vehicleType);
-        }
-    }
 
     private void createVRPVehicles()
     {
@@ -154,7 +162,7 @@ public class RouteCalculator {
             vehicleBuilder.setStartLocation(Location.newInstance(10, 10));
             //vehicleBuilder.setType();
             // Only for test, returns wrong type!!!!
-            vehicleBuilder.setType(listOfVehicleTypes.get(0));
+            vehicleBuilder.setType(drone.getDroneType().getVehicleType());
             VehicleImpl vehicle = vehicleBuilder.build();
             listOfVehicles.add(vehicle);
         }
@@ -165,15 +173,13 @@ public class RouteCalculator {
         for (Order o: listOfOrders)
         {
             // TODO: Get builder working
-            double locX = o.getAddressId();
-            Service service1 = Service.Builder.newInstance(Integer.toString(o.getOrderId())).addSizeDimension(0, 1).setLocation(Location.newInstance(5, 7)).build();
+            Service service1 = Service.Builder.newInstance(Integer.toString(o.getOrderId()))
+                    .addSizeDimension(0, 1).setLocation(o.getLocation()).build();
             listOfServices.add(service1);
         }
     }
 
-
-
-    private void solveVRPProblem()
+    private VehicleRoutingProblemSolution solveVRPProblem()
     {
         // TODO:
         VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
@@ -193,9 +199,10 @@ public class RouteCalculator {
         Collection<VehicleRoutingProblemSolution> solutions = algorithm.searchSolutions();
 
         VehicleRoutingProblemSolution bestSolution = Solutions.bestOf(solutions);
+
         // Debug
         SolutionPrinter.print(problem, bestSolution, SolutionPrinter.Print.VERBOSE);
+
+        return bestSolution;
     }
-
-
 }

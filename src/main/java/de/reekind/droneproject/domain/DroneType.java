@@ -1,17 +1,35 @@
 package de.reekind.droneproject.domain;
 
+import com.graphhopper.jsprit.core.problem.vehicle.VehicleType;
+import com.graphhopper.jsprit.core.problem.vehicle.VehicleTypeImpl;
+
 public class DroneType {
     private int droneTypeId;
     private float maxWeight;
     private int maxPackageCount;
     private float maxRange;
     private float maxSpeed;
+    private VehicleType vehicleType;
+
+    public DroneType(int _droneTypeId) {
+        this.droneTypeId = _droneTypeId;
+    }
 
     public DroneType(int _droneTypeId, float _maxWeight, int _maxPackageCount, float _maxRange) {
         this.droneTypeId = _droneTypeId;
         this.maxWeight = _maxWeight;
         this.maxPackageCount = _maxPackageCount;
         this.maxRange = _maxRange;
+
+        // TODO: create vehicleTypes here, edit dimensions
+        int WEIGHT_INDEX = 0;
+        int RANGE_INDEX = 1;
+        //TODO float to INT possible?
+        VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance(Integer.toString(this.droneTypeId));
+        vehicleTypeBuilder.addCapacityDimension(WEIGHT_INDEX, (int) this.maxWeight);
+        vehicleTypeBuilder.addCapacityDimension(RANGE_INDEX, (int) this.maxRange);
+        VehicleType vehicleType = vehicleTypeBuilder.build();
+        this.vehicleType = vehicleType;
     }
 
     public int getDroneTypeId() {
@@ -53,4 +71,26 @@ public class DroneType {
     public void setMaxSpeed(float maxSpeed) {
         this.maxSpeed = maxSpeed;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj.toString().equals(Integer.toString(this.droneTypeId))) {
+            return true;
+        } else {
+            return super.equals(obj);
+        }
+    }
+    @Override
+    public String toString() {
+        return Integer.toString(this.getDroneTypeId());
+    }
+
+    public VehicleType getVehicleType() {
+        return vehicleType;
+    }
+
+    public void setVehicleType(VehicleType vehicleType) {
+        this.vehicleType = vehicleType;
+    }
+
 }

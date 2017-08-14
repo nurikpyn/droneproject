@@ -6,4 +6,9 @@ package de.reekind.droneproject.domain;
 public class Location {
     public double longitude;
     public double latitude;
+
+    public Location(double _latitude, double _longitude) {
+        longitude = _longitude;
+        latitude = _latitude;
+    }
 }
