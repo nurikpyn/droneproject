@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.Timestamp;
 import java.util.*;
-
+import com.graphhopper.jsprit.core.problem.Location;
 
 
 @XmlRootElement
@@ -27,13 +27,13 @@ public class Order {
     @XmlElement(name = "droneid")
     private int droneId;
     @XmlElement(name = "location")
-    private Location location;
+    private com.graphhopper.jsprit.core.problem.Location location;
 
  Order(int _orderId, Timestamp _orderTime, double adressLatitude, double adressLongitude, float _weight, int _status)
  {
     this.orderId = _orderId;
     this.orderTime = _orderTime;
-     this.location = new Location(adressLatitude, adressLongitude);
+     this.location = Location.newInstance(adressLatitude, adressLongitude);
     this.weight = _weight;
     this.status = _status;
     // -1 to signify NOT SET
