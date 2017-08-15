@@ -1,5 +1,6 @@
 package de.reekind.droneproject.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.jsprit.core.algorithm.VehicleRoutingAlgorithm;
 import com.graphhopper.jsprit.core.algorithm.box.Jsprit;
 import com.graphhopper.jsprit.core.problem.Location;
@@ -32,14 +33,16 @@ public class RouteCalculator {
 
     @Path("/orders")
     @GET
-    @Produces({ MediaType.APPLICATION_XML})
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public ArrayList<Order> getListOfOrders() {
         return listOfOrders;
     }
 
+    @JsonProperty("drone")
     public ArrayList<Order> listOfOrders = new ArrayList<Order>();
     public List<Drone> listOfDrones = new ArrayList<Drone>();
     public List<DroneType> listOfDroneTypes = new ArrayList<DroneType>();
+    public ArrayList<Depot> listOfDepots = new ArrayList<Depot>();
 
     public List<Service> listOfServices = new ArrayList<Service>();
     public List<Vehicle> listOfVehicles = new ArrayList<Vehicle>();
@@ -73,7 +76,7 @@ public class RouteCalculator {
 
             //Get Orders
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT orderId, orderTime, adresses.latitude, adresses.longtitude, weight, orderStatus, droneId " +
+            rs = stmt.executeQuery("SELECT orderId, orderTime, adresses.latitude, adresses.longitude, weight, orderStatus, droneId " +
                     "FROM orders " +
                     "JOIN adresses on adresses.adressID = orders.adressID " +
                     "ORDER BY orderId ASC");
@@ -82,7 +85,7 @@ public class RouteCalculator {
                 Order order = new Order(rs.getInt("orderId"),
                                         rs.getTimestamp("orderTime"),
                                         rs.getDouble("latitude"),
-                                        rs.getDouble("longtitude"),
+                                        rs.getDouble("longitude"),
                                         rs.getFloat("weight"),
                                         rs.getInt("orderStatus"));
                 listOfOrders.add(order);
@@ -125,22 +128,40 @@ public class RouteCalculator {
                         rs.getFloat("maxRange"));
                 listOfDroneTypes.add(droneType);
             }
-
+            //Get Depots
+            // Join to only get the relevant types
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT depots.depotID, depots.latitude, depots.longitude " +
+                    "FROM depots " +
+                    "LEFT JOIN drones ON depots.depotID = drones.droneDepotID " +
+                    "WHERE drones.droneDepotID IS NOT NULL " +
+                    "GROUP BY drones.droneDepotID");
+            while (rs.next()) {
+                Depot depot = new Depot(rs.getInt("depotID"),
+                        Location.newInstance(rs.getFloat("latitude"),
+                                rs.getInt("longitude"))
+                       );
+                listOfDepots.add(depot);
+            }
             //Get Drones
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT droneId, droneTypeID, droneStatus from drones");
+            rs = stmt.executeQuery("SELECT droneId, droneTypeID, droneStatus, droneDepotID from drones");
 
             while (rs.next()) {
                 int droneTypeIndex = listOfDroneTypes.indexOf(new DroneType(rs.getInt(2)));
-
+                int depotIndex = listOfDepots.indexOf(new Depot(rs.getInt(4)));
                 DroneType droneType = null;
                 if (droneTypeIndex > -1) {
                     droneType = listOfDroneTypes.get(droneTypeIndex);
                 }
+                Depot depot = null;
+                if (depotIndex > -1) {
+                    depot = listOfDepots.get(depotIndex);
+                }
                 // TODO: Set relative for droneTypes?
                 Drone drone = new Drone(rs.getInt("droneId"),
                         droneType,
-                                        rs.getInt("droneStatus"));
+                                        rs.getInt("droneStatus"),depot);
                 listOfDrones.add(drone);
             }
             // Now we have all drones in our data structure
@@ -155,13 +176,10 @@ public class RouteCalculator {
 
     private void createVRPVehicles()
     {
-        // TODO: fix Location and Type
         for (Drone drone: listOfDrones)
         {
             VehicleImpl.Builder vehicleBuilder = VehicleImpl.Builder.newInstance(Integer.toString(drone.getDroneId()));
-            vehicleBuilder.setStartLocation(Location.newInstance(10, 10));
-            //vehicleBuilder.setType();
-            // Only for test, returns wrong type!!!!
+            vehicleBuilder.setStartLocation(drone.getDroneDepot().getLocation());
             vehicleBuilder.setType(drone.getDroneType().getVehicleType());
             VehicleImpl vehicle = vehicleBuilder.build();
             listOfVehicles.add(vehicle);

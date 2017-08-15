@@ -2,13 +2,28 @@ package de.reekind.droneproject.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.Timestamp;
 import java.util.*;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.maps.GeoApiContext;
+import com.google.maps.GeocodingApi;
+import com.google.maps.model.GeocodingResult;
+import com.google.maps.model.LatLng;
 import com.graphhopper.jsprit.core.problem.Location;
+
+import org.glassfish.jersey.client.ClientRequest;
 
 
 @XmlRootElement
@@ -38,6 +53,22 @@ public class Order {
     this.status = _status;
     // -1 to signify NOT SET
     this.droneId = -1;
+ }
+
+ //neue Order
+ public Order(String adress, double weight) {
+     //Get ID
+     //Map Adress
+     try {
+         GeoApiContext context = new GeoApiContext.Builder()
+                 .apiKey("AIzaSyBgKJti8sqVUbrvQY2xWVKgXX4WF_Y4npE")
+                 .build();
+         GeocodingResult[] results =  GeocodingApi.geocode(context,adress).await();
+         this.location = Location.newInstance(results[0].geometry.location.lat,
+                 results[0].geometry.location.lng);
+     } catch (Exception ex){
+         System.out.println(ex.getMessage());
+     }
  }
 
     public int getOrderId() {

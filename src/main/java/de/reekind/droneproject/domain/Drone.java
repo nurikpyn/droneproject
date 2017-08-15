@@ -1,12 +1,13 @@
 package de.reekind.droneproject.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.graphhopper.jsprit.core.problem.Location;
+
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonFormat(shape= JsonFormat.Shape.ARRAY)
-
 public class Drone {
 
     @XmlElement(name = "droneid")
@@ -18,13 +19,16 @@ public class Drone {
     private int droneStatus;
     @XmlElement(name = "dronelocation")
     private Location droneLocation;
+    @XmlElement(name = "dronedepot")
+    private Depot droneDepot;
 
     // New Constructor for use in RouteCalculator
-    public Drone(int _droneId, DroneType _droneType, int _droneStatus)
+    public Drone(int _droneId, DroneType _droneType, int _droneStatus, Depot _droneDepot)
     {
         this.droneId = _droneId;
         this.droneType = _droneType;
         this.droneStatus = _droneStatus;
+        this.droneDepot = _droneDepot;
     }
 
     public Location getLocation() {
@@ -59,5 +63,13 @@ public class Drone {
 
     public void setDroneType(DroneType droneType) {
         this.droneType = droneType;
+    }
+
+    public Depot getDroneDepot() {
+        return droneDepot;
+    }
+
+    public void setDroneDepot(Depot droneDepot) {
+        this.droneDepot = droneDepot;
     }
 }

@@ -1,8 +1,16 @@
 package de.reekind.droneproject.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleType;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleTypeImpl;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+@JsonFormat(shape= JsonFormat.Shape.ARRAY)
 public class DroneType {
     private int droneTypeId;
     private float maxWeight;

@@ -1,5 +1,6 @@
 package de.reekind.droneproject;
 
+import de.reekind.droneproject.domain.Order;
 import de.reekind.droneproject.domain.RouteCalculator;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.LogManager;
@@ -14,6 +15,10 @@ public class ProblemSolverHelper {
     private static final Logger logger = LogManager.getLogger(ProblemSolverHelper.class);
 
     public static void main(String[] args) {
+
+        Order order = new Order("Churchstow", 2.44);
+
+
         RouteCalculator calculator = new RouteCalculator();
         logger.error("Test");
         calculator.calculateRoute();
