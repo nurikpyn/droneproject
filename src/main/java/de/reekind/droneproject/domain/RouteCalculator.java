@@ -11,7 +11,6 @@ import com.graphhopper.jsprit.core.problem.vehicle.Vehicle;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleImpl;
 import com.graphhopper.jsprit.core.reporting.SolutionPrinter;
 import com.graphhopper.jsprit.core.util.Solutions;
-import de.reekind.droneproject.rest.DroneProjectRestServer;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -20,14 +19,16 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 // Hauptklasse für Verarbeitung
 @Path("/")
 public class RouteCalculator {
 
 
-    private static final Logger logger = LogManager.getLogger(DroneProjectRestServer.class);
+    private static final Logger logger = LogManager.getLogger(RouteCalculator.class);
     private static Connection conn;
 
 
@@ -121,7 +122,6 @@ public class RouteCalculator {
                     "WHERE drones.droneTypeID IS NOT NULL " +
                     "GROUP BY droneTypeId");
             while (rs.next()) {
-                // TODO: Set relative for droneTypes
                 DroneType droneType = new DroneType(rs.getInt("droneTypeId"),
                         rs.getFloat("maxWeight"),
                         rs.getInt("maxPackageCount"),
@@ -158,7 +158,6 @@ public class RouteCalculator {
                 if (depotIndex > -1) {
                     depot = listOfDepots.get(depotIndex);
                 }
-                // TODO: Set relative for droneTypes?
                 Drone drone = new Drone(rs.getInt("droneId"),
                         droneType,
                                         rs.getInt("droneStatus"),depot);
@@ -210,6 +209,8 @@ public class RouteCalculator {
             vrpBuilder.addJob(s);
         }
         vrpBuilder.setFleetSize(VehicleRoutingProblem.FleetSize.FINITE);
+
+        //TODO Set cost /speed
         VehicleRoutingProblem problem = vrpBuilder.build();
 
         VehicleRoutingAlgorithm algorithm = Jsprit.createAlgorithm(problem);

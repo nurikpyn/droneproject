@@ -36,8 +36,8 @@ public class DroneType {
         VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance(Integer.toString(this.droneTypeId));
         vehicleTypeBuilder.addCapacityDimension(WEIGHT_INDEX, (int) this.maxWeight);
         vehicleTypeBuilder.addCapacityDimension(RANGE_INDEX, (int) this.maxRange);
-        VehicleType vehicleType = vehicleTypeBuilder.build();
-        this.vehicleType = vehicleType;
+        VehicleType _vehicleType = vehicleTypeBuilder.build();
+        this.vehicleType = _vehicleType;
     }
 
     public int getDroneTypeId() {
