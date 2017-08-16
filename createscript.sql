@@ -1,13 +1,15 @@
+DROP TABLE IF EXISTS orders;
 CREATE TABLE orders (
   orderID INT NOT NULL AUTO_INCREMENT
   , orderTime DATETIME NOT NULL
   , adressID INT NOT NULL
-  , weight FLOAT NOT NULL
+  , weightInGrams INT NOT NULL
   , orderStatus INT NOT NULL
   , droneID INT
   , PRIMARY KEY (orderID)
 );
 
+DROP TABLE IF EXISTS addresses;
 CREATE TABLE addresses (
   adressID INT NOT NULL AUTO_INCREMENT
   , adress char NOT NULL
@@ -16,7 +18,7 @@ CREATE TABLE addresses (
   , PRIMARY KEY (adressID)
 );
 
-
+DROP TABLE IF EXISTS drones;
 CREATE TABLE drones (
   droneID INT NOT NULL AUTO_INCREMENT
   , droneTypeID INT NOT NULL
@@ -24,14 +26,16 @@ CREATE TABLE drones (
   , PRIMARY KEY (droneID)
 );
 
+DROP TABLE IF EXISTS dronetypes;
 CREATE TABLE dronetypes (
   droneTypeID INT NOT NULL AUTO_INCREMENT
-  , maxWeight FLOAT NOT NULL
+  , maxWeightInGrams INT NOT NULL
   , maxPackageCount INT NOT NULL
   , maxRange FLOAT NOT NULL
   , maxSpeed FLOAT NOT NULL
   , PRIMARY KEY (droneTypeID)
 );
+DROP TABLE IF EXISTS users;
 -- auto-generated definition
 create table users
 (

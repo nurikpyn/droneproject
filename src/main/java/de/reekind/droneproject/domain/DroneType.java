@@ -18,6 +18,8 @@ public class DroneType {
     private float maxRange;
     private float maxSpeed;
     private VehicleType vehicleType;
+    public static final int WEIGHT_INDEX = 0;
+    public static final int RANGE_INDEX = 1;
 
     public DroneType(int _droneTypeId) {
         this.droneTypeId = _droneTypeId;
@@ -30,14 +32,12 @@ public class DroneType {
         this.maxRange = _maxRange;
 
         // TODO: create vehicleTypes here, edit dimensions
-        int WEIGHT_INDEX = 0;
-        int RANGE_INDEX = 1;
+
         //TODO float to INT possible?
         VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance(Integer.toString(this.droneTypeId));
         vehicleTypeBuilder.addCapacityDimension(WEIGHT_INDEX, (int) this.maxWeight);
         vehicleTypeBuilder.addCapacityDimension(RANGE_INDEX, (int) this.maxRange);
-        VehicleType _vehicleType = vehicleTypeBuilder.build();
-        this.vehicleType = _vehicleType;
+        this.vehicleType = vehicleTypeBuilder.build();
     }
 
     public int getDroneTypeId() {

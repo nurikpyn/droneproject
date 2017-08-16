@@ -46,6 +46,7 @@ public class OurProblem {
 		/*
          * build services at the required locations, each with a capacity-demand of 1.
 		 */
+
         Service service1 = Service.Builder.newInstance("1").addSizeDimension(WEIGHT_INDEX, 1).setLocation(Location.newInstance(5, 7)).build();
         Service service2 = Service.Builder.newInstance("2").addSizeDimension(WEIGHT_INDEX, 1).setLocation(Location.newInstance(5, 13)).build();
 

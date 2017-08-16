@@ -31,7 +31,6 @@ public class RouteCalculator {
     private static final Logger logger = LogManager.getLogger(RouteCalculator.class);
     private static Connection conn;
 
-
     @Path("/orders")
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -77,17 +76,17 @@ public class RouteCalculator {
 
             //Get Orders
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT orderId, orderTime, adresses.latitude, adresses.longitude, weight, orderStatus, droneId " +
-                    "FROM orders " +
-                    "JOIN adresses on adresses.adressID = orders.adressID " +
-                    "ORDER BY orderId ASC");
+            rs = stmt.executeQuery("SELECT orderId, orderTime, adresses.latitude, adresses.longitude, weightInGrams, orderStatus, droneId " +
+                                        "FROM orders " +
+                                        "JOIN adresses on adresses.adressID = orders.adressID " +
+                                        "ORDER BY orderId ASC");
 
             while (rs.next()) {
                 Order order = new Order(rs.getInt("orderId"),
                                         rs.getTimestamp("orderTime"),
                                         rs.getDouble("latitude"),
                                         rs.getDouble("longitude"),
-                                        rs.getFloat("weight"),
+                                        rs.getFloat("weightInGrams"),
                                         rs.getInt("orderStatus"));
                 listOfOrders.add(order);
             }
@@ -116,14 +115,14 @@ public class RouteCalculator {
             //Get dronetypes
             // Join to only get the relevant types
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT dronetypes.droneTypeId, maxWeight, maxPackageCount, dronetypes.maxRange " +
-                    "FROM dronetypes " +
-                    "LEFT JOIN drones ON dronetypes.droneTypeId = drones.droneTypeId " +
-                    "WHERE drones.droneTypeID IS NOT NULL " +
-                    "GROUP BY droneTypeId");
+            rs = stmt.executeQuery("SELECT dronetypes.droneTypeId, maxWeightInGrams, maxPackageCount, dronetypes.maxRange " +
+                                        "FROM dronetypes " +
+                                        "LEFT JOIN drones ON dronetypes.droneTypeId = drones.droneTypeId " +
+                                        "WHERE drones.droneTypeID IS NOT NULL " +
+                                        "GROUP BY droneTypeId");
             while (rs.next()) {
                 DroneType droneType = new DroneType(rs.getInt("droneTypeId"),
-                        rs.getFloat("maxWeight"),
+                        rs.getFloat("maxWeightInGrams"),
                         rs.getInt("maxPackageCount"),
                         rs.getFloat("maxRange"));
                 listOfDroneTypes.add(droneType);
@@ -132,10 +131,10 @@ public class RouteCalculator {
             // Join to only get the relevant types
             stmt = conn.createStatement();
             rs = stmt.executeQuery("SELECT depots.depotID, depots.latitude, depots.longitude " +
-                    "FROM depots " +
-                    "LEFT JOIN drones ON depots.depotID = drones.droneDepotID " +
-                    "WHERE drones.droneDepotID IS NOT NULL " +
-                    "GROUP BY drones.droneDepotID");
+                                        "FROM depots " +
+                                        "LEFT JOIN drones ON depots.depotID = drones.droneDepotID " +
+                                        "WHERE drones.droneDepotID IS NOT NULL " +
+                                        "GROUP BY drones.droneDepotID");
             while (rs.next()) {
                 Depot depot = new Depot(rs.getInt("depotID"),
                         Location.newInstance(rs.getFloat("latitude"),
@@ -145,11 +144,11 @@ public class RouteCalculator {
             }
             //Get Drones
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT droneId, droneTypeID, droneStatus, droneDepotID from drones");
+            rs = stmt.executeQuery("SELECT droneId, droneTypeID, droneStatus, droneDepotID FROM drones");
 
             while (rs.next()) {
-                int droneTypeIndex = listOfDroneTypes.indexOf(new DroneType(rs.getInt(2)));
-                int depotIndex = listOfDepots.indexOf(new Depot(rs.getInt(4)));
+                int droneTypeIndex = listOfDroneTypes.indexOf(new DroneType(rs.getInt("droneTypeID")));
+                int depotIndex = listOfDepots.indexOf(new Depot(rs.getInt("droneDepotID")));
                 DroneType droneType = null;
                 if (droneTypeIndex > -1) {
                     droneType = listOfDroneTypes.get(droneTypeIndex);
@@ -175,6 +174,7 @@ public class RouteCalculator {
 
     private void createVRPVehicles()
     {
+        // For each drone, create a corresponding Vehicle in Jsprit
         for (Drone drone: listOfDrones)
         {
             VehicleImpl.Builder vehicleBuilder = VehicleImpl.Builder.newInstance(Integer.toString(drone.getDroneId()));
@@ -187,12 +187,15 @@ public class RouteCalculator {
 
     private void createVRPServices()
     {
+        // For each order, create a corresponding Service in Jsprit
         for (Order o: listOfOrders)
         {
-            // TODO: Get builder working
-            Service service1 = Service.Builder.newInstance(Integer.toString(o.getOrderId()))
-                    .addSizeDimension(0, 1).setLocation(o.getLocation()).build();
-            listOfServices.add(service1);
+            Service serv;
+            Service.Builder servBuilder = Service.Builder.newInstance(Integer.toString(o.getOrderId()));
+            servBuilder.addSizeDimension(DroneType.WEIGHT_INDEX, (int) o.getWeight());
+            servBuilder.setLocation(o.getLocation());
+            serv = servBuilder.build();
+            listOfServices.add(serv);
         }
     }
 
