@@ -4,7 +4,10 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.io.IOException;
 import java.sql.*;
+import java.util.Base64;
+import java.util.StringTokenizer;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -13,16 +16,37 @@ import java.util.concurrent.ThreadLocalRandom;
 @Path("/api/authentification")
 public class UserAuthentification {
     Connection conn;
-    @GET
-    //@Compress //can be used only if you want to SELECTIVELY enable compression at the method level. By using the EncodingFilter everything is compressed now.
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    public boolean authenticate(String authCredentials) {
+
+        if (null == authCredentials)
+            return false;
+        // header value format will be "Basic encodedstring" for Basic
+        // authentication. Example "Basic YWRtaW46YWRtaW4="
+        final String encodedUserPassword = authCredentials.replaceFirst("Basic"
+                + " ", "");
+        String usernameAndPassword = null;
+        try {
+            byte[] decodedBytes = Base64.getDecoder().decode(
+                    encodedUserPassword);
+            usernameAndPassword = new String(decodedBytes, "UTF-8");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        final StringTokenizer tokenizer = new StringTokenizer(
+                usernameAndPassword, ":");
+        final String username = tokenizer.nextToken();
+        final String password = tokenizer.nextToken();
+
+        return AuthenticateUser(username, password);
+    }
+
     /**
      * Authenticates User against DB
      * @param email
-     * @param passwordHash
-     * @return Token or Null if failure. Token contains userID, userType, random chars and the checksum of all this encrypted
+     * @param password
+     * @return true if authorized
      */
-    public String AuthenticateUser(String email, String passwordHash) {
+    public boolean AuthenticateUser(String email, String password) {
 
         try {
             conn =  DriverManager.getConnection("jdbc:mysql://pphvs02.reekind.de/reekind_dronepr?" +
@@ -32,32 +56,21 @@ public class UserAuthentification {
             PreparedStatement getUsersStatement = conn.prepareStatement("SELECT userID, userType FROM users" +
                     " WHERE email = ? AND passwordHash = ?");
             getUsersStatement.setString(1,email);
-            getUsersStatement.setString(2,passwordHash);
+            getUsersStatement.setString(2,org.apache.commons.codec.digest.DigestUtils.sha256Hex(password));
             ResultSet getUserResult = getUsersStatement.executeQuery("SELECT userID, userType FROM users");
             conn.commit();
 
             //Jump to first row. If no user is found, returns false
             if (getUserResult.first()) {
-                String token;
-                int userID = getUserResult.getInt(1);
-                token = String.format("%0" + Integer.toString(userID).length()+ "d", userID);
-                int userType = getUserResult.getInt(2);
-                token += userType;
-                // nextInt is normally exclusive of the top value,
-                // so add 1 to make it inclusive
-                int randomNum = ThreadLocalRandom.current().nextInt(10000, 99999 + 1);
-                token += randomNum;
-                String hash = org.apache.commons.codec.digest.DigestUtils.sha256Hex(token);
-                token += hash;
-                return token;
+                return true;
             } else {
-                return null;
+                return false;
             }
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
-            return null;
+            return false;
         }
 
     }
