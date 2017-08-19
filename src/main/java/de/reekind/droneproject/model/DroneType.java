@@ -1,25 +1,21 @@
-package de.reekind.droneproject.domain;
+package de.reekind.droneproject.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.graphhopper.jsprit.core.problem.vehicle.VehicleType;
-import com.graphhopper.jsprit.core.problem.vehicle.VehicleTypeImpl;
+import com.graphhopper.jsprit.core.problem.vehicle.*;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@JsonFormat(shape= JsonFormat.Shape.ARRAY)
 public class DroneType {
     private int droneTypeId;
     private float maxWeight;
     private int maxPackageCount;
     private float maxRange;
     private float maxSpeed;
-    private VehicleType vehicleType;
     public static final int WEIGHT_INDEX = 0;
     public static final int RANGE_INDEX = 1;
+
+    public DroneType(){}
 
     public DroneType(int _droneTypeId) {
         this.droneTypeId = _droneTypeId;
@@ -33,11 +29,6 @@ public class DroneType {
 
         // TODO: create vehicleTypes here, edit dimensions
 
-        //TODO float to INT possible?
-        VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance(Integer.toString(this.droneTypeId));
-        vehicleTypeBuilder.addCapacityDimension(WEIGHT_INDEX, (int) this.maxWeight);
-        vehicleTypeBuilder.addCapacityDimension(RANGE_INDEX, (int) this.maxRange);
-        this.vehicleType = vehicleTypeBuilder.build();
     }
 
     public int getDroneTypeId() {
@@ -82,23 +73,19 @@ public class DroneType {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj.toString().equals(Integer.toString(this.droneTypeId))) {
-            return true;
-        } else {
-            return super.equals(obj);
-        }
+        return obj.toString().equals(Integer.toString(this.droneTypeId)) || super.equals(obj);
     }
     @Override
     public String toString() {
         return Integer.toString(this.getDroneTypeId());
     }
 
-    public VehicleType getVehicleType() {
-        return vehicleType;
+    public VehicleType toJspritVehicleType() {
+        VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance(Integer.toString(this.droneTypeId));
+        vehicleTypeBuilder.addCapacityDimension(WEIGHT_INDEX, (int) this.maxWeight);
+        vehicleTypeBuilder.addCapacityDimension(RANGE_INDEX, (int) this.maxRange);
+        return vehicleTypeBuilder.build();
     }
 
-    public void setVehicleType(VehicleType vehicleType) {
-        this.vehicleType = vehicleType;
-    }
 
 }

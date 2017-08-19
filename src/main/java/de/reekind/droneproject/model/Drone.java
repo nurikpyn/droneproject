@@ -1,29 +1,20 @@
-package de.reekind.droneproject.domain;
+package de.reekind.droneproject.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.graphhopper.jsprit.core.problem.Location;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@JsonFormat(shape= JsonFormat.Shape.ARRAY)
 public class Drone {
 
-    @XmlElement(name = "droneid")
     private int droneId;
-    @XmlElement(name = "dronetype")
     private DroneType droneType;
-
-    @XmlElement(name = "dronestatus")
     private int droneStatus;
-    @XmlElement(name = "dronelocation")
     private Location droneLocation;
-    @XmlElement(name = "dronedepot")
     private Depot droneDepot;
+
+    public Drone(){}
 
     // New Constructor for use in RouteCalculator
     public Drone(int _droneId, DroneType _droneType, int _droneStatus, Depot _droneDepot)

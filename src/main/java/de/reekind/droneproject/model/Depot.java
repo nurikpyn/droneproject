@@ -1,7 +1,4 @@
-package de.reekind.droneproject.domain;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.graphhopper.jsprit.core.problem.Location;
+package de.reekind.droneproject.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -12,19 +9,20 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@JsonFormat(shape= JsonFormat.Shape.ARRAY)
 public class Depot {
     private int depotID;
+    private Location location;
 
+    public Depot() {
+    }
     public Depot(int depotID, Location location) {
         this.depotID = depotID;
         this.location = location;
     }
+
     public Depot(int depotID) {
         this.depotID = depotID;
     }
-
-    private com.graphhopper.jsprit.core.problem.Location location;
 
     public Location getLocation() {
         return location;
@@ -41,17 +39,14 @@ public class Depot {
     public void setDepotID(int ID) {
         this.depotID = ID;
     }
-
     @Override
     public boolean equals(Object obj) {
-        if (obj.toString().equals(Integer.toString(this.depotID))) {
-            return true;
-        } else {
-            return super.equals(obj);
-        }
+        return obj.toString().equals(Integer.toString(this.depotID)) || super.equals(obj);
     }
     @Override
     public String toString() {
         return Integer.toString(this.depotID);
     }
+
+
 }

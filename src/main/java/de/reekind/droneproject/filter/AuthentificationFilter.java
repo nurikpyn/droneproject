@@ -1,5 +1,4 @@
-package de.reekind.droneproject.rest;
-
+package de.reekind.droneproject.filter;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -8,7 +7,7 @@ import java.io.IOException;
 /**
  * http://javapapers.com/web-service/restful-services-http-basic-authentication/
  */
-public class AuthentificationFilter implements javax.servlet.Filter{
+public class AuthentificationFilter implements Filter{
     public static final String AUTHENTICATION_HEADER = "Authorization";
 
     @Override

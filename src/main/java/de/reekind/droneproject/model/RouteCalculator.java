@@ -1,9 +1,7 @@
-package de.reekind.droneproject.domain;
+package de.reekind.droneproject.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.jsprit.core.algorithm.VehicleRoutingAlgorithm;
 import com.graphhopper.jsprit.core.algorithm.box.Jsprit;
-import com.graphhopper.jsprit.core.problem.Location;
 import com.graphhopper.jsprit.core.problem.VehicleRoutingProblem;
 import com.graphhopper.jsprit.core.problem.job.Service;
 import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolution;
@@ -11,34 +9,16 @@ import com.graphhopper.jsprit.core.problem.vehicle.Vehicle;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleImpl;
 import com.graphhopper.jsprit.core.reporting.SolutionPrinter;
 import com.graphhopper.jsprit.core.util.Solutions;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 // Hauptklasse für Verarbeitung
-@Path("/")
 public class RouteCalculator {
-
-
-    private static final Logger logger = LogManager.getLogger(RouteCalculator.class);
     private static Connection conn;
 
-    @Path("/orders")
-    @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public ArrayList<Order> getListOfOrders() {
-        return listOfOrders;
-    }
-
-    @JsonProperty("drone")
     public ArrayList<Order> listOfOrders = new ArrayList<Order>();
     public List<Drone> listOfDrones = new ArrayList<Drone>();
     public List<DroneType> listOfDroneTypes = new ArrayList<DroneType>();
@@ -47,9 +27,6 @@ public class RouteCalculator {
     public List<Service> listOfServices = new ArrayList<Service>();
     public List<Vehicle> listOfVehicles = new ArrayList<Vehicle>();
 
-    @Path("/route")
-    @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public VehicleRoutingProblemSolution calculateRoute()
     {
         // Get orders from DB
@@ -86,7 +63,7 @@ public class RouteCalculator {
                                         rs.getTimestamp("orderTime"),
                                         rs.getDouble("latitude"),
                                         rs.getDouble("longitude"),
-                                        rs.getFloat("weightInGrams"),
+                                        rs.getInt("weightInGrams"),
                                         rs.getInt("orderStatus"));
                 listOfOrders.add(order);
             }
@@ -100,7 +77,6 @@ public class RouteCalculator {
             System.out.println("VendorError: " + ex.getErrorCode());
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
-            logger.error("Fehler beim laden der Orders", ex);
         }
     }
 
@@ -137,7 +113,7 @@ public class RouteCalculator {
                                         "GROUP BY drones.droneDepotID");
             while (rs.next()) {
                 Depot depot = new Depot(rs.getInt("depotID"),
-                        Location.newInstance(rs.getFloat("latitude"),
+                        new de.reekind.droneproject.model.Location(rs.getFloat("latitude"),
                                 rs.getInt("longitude"))
                        );
                 listOfDepots.add(depot);
@@ -178,8 +154,8 @@ public class RouteCalculator {
         for (Drone drone: listOfDrones)
         {
             VehicleImpl.Builder vehicleBuilder = VehicleImpl.Builder.newInstance(Integer.toString(drone.getDroneId()));
-            vehicleBuilder.setStartLocation(drone.getDroneDepot().getLocation());
-            vehicleBuilder.setType(drone.getDroneType().getVehicleType());
+            vehicleBuilder.setStartLocation(drone.getDroneDepot().getLocation().toJspritLocation());
+            vehicleBuilder.setType(drone.getDroneType().toJspritVehicleType());
             VehicleImpl vehicle = vehicleBuilder.build();
             listOfVehicles.add(vehicle);
         }
@@ -193,7 +169,7 @@ public class RouteCalculator {
             Service serv;
             Service.Builder servBuilder = Service.Builder.newInstance(Integer.toString(o.getOrderId()));
             servBuilder.addSizeDimension(DroneType.WEIGHT_INDEX, (int) o.getWeight());
-            servBuilder.setLocation(o.getLocation());
+            servBuilder.setLocation(o.getLocation().toJspritLocation());
             serv = servBuilder.build();
             listOfServices.add(serv);
         }
