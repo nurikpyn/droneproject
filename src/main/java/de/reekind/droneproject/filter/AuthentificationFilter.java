@@ -6,10 +6,10 @@ import java.io.IOException;
 
 /**
  * http://javapapers.com/web-service/restful-services-http-basic-authentication/
+ * JavaEE Webserver Authentifizierungsfilter
  */
 public class AuthentificationFilter implements Filter{
     public static final String AUTHENTICATION_HEADER = "Authorization";
-
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,
                          FilterChain filter) throws IOException, ServletException {
@@ -18,7 +18,6 @@ public class AuthentificationFilter implements Filter{
             String authCredentials = httpServletRequest
                     .getHeader(AUTHENTICATION_HEADER);
 
-            // better injected
             UserAuthentification authenticationService = new UserAuthentification();
 
             boolean authenticationStatus = authenticationService
@@ -29,18 +28,15 @@ public class AuthentificationFilter implements Filter{
             } else {
                 if (response instanceof HttpServletResponse) {
                     HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-                    httpServletResponse
-                            .setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 }
             }
         }
     }
 
     @Override
-    public void destroy() {
-    }
+    public void destroy() {}
 
     @Override
-    public void init(FilterConfig arg0) throws ServletException {
-    }
+    public void init(FilterConfig arg0) throws ServletException {}
 }

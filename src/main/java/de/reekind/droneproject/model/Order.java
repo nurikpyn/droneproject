@@ -20,36 +20,26 @@ public class Order {
     private Location location;
 
     public Order() {}
- public Order(int _orderId, Timestamp _orderTime, double adressLatitude, double adressLongitude, int _weight, int _orderStatus)
- {
-    this.orderId = _orderId;
-    this.orderTime = _orderTime;
-     this.location = new Location(adressLatitude, adressLongitude);
-    this.weight = _weight;
-    this.orderStatus = _orderStatus;
-    // -1 to signify NOT SET
-    this.droneId = -1;
- }
+    public Order(int _orderId, Timestamp _orderTime, double adressLatitude, double adressLongitude, int _weight, int _orderStatus)
+    {
+        this.orderId = _orderId;
+        this.orderTime = _orderTime;
+        this.location = new Location(adressLatitude, adressLongitude);
+        this.weight = _weight;
+        this.orderStatus = _orderStatus;
+        // -1 to signify NOT SET
+        this.droneId = -1;
+    }
 
- //neue Order
- public Order(int orderID, Timestamp orderTime, int orderStatus, String adress, int weight) {
+    //neue Order
+    public Order(int orderID, Timestamp orderTime, int orderStatus, String adress, int weight) {
         this.orderId = orderID;
         this.orderStatus = orderStatus;
         this.orderTime = orderTime;
         this.weight = weight;
-     //Get ID
-     //Map Adress
-     try {
-         GeoApiContext context = new GeoApiContext.Builder()
-                 .apiKey("AIzaSyBgKJti8sqVUbrvQY2xWVKgXX4WF_Y4npE")
-                 .build();
-         GeocodingResult[] results =  GeocodingApi.geocode(context,adress).await();
-         this.location = new Location(results[0].geometry.location.lat,
-                 results[0].geometry.location.lng, adress);
-     } catch (Exception ex){
-         System.out.println(ex.getMessage());
-     }
- }
+        this.location = new Location(adress);
+    }
+
 
     public int getOrderId() {
         return orderId;
