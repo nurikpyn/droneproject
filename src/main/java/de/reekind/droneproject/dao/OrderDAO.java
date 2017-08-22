@@ -1,6 +1,7 @@
 package de.reekind.droneproject.dao;
 
 import de.reekind.droneproject.model.*;
+import org.joda.time.DateTime;
 
 import java.sql.*;
 import java.util.*;
@@ -10,6 +11,7 @@ public class OrderDAO {
     private static final Map<Integer, Order> orderMap = new HashMap<>();
 
     static {
+
         initOrders();
     }
 
@@ -27,15 +29,20 @@ public class OrderDAO {
          //   System.out.println("VendorError: " + ex.getErrorCode());
        // }
         //TODO Lade bestehende Ordern aus der Datenbank
-       /* Order order1 = new Order("1", "Smith", 1, new Depot(1, new Location(5.1,3.4)));
-        Order order2 = new Order("2", "Allen", 1, new Depot(1, new Location(5.1,3.4)));
-        Order order3 = new Order("3", "Jones", 1,  new Depot(1, new Location(5.1,3.4)));
-        Order order4 = new Order("4", "Jones", 1,  new Depot(1, new Location(5.1,3.4)));
+        Order order1 = new Order(1,new Timestamp(System.currentTimeMillis()),0,"Salcombe", 2100);
+        Order order2 = new Order(2,new Timestamp(System.currentTimeMillis()),0,"Thurlestone", 1200);
+        Order order3 = new Order(3,new Timestamp(System.currentTimeMillis()),0,"Beesands", 700);
+        Order order4 = new Order(4,new Timestamp(System.currentTimeMillis()),0,"West Charleton", 3900);
+        Order order5 = new Order(5,new Timestamp(System.currentTimeMillis()),0,"Aveton Gifford", 2140);
+        Order order6 = new Order(6,new Timestamp(System.currentTimeMillis()),0,"Hope", 550);
 
-        orderMap.put(order1.getOrderNo(), order1);
-        orderMap.put(order2.getOrderNo(), order2);
-        orderMap.put(order3.getOrderNo(), order3);
-        orderMap.put(order4.getOrderNo(), order4);*/
+
+        orderMap.put(order1.getOrderId(), order1);
+        orderMap.put(order2.getOrderId(), order2);
+        orderMap.put(order3.getOrderId(), order3);
+        orderMap.put(order4.getOrderId(), order4);
+        orderMap.put(order5.getOrderId(), order5);
+        orderMap.put(order6.getOrderId(), order6);
     }
 
     public static Order getOrder(Integer orderId) {

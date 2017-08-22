@@ -24,15 +24,14 @@
         <servlet-name>jerseyServlet</servlet-name>
         <url-pattern>/rest/*</url-pattern>
     </servlet-mapping>
-    <filter>
+    <!--<filter>
       <filter-name>AuthentificationFilter</filter-name>
       <filter-class>de.reekind.droneproject.filter.AuthentificationFilter</filter-class>
     </filter>
     <filter-mapping>
       <filter-name>AuthentificationFilter</filter-name>
       <url-pattern>/rest/*</url-pattern>
-    </filter-mapping>
-
+    </filter-mapping>-->
     <error-page>
         <error-code>403</error-code>
         <location>/index.jsp</location>

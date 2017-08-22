@@ -20,7 +20,7 @@ public class Order {
     private Location location;
 
     public Order() {}
- Order(int _orderId, Timestamp _orderTime, double adressLatitude, double adressLongitude, int _weight, int _orderStatus)
+ public Order(int _orderId, Timestamp _orderTime, double adressLatitude, double adressLongitude, int _weight, int _orderStatus)
  {
     this.orderId = _orderId;
     this.orderTime = _orderTime;
@@ -32,7 +32,11 @@ public class Order {
  }
 
  //neue Order
- public Order(String adress, double weight) {
+ public Order(int orderID, Timestamp orderTime, int orderStatus, String adress, int weight) {
+        this.orderId = orderID;
+        this.orderStatus = orderStatus;
+        this.orderTime = orderTime;
+        this.weight = weight;
      //Get ID
      //Map Adress
      try {
@@ -41,7 +45,7 @@ public class Order {
                  .build();
          GeocodingResult[] results =  GeocodingApi.geocode(context,adress).await();
          this.location = new Location(results[0].geometry.location.lat,
-                 results[0].geometry.location.lng);
+                 results[0].geometry.location.lng, adress);
      } catch (Exception ex){
          System.out.println(ex.getMessage());
      }

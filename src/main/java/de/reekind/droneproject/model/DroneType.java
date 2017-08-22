@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.*;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DroneType {
     private int droneTypeId;
+    private String droneTypeName;
     private float maxWeight;
     private int maxPackageCount;
     private float maxRange;
@@ -88,4 +89,11 @@ public class DroneType {
     }
 
 
+    public String getDroneTypeName() {
+        return droneTypeName;
+    }
+
+    public void setDroneTypeName(String droneTypeName) {
+        this.droneTypeName = droneTypeName;
+    }
 }

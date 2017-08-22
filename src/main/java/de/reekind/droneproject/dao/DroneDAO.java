@@ -8,7 +8,7 @@ import java.util.*;
 public class DroneDAO {
 
     private static final Map<Integer, Drone> droneMap = new HashMap<>();
-    private static final Map<Integer,DroneType> droneTypeMap = new HashMap<>();
+    private static final Map<Integer, DroneType> droneTypeMap = new HashMap<>();
     private static final Map<Integer,Depot> depotMap = new HashMap<>();
 
     static {
@@ -102,7 +102,7 @@ public class DroneDAO {
 
     public static List<Drone> getAllDrones() {
         Collection<Drone> c = droneMap.values();
-        List<Drone> list = new ArrayList<Drone>();
+        List<Drone> list = new ArrayList<>();
         list.addAll(c);
         return list;
     }
