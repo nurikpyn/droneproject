@@ -3,12 +3,13 @@ package de.reekind.droneproject.model;
 import com.graphhopper.jsprit.core.algorithm.VehicleRoutingAlgorithm;
 import com.graphhopper.jsprit.core.algorithm.box.Jsprit;
 import com.graphhopper.jsprit.core.problem.VehicleRoutingProblem;
+import com.graphhopper.jsprit.core.problem.cost.VehicleRoutingTransportCosts;
 import com.graphhopper.jsprit.core.problem.job.Service;
 import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolution;
 import com.graphhopper.jsprit.core.problem.vehicle.Vehicle;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleImpl;
 import com.graphhopper.jsprit.core.reporting.SolutionPrinter;
-import com.graphhopper.jsprit.core.util.Solutions;
+import com.graphhopper.jsprit.core.util.*;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -190,6 +191,14 @@ public class RouteCalculator {
         vrpBuilder.setFleetSize(VehicleRoutingProblem.FleetSize.FINITE);
 
         //TODO Set cost /speed
+        VehicleRoutingTransportCostsMatrix.Builder costMatrixBuilder;
+        costMatrixBuilder = VehicleRoutingTransportCostsMatrix.Builder.newInstance(true);
+
+        // See VehicleRoutingTransportCosts implementations!!!!
+        //VehicleRoutingTransportCosts transCost = new EuclideanCosts();
+
+        //vrpBuilder.setRoutingCost(transCost);
+
         VehicleRoutingProblem problem = vrpBuilder.build();
 
         VehicleRoutingAlgorithm algorithm = Jsprit.createAlgorithm(problem);

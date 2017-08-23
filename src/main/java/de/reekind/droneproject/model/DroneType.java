@@ -85,9 +85,15 @@ public class DroneType {
         VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance(Integer.toString(this.droneTypeId));
         vehicleTypeBuilder.addCapacityDimension(WEIGHT_INDEX, (int) this.maxWeight);
         vehicleTypeBuilder.addCapacityDimension(RANGE_INDEX, (int) this.maxRange);
+        vehicleTypeBuilder.setCostPerDistance(1000);
+        vehicleTypeBuilder.setMaxVelocity(kmhToMs(maxSpeed));
         return vehicleTypeBuilder.build();
     }
 
+    private float kmhToMs(float speedInKmh)
+    {
+        return (speedInKmh * 3600 / 1000);
+    }
 
     public String getDroneTypeName() {
         return droneTypeName;
