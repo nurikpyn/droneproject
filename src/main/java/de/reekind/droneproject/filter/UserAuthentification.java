@@ -26,6 +26,9 @@ public class UserAuthentification {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        if (usernameAndPassword == null) {
+            return false;
+        }
         final StringTokenizer tokenizer = new StringTokenizer(
                 usernameAndPassword, ":");
         final String username = tokenizer.nextToken();

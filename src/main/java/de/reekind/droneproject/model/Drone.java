@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.*;
 public class Drone {
 
     private int droneId;
+    private String droneName;
     private DroneType droneType;
     private int droneStatus;
     private Location droneLocation;
@@ -65,5 +66,13 @@ public class Drone {
 
     public void setDroneDepot(Depot droneDepot) {
         this.droneDepot = droneDepot;
+    }
+
+    public String getDroneName() {
+        return droneName;
+    }
+
+    public void setDroneName(String droneName) {
+        this.droneName = droneName;
     }
 }

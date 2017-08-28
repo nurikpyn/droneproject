@@ -8,6 +8,10 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlType(name="ownLocation")
 public class Location {
+    public double latitude;
+    public double longitude;
+    public String name;
+
     public Location() {}
     public Location(double latitude, double longitude) {
         this.latitude = latitude;
@@ -33,9 +37,7 @@ public class Location {
         }
     }
 
-    public double latitude;
-    public double longitude;
-    public String name;
+
 
     public com.graphhopper.jsprit.core.problem.Location toJspritLocation() {
         return com.graphhopper.jsprit.core.problem.Location.newInstance(this.latitude,this.longitude);

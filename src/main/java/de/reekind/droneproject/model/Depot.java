@@ -11,17 +11,19 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Depot {
     private int depotID;
+    private String depotName;
     private Location location;
 
     public Depot() {
     }
-    public Depot(int depotID, Location location) {
-        this.depotID = depotID;
-        this.location = location;
+    public Depot(int _depotID, String _depotName, Location _location) {
+        this.depotID = _depotID;
+        this.depotName = _depotName;
+        this.location = _location;
     }
 
-    public Depot(int depotID) {
-        this.depotID = depotID;
+    public Depot(int _depotID) {
+        this.depotID = _depotID;
     }
 
     public Location getLocation() {
@@ -49,4 +51,11 @@ public class Depot {
     }
 
 
+    public String getDepotName() {
+        return depotName;
+    }
+
+    public void setDepotName(String depotName) {
+        this.depotName = depotName;
+    }
 }

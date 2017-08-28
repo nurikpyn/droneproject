@@ -20,13 +20,13 @@ import java.util.List;
 public class RouteCalculator {
     private static Connection conn;
 
-    public ArrayList<Order> listOfOrders = new ArrayList<Order>();
-    public List<Drone> listOfDrones = new ArrayList<Drone>();
-    public List<DroneType> listOfDroneTypes = new ArrayList<DroneType>();
-    public ArrayList<Depot> listOfDepots = new ArrayList<Depot>();
+    public ArrayList<Order> listOfOrders = new ArrayList<>();
+    public List<Drone> listOfDrones = new ArrayList<>();
+    public List<DroneType> listOfDroneTypes = new ArrayList<>();
+    public ArrayList<Depot> listOfDepots = new ArrayList<>();
 
-    public List<Service> listOfServices = new ArrayList<Service>();
-    public List<Vehicle> listOfVehicles = new ArrayList<Vehicle>();
+    public List<Service> listOfServices = new ArrayList<>();
+    public List<Vehicle> listOfVehicles = new ArrayList<>();
 
     public VehicleRoutingProblemSolution calculateRoute()
     {
@@ -43,6 +43,12 @@ public class RouteCalculator {
        return  solveVRPProblem();
     }
 
+    /**
+     * Lade Bestellungen aus der Datenbank (hinterher aus dem DAO, welche den Kriterien entsprechen
+     * Status: Fertig zur Abfertigung
+     * Zeit ..
+     * TODO: Das einbauen
+     */
     private void getOrdersFromDB()
     {
         try
@@ -60,12 +66,13 @@ public class RouteCalculator {
                                         "ORDER BY orderId ASC");
 
             while (rs.next()) {
-                Order order = new Order(rs.getInt("orderId"),
-                                        rs.getTimestamp("orderTime"),
-                                        rs.getDouble("latitude"),
-                                        rs.getDouble("longitude"),
-                                        rs.getInt("weightInGrams"),
-                                        rs.getInt("orderStatus"));
+                Order order = new Order(
+                        rs.getInt("orderId")
+                        ,rs.getTimestamp("orderTime")
+                        ,rs.getDouble("latitude")
+                        ,rs.getDouble("longitude")
+                        ,rs.getInt("weightInGrams")
+                        ,rs.getInt("orderStatus"));
                 listOfOrders.add(order);
             }
             // Now we have all orders in our data structure
@@ -92,30 +99,35 @@ public class RouteCalculator {
             //Get dronetypes
             // Join to only get the relevant types
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT dronetypes.droneTypeId, maxWeightInGrams, maxPackageCount, dronetypes.maxRange " +
+            rs = stmt.executeQuery("SELECT dronetypes.droneTypeId, dronetypes.droneTypeName, maxWeightInGrams, maxPackageCount, dronetypes.maxRange " +
                                         "FROM dronetypes " +
                                         "LEFT JOIN drones ON dronetypes.droneTypeId = drones.droneTypeId " +
                                         "WHERE drones.droneTypeID IS NOT NULL " +
                                         "GROUP BY droneTypeId");
             while (rs.next()) {
-                DroneType droneType = new DroneType(rs.getInt("droneTypeId"),
-                        rs.getFloat("maxWeightInGrams"),
-                        rs.getInt("maxPackageCount"),
-                        rs.getFloat("maxRange"));
+                DroneType droneType = new DroneType(
+                        rs.getInt("droneTypeId")
+                        ,rs.getString("droneTypeName")
+                        ,rs.getFloat("maxWeightInGrams")
+                        ,rs.getInt("maxPackageCount")
+                        ,rs.getFloat("maxRange"));
                 listOfDroneTypes.add(droneType);
             }
             //Get Depots
             // Join to only get the relevant types
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT depots.depotID, depots.latitude, depots.longitude " +
+            rs = stmt.executeQuery("SELECT depots.depotID, depots.depotName, depots.latitude, depots.longitude " +
                                         "FROM depots " +
                                         "LEFT JOIN drones ON depots.depotID = drones.droneDepotID " +
                                         "WHERE drones.droneDepotID IS NOT NULL " +
                                         "GROUP BY drones.droneDepotID");
             while (rs.next()) {
-                Depot depot = new Depot(rs.getInt("depotID"),
-                        new de.reekind.droneproject.model.Location(rs.getFloat("latitude"),
-                                rs.getInt("longitude"))
+                Depot depot = new Depot(
+                        rs.getInt("depotID")
+                        , rs.getString("depotName")
+                        ,new de.reekind.droneproject.model.Location(
+                                rs.getFloat("latitude")
+                                ,rs.getInt("longitude"))
                        );
                 listOfDepots.add(depot);
             }
@@ -134,9 +146,10 @@ public class RouteCalculator {
                 if (depotIndex > -1) {
                     depot = listOfDepots.get(depotIndex);
                 }
-                Drone drone = new Drone(rs.getInt("droneId"),
-                        droneType,
-                                        rs.getInt("droneStatus"),depot);
+                Drone drone = new Drone(
+                        rs.getInt("droneId")
+                        ,droneType
+                        ,rs.getInt("droneStatus"),depot);
                 listOfDrones.add(drone);
             }
             // Now we have all drones in our data structure
@@ -165,11 +178,12 @@ public class RouteCalculator {
     private void createVRPServices()
     {
         // For each order, create a corresponding Service in Jsprit
+        //TODO auslagern in Order
         for (Order o: listOfOrders)
         {
             Service serv;
             Service.Builder servBuilder = Service.Builder.newInstance(Integer.toString(o.getOrderId()));
-            servBuilder.addSizeDimension(DroneType.WEIGHT_INDEX, (int) o.getWeight());
+            servBuilder.addSizeDimension(DroneType.WEIGHT_INDEX, o.getWeight());
             servBuilder.setLocation(o.getLocation().toJspritLocation());
             serv = servBuilder.build();
             listOfServices.add(serv);
@@ -178,7 +192,6 @@ public class RouteCalculator {
 
     private VehicleRoutingProblemSolution solveVRPProblem()
     {
-        // TODO:
         VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
         for (Vehicle v: listOfVehicles)
         {

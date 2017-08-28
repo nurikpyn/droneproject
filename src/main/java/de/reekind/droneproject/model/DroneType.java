@@ -22,8 +22,9 @@ public class DroneType {
         this.droneTypeId = _droneTypeId;
     }
 
-    public DroneType(int _droneTypeId, float _maxWeight, int _maxPackageCount, float _maxRange) {
+    public DroneType(int _droneTypeId, String _droneTypeName, float _maxWeight, int _maxPackageCount, float _maxRange) {
         this.droneTypeId = _droneTypeId;
+        this.droneTypeName = _droneTypeName;
         this.maxWeight = _maxWeight;
         this.maxPackageCount = _maxPackageCount;
         this.maxRange = _maxRange;

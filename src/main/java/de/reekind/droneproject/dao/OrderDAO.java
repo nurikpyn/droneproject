@@ -1,7 +1,6 @@
 package de.reekind.droneproject.dao;
 
 import de.reekind.droneproject.model.*;
-import org.joda.time.DateTime;
 
 import java.sql.*;
 import java.util.*;
@@ -70,6 +69,17 @@ public class OrderDAO {
         Collection<Order> c = orderMap.values();
         List<Order> list = new ArrayList<>();
         list.addAll(c);
+        return list;
+    }
+    public static List<Order> getOrdersWithStatus(OrderStatus _status) {
+        Collection<Order> orderCollection = orderMap.values();
+        List<Order> list = new ArrayList<>();
+        orderCollection.forEach((Order order) ->{
+            if (order.getStatus() == _status) {
+                list.add(order);
+            }
+        });
+
         return list;
     }
 }

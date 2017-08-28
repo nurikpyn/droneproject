@@ -1,13 +1,9 @@
 package de.reekind.droneproject.model;
 
-import com.google.maps.GeoApiContext;
-import com.google.maps.GeocodingApi;
-import com.google.maps.model.GeocodingResult;
-
 import javax.xml.bind.annotation.*;
 import java.sql.Timestamp;
 import java.util.Date;
-
+import java.util.concurrent.TimeUnit;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -16,7 +12,7 @@ public class Order {
     private Timestamp orderTime;
     private Timestamp orderReadyTime;
     private int weight;
-    private int orderStatus;
+    private OrderStatus orderStatus;
     private int droneId;
     private Location location;
 
@@ -27,15 +23,15 @@ public class Order {
         this.orderTime = _orderTime;
         this.location = new Location(adressLatitude, adressLongitude);
         this.weight = _weight;
-        this.orderStatus = _orderStatus;
+        this.orderStatus = OrderStatus.values() [_orderStatus];
         // -1 to signify NOT SET
         this.droneId = -1;
     }
 
     //neue Order
-    public Order(int orderID, Timestamp orderTime, int orderStatus, String adress, int weight) {
+    public Order(int orderID, Timestamp orderTime, int _orderStatus, String adress, int weight) {
         this.orderId = orderID;
-        this.orderStatus = orderStatus;
+        this.orderStatus =  OrderStatus.values() [_orderStatus];
         this.orderTime = orderTime;
         this.weight = weight;
         this.location = new Location(adress);
@@ -66,12 +62,12 @@ public class Order {
         this.weight = weight;
     }
 
-    public int getStatus() {
+    public OrderStatus getStatus() {
         return orderStatus;
     }
 
     public void setStatus(int orderStatus) {
-        this.orderStatus = orderStatus;
+        this.orderStatus = OrderStatus.values() [orderStatus];
     }
 
     public int getDroneId() {
@@ -88,5 +84,10 @@ public class Order {
 
     public void setLocation(Location location) {
         this.location = location;
+    }
+
+    public Timestamp getOrderReadyTime() {
+        //TODO Make Preperation Time dynamic
+        return new Timestamp(orderTime.getTime() + TimeUnit.MINUTES.toMillis(5));
     }
 }
