@@ -43,7 +43,7 @@ public class UserAuthentification {
      */
     public boolean AuthenticateUser(String email, String password) {
 
-        return (email.equals("info@reekind.de")  && password.equals("test"));
+        return (email.equals("test")  && password.equals("test"));
 
     }
 }
