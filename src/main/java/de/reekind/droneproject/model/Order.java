@@ -3,6 +3,7 @@ package de.reekind.droneproject.model;
 import javax.xml.bind.annotation.*;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @XmlRootElement
@@ -15,8 +16,38 @@ public class Order {
     private OrderStatus orderStatus;
     private int droneId;
     private Location location;
+    private List<OrderHistoryPoint> orderHistoryPointList;
+    private String TEEEST;
 
-    public Order() {}
+
+    //TODO Validierung der Bestellungen: Zeitpunkt nicht vor 2017, Adresse irgendwie im Raum, Gewicht unter 4000
+    public Order() {
+       /* Context ctx = null;
+        Connection con = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        try{
+            ctx = new InitialContext();
+            DataSource ds = (DataSource) ctx.lookup("java:/comp/env/jdbc/droneprojectDB");
+
+            con = ds.getConnection();
+            stmt = con.createStatement();
+
+            rs = stmt.executeQuery("select droneName from drones");
+
+            if (rs.first()) {
+                this.TEEEST = "First element found " + rs.getString("droneName");
+            } else {
+                this.TEEEST = "no rows found";
+            }
+
+
+        } catch (Exception ex) {
+            this.TEEEST = "EXCEPTION";
+        }*/
+
+
+    }
     public Order(int _orderId, Timestamp _orderTime, double adressLatitude, double adressLongitude, int _weight, int _orderStatus)
     {
         this.orderId = _orderId;
@@ -89,5 +120,36 @@ public class Order {
     public Timestamp getOrderReadyTime() {
         //TODO Make Preperation Time dynamic
         return new Timestamp(orderTime.getTime() + TimeUnit.MINUTES.toMillis(5));
+    }
+
+    public String getTEEEST() {
+        /*Context ctx = null;
+        Connection con = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        try{
+            ctx = new InitialContext();
+            DataSource ds = (DataSource) ctx.lookup("java:/comp/env/jdbc/droneprojectDB");
+
+            con = ds.getConnection();
+            stmt = con.createStatement();
+
+            rs = stmt.executeQuery("select droneName from drones");
+
+            if (rs.first()) {
+                this.TEEEST = "First element found " + rs.getString("droneName");
+            } else {
+                this.TEEEST = "no rows found";
+            }
+
+
+        } catch (Exception ex) {
+            this.TEEEST = "EXCEPTION";
+        }*/
+        return TEEEST;
+    }
+
+    public void setTEEEST(String TEEEST) {
+        this.TEEEST = TEEEST;
     }
 }

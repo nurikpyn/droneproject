@@ -9,12 +9,12 @@ import javax.xml.bind.annotation.*;
 public class DroneType {
     private int droneTypeId;
     private String droneTypeName;
-    private float maxWeight;
+    private int maxWeight;
     private int maxPackageCount;
     private float maxRange;
     private float maxSpeed;
-    public static final int WEIGHT_INDEX = 0;
-    public static final int RANGE_INDEX = 1;
+    static int WEIGHT_INDEX = 0; //static final
+    static int RANGE_INDEX = 1;
 
     public DroneType(){}
 
@@ -22,7 +22,7 @@ public class DroneType {
         this.droneTypeId = _droneTypeId;
     }
 
-    public DroneType(int _droneTypeId, String _droneTypeName, float _maxWeight, int _maxPackageCount, float _maxRange) {
+    public DroneType(int _droneTypeId, String _droneTypeName, int _maxWeight, int _maxPackageCount, float _maxRange) {
         this.droneTypeId = _droneTypeId;
         this.droneTypeName = _droneTypeName;
         this.maxWeight = _maxWeight;
@@ -41,11 +41,11 @@ public class DroneType {
         this.droneTypeId = droneTypeId;
     }
 
-    public float getMaxWeight() {
+    public int getMaxWeight() {
         return maxWeight;
     }
 
-    public void setMaxWeight(float maxWeight) {
+    public void setMaxWeight(int maxWeight) {
         this.maxWeight = maxWeight;
     }
 

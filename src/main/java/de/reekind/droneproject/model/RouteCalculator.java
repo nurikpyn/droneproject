@@ -18,6 +18,7 @@ import java.util.List;
 
 // Hauptklasse für Verarbeitung
 public class RouteCalculator {
+
     private static Connection conn;
 
     public ArrayList<Order> listOfOrders = new ArrayList<>();
@@ -108,7 +109,7 @@ public class RouteCalculator {
                 DroneType droneType = new DroneType(
                         rs.getInt("droneTypeId")
                         ,rs.getString("droneTypeName")
-                        ,rs.getFloat("maxWeightInGrams")
+                        ,rs.getInt("maxWeightInGrams")
                         ,rs.getInt("maxPackageCount")
                         ,rs.getFloat("maxRange"));
                 listOfDroneTypes.add(droneType);
@@ -116,7 +117,7 @@ public class RouteCalculator {
             //Get Depots
             // Join to only get the relevant types
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT depots.depotID, depots.depotName, depots.latitude, depots.longitude " +
+            rs = stmt.executeQuery("SELECT depots.depotID, depots.name, depots.latitude, depots.longitude " +
                                         "FROM depots " +
                                         "LEFT JOIN drones ON depots.depotID = drones.droneDepotID " +
                                         "WHERE drones.droneDepotID IS NOT NULL " +
@@ -124,7 +125,7 @@ public class RouteCalculator {
             while (rs.next()) {
                 Depot depot = new Depot(
                         rs.getInt("depotID")
-                        , rs.getString("depotName")
+                        , rs.getString("name")
                         ,new de.reekind.droneproject.model.Location(
                                 rs.getFloat("latitude")
                                 ,rs.getInt("longitude"))
@@ -133,7 +134,7 @@ public class RouteCalculator {
             }
             //Get Drones
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT droneId, droneTypeID, droneStatus, droneDepotID FROM drones");
+            rs = stmt.executeQuery("SELECT droneId, droneName, droneTypeID, droneStatus, droneDepotID FROM drones");
 
             while (rs.next()) {
                 int droneTypeIndex = listOfDroneTypes.indexOf(new DroneType(rs.getInt("droneTypeID")));
@@ -148,6 +149,7 @@ public class RouteCalculator {
                 }
                 Drone drone = new Drone(
                         rs.getInt("droneId")
+                        , rs.getString("droneName")
                         ,droneType
                         ,rs.getInt("droneStatus"),depot);
                 listOfDrones.add(drone);
@@ -225,4 +227,5 @@ public class RouteCalculator {
 
         return bestSolution;
     }
+
 }

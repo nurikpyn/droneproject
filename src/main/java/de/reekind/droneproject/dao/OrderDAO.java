@@ -10,23 +10,10 @@ public class OrderDAO {
     private static final Map<Integer, Order> orderMap = new HashMap<>();
 
     static {
-
         initOrders();
     }
 
     private static void initOrders() {
-        //try
-        //{
-           // Connection conn = DriverManager.getConnection("jdbc:mysql://pphvs02.reekind.de/reekind_dronepr?" +
-            //        "user=reekind_dronepr&password=NW4LcAQYV195");
-            //Statement stmt;
-           // ResultSet rs;
-
-        //} catch (SQLException ex) {
-          //  System.out.println("SQLException: " + ex.getMessage());
-       //     System.out.println("SQLState: " + ex.getSQLState());
-         //   System.out.println("VendorError: " + ex.getErrorCode());
-       // }
         //TODO Lade bestehende Ordern aus der Datenbank
         Order order1 = new Order(1,new Timestamp(System.currentTimeMillis()),0,"Salcombe", 2100);
         Order order2 = new Order(2,new Timestamp(System.currentTimeMillis()),0,"Thurlestone", 1200);

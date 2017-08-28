@@ -8,7 +8,7 @@ import java.io.IOException;
  * http://javapapers.com/web-service/restful-services-http-basic-authentication/
  * JavaEE Webserver Authentifizierungsfilter
  */
-public class AuthentificationFilter implements Filter{
+public class AuthentificationFilter implements Filter {
     public static final String AUTHENTICATION_HEADER = "Authorization";
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,

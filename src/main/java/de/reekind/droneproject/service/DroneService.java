@@ -17,6 +17,7 @@ public class DroneService {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public List<Drone> getDrones_JSON() {
         return DroneDAO.getAllDrones();
+        //List<Drone>
     }
 
     // URI:

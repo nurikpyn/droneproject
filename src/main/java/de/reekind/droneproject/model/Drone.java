@@ -1,7 +1,5 @@
 package de.reekind.droneproject.model;
 
-import com.graphhopper.jsprit.core.problem.Location;
-
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement
@@ -18,12 +16,14 @@ public class Drone {
     public Drone(){}
 
     // New Constructor for use in RouteCalculator
-    public Drone(int _droneId, DroneType _droneType, int _droneStatus, Depot _droneDepot)
+    public Drone(int _droneId, String _droneName, DroneType _droneType, int _droneStatus, Depot _droneDepot)
     {
         this.droneId = _droneId;
+        this.droneName = _droneName;
         this.droneType = _droneType;
         this.droneStatus = _droneStatus;
         this.droneDepot = _droneDepot;
+        this.droneLocation = new Location(5.5,5.33);
     }
 
     public Location getLocation() {
