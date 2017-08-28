@@ -14,6 +14,7 @@ import java.util.Date;
 public class Order {
     private int orderId;
     private Timestamp orderTime;
+    private Timestamp orderReadyTime;
     private int weight;
     private int orderStatus;
     private int droneId;

@@ -79,3 +79,11 @@ CREATE TABLE `depots` (
 
 INSERT INTO `depots` (`depotID`, `name`, `latitude`, `longitude`) VALUES
 (1, 'Salcombe', 50.237000, -3.782000);
+
+CREATE TABLE orderHistory (
+  orderHistoryId INT NOT NULL,
+  orderId INT NOT NULL,
+  time TIMESTAMP NOT NULL,
+  orderHistoryType INT NOT NULL,
+  PRIMARY KEY(orderHistoryId)
+);
