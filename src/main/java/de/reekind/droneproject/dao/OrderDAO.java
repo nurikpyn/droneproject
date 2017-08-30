@@ -1,6 +1,8 @@
 package de.reekind.droneproject.dao;
 
+import de.reekind.droneproject.DbUtil;
 import de.reekind.droneproject.model.*;
+import de.reekind.droneproject.model.enumeration.OrderStatus;
 
 import java.sql.*;
 import java.util.*;
@@ -8,27 +10,40 @@ import java.util.*;
 public class OrderDAO {
 
     private static final Map<Integer, Order> orderMap = new HashMap<>();
-
+    private static Connection dbConnection;
     static {
+        dbConnection = DbUtil.getConnection();
         initOrders();
     }
 
     private static void initOrders() {
-        //TODO Lade bestehende Ordern aus der Datenbank
-        Order order1 = new Order(1,new Timestamp(System.currentTimeMillis()),0,"Salcombe", 2100);
-        Order order2 = new Order(2,new Timestamp(System.currentTimeMillis()),0,"Thurlestone", 1200);
-        Order order3 = new Order(3,new Timestamp(System.currentTimeMillis()),0,"Beesands", 700);
-        Order order4 = new Order(4,new Timestamp(System.currentTimeMillis()),0,"West Charleton", 3900);
-        Order order5 = new Order(5,new Timestamp(System.currentTimeMillis()),0,"Aveton Gifford", 2140);
-        Order order6 = new Order(6,new Timestamp(System.currentTimeMillis()),0,"Hope", 550);
+        try
+        {
+            //Get Orders
+            Statement stmt = dbConnection.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT orderId, orderTime" +
+                    ", adresses.latitude" +
+                    ", adresses.longitude, weight, orderStatus, droneId " +
+                    "FROM orders " +
+                    "JOIN adresses ON adresses.adressID = orders.adressID " +
+                    "ORDER BY orderId ASC");
 
+            while (rs.next()) {
+                Order order = new Order(
+                        rs.getInt("orderId")
+                        , rs.getTimestamp("orderTime")
+                        , rs.getDouble("latitude")
+                        , rs.getDouble("longitude")
+                        , rs.getInt("weight")
+                        , rs.getInt("orderStatus"));
+                orderMap.put(order.getOrderId(), order);
+            }
+            // Now we have all orders in our data structure
 
-        orderMap.put(order1.getOrderId(), order1);
-        orderMap.put(order2.getOrderId(), order2);
-        orderMap.put(order3.getOrderId(), order3);
-        orderMap.put(order4.getOrderId(), order4);
-        orderMap.put(order5.getOrderId(), order5);
-        orderMap.put(order6.getOrderId(), order6);
+            // Do something with the Connection
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 
     public static Order getOrder(Integer orderId) {
@@ -36,13 +51,62 @@ public class OrderDAO {
     }
 
     public static Order addOrder(Order order) {
-       orderMap.put(order.getOrderId(), order);
         //TODO Schreibe neue Drohne in DB
+        try {
+            String sqlStatement;
+            PreparedStatement preparedStatement;
+            if (order.getOrderId() != 0) {
+                sqlStatement = "INSERT INTO orders (orderID, orderTime, adressID, weight, orderStatus, droneID) VALUES (?,?,?,?,?,?)";
+
+                preparedStatement = dbConnection.prepareStatement(
+                        sqlStatement);
+                preparedStatement.setInt(1,order.getOrderId());
+                if(order.getOrderTime() != null)
+                    preparedStatement.setTimestamp(2, order.getOrderTime());
+                else
+                    preparedStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+
+                preparedStatement.setInt(3,order.getLocation().locationId);
+                preparedStatement.setInt(4,order.getWeight());
+                preparedStatement.setInt(5,0);
+                preparedStatement.setInt(6,order.getDroneId());
+            } else {
+                sqlStatement = "INSERT INTO orders (orderTime, adressID, weight, orderStatus, droneID) VALUES (?,?,?,?,?)";
+                preparedStatement = dbConnection.prepareStatement(
+                        sqlStatement, Statement.RETURN_GENERATED_KEYS);
+                if(order.getOrderTime() != null)
+                    preparedStatement.setTimestamp(1, order.getOrderTime());
+                else
+                    preparedStatement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+
+                preparedStatement.setInt(2,order.getLocation().locationId);
+                preparedStatement.setInt(3,order.getWeight());
+                preparedStatement.setInt(4,0);
+                preparedStatement.setInt(5,order.getDroneId());
+            }
+
+            preparedStatement.execute();
+
+            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    order.setOrderId(((int) generatedKeys.getLong(1)));
+                }
+                else {
+                    throw new SQLException("Creating order failed, no ID obtained.");
+                }
+            }
+        } catch(SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        //Füge Drohne in DAO ein
+        orderMap.put(order.getOrderId(), order);
+
         return order;
     }
 
     public static Order updateOrder(Order order) {
-       orderMap.put(order.getOrderId(), order);
+        orderMap.put(order.getOrderId(), order);
         //TODO Schreibe  Drohne in DB
         return order;
     }

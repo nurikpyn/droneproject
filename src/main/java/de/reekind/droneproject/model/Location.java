@@ -11,6 +11,7 @@ public class Location {
     public double latitude;
     public double longitude;
     public String name;
+    public int locationId;
 
     public Location() {}
     public Location(double latitude, double longitude) {

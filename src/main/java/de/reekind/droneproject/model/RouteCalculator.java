@@ -3,20 +3,25 @@ package de.reekind.droneproject.model;
 import com.graphhopper.jsprit.core.algorithm.VehicleRoutingAlgorithm;
 import com.graphhopper.jsprit.core.algorithm.box.Jsprit;
 import com.graphhopper.jsprit.core.problem.VehicleRoutingProblem;
-import com.graphhopper.jsprit.core.problem.cost.VehicleRoutingTransportCosts;
 import com.graphhopper.jsprit.core.problem.job.Service;
 import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolution;
 import com.graphhopper.jsprit.core.problem.vehicle.Vehicle;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleImpl;
 import com.graphhopper.jsprit.core.reporting.SolutionPrinter;
 import com.graphhopper.jsprit.core.util.*;
+import de.reekind.droneproject.DbUtil;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 // Hauptklasse für Verarbeitung
+@Path("/deliveryplan")
 public class RouteCalculator {
 
     private static Connection conn;
@@ -29,6 +34,12 @@ public class RouteCalculator {
     public List<Service> listOfServices = new ArrayList<>();
     public List<Vehicle> listOfVehicles = new ArrayList<>();
 
+    public RouteCalculator() {
+        DbUtil.getConnection();
+    }
+
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public VehicleRoutingProblemSolution calculateRoute()
     {
         // Get orders from DB
@@ -54,14 +65,13 @@ public class RouteCalculator {
     {
         try
         {
-            conn = DriverManager.getConnection("jdbc:mysql://pphvs02.reekind.de/reekind_dronepr?" +
-                    "user=reekind_dronepr&password=NW4LcAQYV195");
+            conn =  DbUtil.getConnection();
             Statement stmt;
             ResultSet rs;
 
             //Get Orders
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT orderId, orderTime, adresses.latitude, adresses.longitude, weightInGrams, orderStatus, droneId " +
+            rs = stmt.executeQuery("SELECT orderId, orderTime, adresses.latitude, adresses.longitude, weight, orderStatus, droneId " +
                                         "FROM orders " +
                                         "JOIN adresses on adresses.adressID = orders.adressID " +
                                         "ORDER BY orderId ASC");
@@ -72,13 +82,12 @@ public class RouteCalculator {
                         ,rs.getTimestamp("orderTime")
                         ,rs.getDouble("latitude")
                         ,rs.getDouble("longitude")
-                        ,rs.getInt("weightInGrams")
+                        ,rs.getInt("weight")
                         ,rs.getInt("orderStatus"));
                 listOfOrders.add(order);
             }
             // Now we have all orders in our data structure
 
-            // Do something with the Connection
         } catch (SQLException ex) {
             // handle any errors
             System.out.println("SQLException: " + ex.getMessage());
@@ -93,8 +102,7 @@ public class RouteCalculator {
     private void getDronesAndTypesFromDB() {
         try
         {
-            conn = DriverManager.getConnection("jdbc:mysql://pphvs02.reekind.de/reekind_dronepr?" +
-                    "user=reekind_dronepr&password=NW4LcAQYV195");
+            conn =  DbUtil.getConnection();
             Statement stmt;
             ResultSet rs;
             //Get dronetypes
@@ -170,7 +178,7 @@ public class RouteCalculator {
         for (Drone drone: listOfDrones)
         {
             VehicleImpl.Builder vehicleBuilder = VehicleImpl.Builder.newInstance(Integer.toString(drone.getDroneId()));
-            vehicleBuilder.setStartLocation(drone.getDroneDepot().getLocation().toJspritLocation());
+            vehicleBuilder.setStartLocation(drone.getDepot().getLocation().toJspritLocation());
             vehicleBuilder.setType(drone.getDroneType().toJspritVehicleType());
             VehicleImpl vehicle = vehicleBuilder.build();
             listOfVehicles.add(vehicle);

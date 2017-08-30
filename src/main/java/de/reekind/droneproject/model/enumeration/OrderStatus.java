@@ -1,11 +1,11 @@
-package de.reekind.droneproject.model;
+package de.reekind.droneproject.model.enumeration;
 
 public enum OrderStatus {
-    EINGEGANGEN(0), BEREIT(1), INAUSLIEFERUNG(2), FERTIG(3);
+    Eingegangen(0), Bereit(1), InAuslieferung(2), Ausgeliefert(3);
     int id;
     OrderStatus(int i){id = i;}
     public int GetID(){return id;}
-    public boolean IsEmpty(){return this.equals(OrderStatus.EINGEGANGEN);}
+    public boolean IsEmpty(){return this.equals(OrderStatus.Eingegangen);}
     public boolean Compare(int i){return id == i;}
 
     public static OrderStatus GetValue(int _id)
@@ -16,6 +16,6 @@ public enum OrderStatus {
             if(As[i].Compare(_id))
                 return As[i];
         }
-        return OrderStatus.EINGEGANGEN;
+        return OrderStatus.Eingegangen;
     }
 }

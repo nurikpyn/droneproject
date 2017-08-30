@@ -46,7 +46,7 @@ public class User {
         Password = password;
     }
 
-    public de.reekind.droneproject.model.UserRole getUserRole() {
+    public UserRole getUserRole() {
         return UserRole;
     }
 

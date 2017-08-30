@@ -32,6 +32,14 @@ public class DroneType {
         // TODO: create vehicleTypes here, edit dimensions
 
     }
+    public DroneType(int _droneTypeId, String _droneTypeName, int _maxWeight, int _maxPackageCount, float _maxRange, int _maxSpeed) {
+        this.droneTypeId = _droneTypeId;
+        this.droneTypeName = _droneTypeName;
+        this.maxWeight = _maxWeight;
+        this.maxPackageCount = _maxPackageCount;
+        this.maxRange = _maxRange;
+        this.maxSpeed = _maxSpeed;
+    }
 
     public int getDroneTypeId() {
         return droneTypeId;
