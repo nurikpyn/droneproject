@@ -15,7 +15,7 @@ public class Order {
     private Timestamp orderReadyTime;
     private int weight;
     private OrderStatus orderStatus;
-    private int droneId;
+    private Drone drone;
     private Location location;
     private List<OrderHistoryPoint> orderHistoryPointList;
 
@@ -28,26 +28,19 @@ public class Order {
         this.location = new Location(deliveryPlace);
         this.weight = weight;
     }
-    public Order(int _orderId, Timestamp _orderTime, double adressLatitude, double adressLongitude, int _weight, int _orderStatus)
+    public Order(Timestamp _orderTime, Location deliveryPlace, int weight) {
+        this.orderTime = _orderTime;
+        this.location = deliveryPlace;
+        this.weight = weight;
+    }
+    public Order(int _orderId, Timestamp _orderTime, Location _location, int _weight, int _orderStatus)
     {
         this.orderId = _orderId;
         this.orderTime = _orderTime;
-        this.location = new Location(adressLatitude, adressLongitude);
+        this.location = _location;
         this.weight = _weight;
         this.orderStatus = OrderStatus.values() [_orderStatus];
-        // -1 to signify NOT SET
-        this.droneId = -1;
     }
-
-    //neue Order
-    public Order(int orderID, Timestamp orderTime, int _orderStatus, String adress, int weight) {
-        this.orderId = orderID;
-        this.orderStatus =  OrderStatus.values() [_orderStatus];
-        this.orderTime = orderTime;
-        this.weight = weight;
-        this.location = new Location(adress);
-    }
-
 
     public int getOrderId() {
         return orderId;
@@ -81,14 +74,6 @@ public class Order {
         this.orderStatus = OrderStatus.values() [orderStatus];
     }
 
-    public int getDroneId() {
-        return droneId;
-    }
-
-    public void setDroneId(int droneId) {
-        this.droneId = droneId;
-    }
-
     public Location getLocation() {
         return location;
     }
@@ -100,5 +85,13 @@ public class Order {
     public Timestamp getOrderReadyTime() {
         //TODO Make Preperation Time dynamic
         return new Timestamp(orderTime.getTime() + TimeUnit.MINUTES.toMillis(5));
+    }
+
+    public Drone getDrone() {
+        return drone;
+    }
+
+    public void setDrone(Drone drone) {
+        this.drone = drone;
     }
 }

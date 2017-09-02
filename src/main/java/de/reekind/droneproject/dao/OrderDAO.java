@@ -16,46 +16,65 @@ public class OrderDAO {
         initOrders();
     }
 
+    /**
+     * Lade Bestellungen beim Start der Applikation
+     */
     private static void initOrders() {
         try
         {
-            //Get Orders
             Statement stmt = dbConnection.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT orderId, orderTime" +
-                    ", adresses.latitude" +
+                    ", adresses.adress, adresses.latitude" +
                     ", adresses.longitude, weight, orderStatus, droneId " +
                     "FROM orders " +
                     "JOIN adresses ON adresses.adressID = orders.adressID " +
                     "ORDER BY orderId ASC");
 
+            //Füge einzelne Bestellungen in DAO/Map ein
             while (rs.next()) {
                 Order order = new Order(
                         rs.getInt("orderId")
                         , rs.getTimestamp("orderTime")
-                        , rs.getDouble("latitude")
-                        , rs.getDouble("longitude")
+                        , new Location(rs.getString("adress"), rs.getDouble("latitude"), rs.getDouble("longitude"))
                         , rs.getInt("weight")
                         , rs.getInt("orderStatus"));
                 orderMap.put(order.getOrderId(), order);
             }
-            // Now we have all orders in our data structure
-
-            // Do something with the Connection
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
 
+    /**
+     * Gebe Bestellung mit angegebener OrderId zurück
+     * @param orderId Bestellnummer
+     * @return Bestellung mit angegebener Bestellnummer
+     */
     public static Order getOrder(Integer orderId) {
         return orderMap.get(orderId);
     }
 
+    /**
+     * Füge neue Bestellung in DAO/Map ein
+     * @param order Bestellung, welche eingefügt werden soll.
+     * @return Bestellung als DAO Element
+     */
     public static Order addOrder(Order order) {
-        //TODO Schreibe neue Drohne in DB
         try {
             String sqlStatement;
             PreparedStatement preparedStatement;
+
+            Location _location = order.getLocation();
+            if(_location != null && _location.locationId == 0) {
+                if (_location.longitude == 0 && _location.latitude == 0) {
+                    if (_location.getName() != null) {
+                        _location.getCoordinatesFromAdress(_location.getName());
+                    }
+                }
+            }
+
             if (order.getOrderId() != 0) {
+
                 sqlStatement = "INSERT INTO orders (orderID, orderTime, adressID, weight, orderStatus, droneID) VALUES (?,?,?,?,?,?)";
 
                 preparedStatement = dbConnection.prepareStatement(
@@ -69,8 +88,11 @@ public class OrderDAO {
                 preparedStatement.setInt(3,order.getLocation().locationId);
                 preparedStatement.setInt(4,order.getWeight());
                 preparedStatement.setInt(5,0);
-                preparedStatement.setInt(6,order.getDroneId());
-            } else {
+                if (order.getDrone() != null)
+                    preparedStatement.setInt(6,order.getDrone().getDroneId());
+                else
+                    preparedStatement.setInt(6,0);
+            } else { //Automatische Berechnung der Bestellnummer
                 sqlStatement = "INSERT INTO orders (orderTime, adressID, weight, orderStatus, droneID) VALUES (?,?,?,?,?)";
                 preparedStatement = dbConnection.prepareStatement(
                         sqlStatement, Statement.RETURN_GENERATED_KEYS);
@@ -82,8 +104,11 @@ public class OrderDAO {
                 preparedStatement.setInt(2,order.getLocation().locationId);
                 preparedStatement.setInt(3,order.getWeight());
                 preparedStatement.setInt(4,0);
-                preparedStatement.setInt(5,order.getDroneId());
-            }
+                if (order.getDrone() != null)
+                    preparedStatement.setInt(5,order.getDrone().getDroneId());
+                else
+                    preparedStatement.setInt(5,0);
+            } //order.getOrderId() == 0
 
             preparedStatement.execute();
 
@@ -105,21 +130,35 @@ public class OrderDAO {
         return order;
     }
 
+    /**
+     * Aktualisiere bestehende Bestellung
+     * @param order zu aktualisierende Bestellung
+     * @return Aktualisierte Bestellung
+     */
     public static Order updateOrder(Order order) {
         orderMap.put(order.getOrderId(), order);
         //TODO Schreibe  Drohne in DB
         return order;
     }
 
+    /**
+     * Lösche Bestellung mit angegebener Bestellnummer
+     * @param orderId Bestellnummer
+     */
     public static void deleteOrder(Integer orderId) {
         //TODO Lösche Drohne in DB
         orderMap.remove(orderId);
     }
 
+    /**
+     * Lade alle bestehenden Bestellungen
+     * @return List<Orders> mit allen Bestellungen
+     */
     public static List<Order> getAllOrders() {
         Collection<Order> c = orderMap.values();
         List<Order> list = new ArrayList<>();
         list.addAll(c);
+        //Collections.sort(list);
         return list;
     }
     public static List<Order> getOrdersWithStatus(OrderStatus _status) {

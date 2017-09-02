@@ -1,6 +1,8 @@
 package de.reekind.droneproject;
 
+import de.reekind.droneproject.dao.LocationDAO;
 import de.reekind.droneproject.dao.OrderDAO;
+import de.reekind.droneproject.model.Location;
 import de.reekind.droneproject.model.Order;
 import de.reekind.droneproject.service.OrderService;
 
@@ -20,8 +22,12 @@ public class SampleOrderTest {
             ResultSet rs = statement.executeQuery("SELECT orderTime, deliveryPlace, weight * 1000 FROM sample_orders");
 
             while (rs.next()) {
+                Location xx = new Location(rs.getString(2));
+                LocationDAO.addLocation(xx);
+
+
                 Order order = new Order( rs.getTimestamp(1)
-                        , rs.getString(2)
+                        , xx
                         , rs.getInt(3));
                 OrderDAO.addOrder(order);
             }

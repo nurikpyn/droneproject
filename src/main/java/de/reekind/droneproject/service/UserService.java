@@ -13,9 +13,12 @@ import java.util.List;
 public class UserService {
 
     @Path("/authenticate")
-    @GET
-    public Response authenticate() {
-        return Response.ok().build();
+    @POST
+    public Response authenticate(@FormParam("username") String username, @FormParam("password") String password) {
+        if (username.equals("test") && password.equals("test"))
+            return Response.ok().build();
+        else
+            return Response.status(Response.Status.UNAUTHORIZED).build();
     }
 
     // URI:
@@ -34,28 +37,4 @@ public class UserService {
     public User getUser(@PathParam("userId") Integer userId) {
         return UserDAO.getUser(userId);
     }
-
-    // URI:
-    // /contextPath/servletPath/users
-    @POST
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    public User addUser(User user) {
-        return UserDAO.addUser(user);
-    }
-
-    // URI:
-    // /contextPath/servletPath/users
-    @PUT
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    public User updateUser(User user) {
-        return UserDAO.updateUser(user);
-    }
-
-    @DELETE
-    @Path("/{userId}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    public void deleteUser(@PathParam("userId") Integer userId) {
-        UserDAO.deleteUser(userId);
-    }
-
 }

@@ -80,8 +80,8 @@ public class RouteCalculator {
                 Order order = new Order(
                         rs.getInt("orderId")
                         ,rs.getTimestamp("orderTime")
-                        ,rs.getDouble("latitude")
-                        ,rs.getDouble("longitude")
+                        ,new Location(rs.getDouble("latitude")
+                        ,rs.getDouble("longitude"))
                         ,rs.getInt("weight")
                         ,rs.getInt("orderStatus"));
                 listOfOrders.add(order);

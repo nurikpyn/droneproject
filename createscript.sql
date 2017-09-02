@@ -10,7 +10,7 @@ CREATE TABLE orders (
   orderID INT NOT NULL AUTO_INCREMENT
   , orderTime DATETIME NOT NULL
   , adressID INT NOT NULL
-  , weightInGrams INT NOT NULL
+  , weight INT NOT NULL
   , orderStatus INT NOT NULL
   , droneID INT
   , PRIMARY KEY (orderID)

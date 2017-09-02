@@ -1,5 +1,7 @@
 package de.reekind.droneproject.model;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -9,6 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class User {
     private int UserId;
     private String Username;
+    @JsonIgnore
     private String Password;
     private UserRole UserRole;
 

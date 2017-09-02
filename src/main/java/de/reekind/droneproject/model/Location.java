@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlType;
 public class Location {
     public double latitude;
     public double longitude;
-    public String name;
+    private String name;
     public int locationId;
 
     public Location() {}
@@ -18,12 +18,21 @@ public class Location {
         this.latitude = latitude;
         this.longitude = longitude;
     }
-    public Location(double latitude, double longitude, String name) {
+    public Location(String adress, double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
-        this.name = name;
+        this.name = adress;
+    }
+    public Location(int locationId, String adress, double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.name = adress;
+        this.locationId = locationId;
     }
     public Location(String adress) {
+        getCoordinatesFromAdress(adress);
+    }
+    public void getCoordinatesFromAdress(String adress) {
         //Map Adress
         try {
             GeoApiContext context = new GeoApiContext.Builder()
@@ -42,5 +51,13 @@ public class Location {
 
     public com.graphhopper.jsprit.core.problem.Location toJspritLocation() {
         return com.graphhopper.jsprit.core.problem.Location.newInstance(this.latitude,this.longitude);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        getCoordinatesFromAdress(name);
     }
 }
