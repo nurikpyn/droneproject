@@ -1,7 +1,7 @@
 package de.reekind.droneproject.model.routeplanning;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class DeliveryPlan {
-    public List<Route> Routes;
+    public ArrayList<Route> Routes = new ArrayList<>();
 }

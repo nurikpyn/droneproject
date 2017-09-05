@@ -9,5 +9,28 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class UserRole {
     private int userRoleId;
-    public String UserRoleName;
+    private String userRoleName;
+
+    public UserRole() {}
+
+    public UserRole(int _userRoleId, String _userRoleName) {
+        this.userRoleId = _userRoleId;
+        this.userRoleName = _userRoleName;
+    }
+
+    public String getUserRoleName() {
+        return userRoleName;
+    }
+
+    public void setUserRoleName(String userRoleName) {
+        this.userRoleName = userRoleName;
+    }
+
+    public int getUserRoleId() {
+        return userRoleId;
+    }
+
+    public void setUserRoleId(int userRoleId) {
+        this.userRoleId = userRoleId;
+    }
 }

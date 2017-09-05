@@ -21,16 +21,12 @@ public class UserService {
             return Response.status(Response.Status.UNAUTHORIZED).build();
     }
 
-    // URI:
-    // /contextPath/servletPath/users
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public List<User> getUsers_JSON() {
         return UserDAO.getAllUsers();
     }
 
-    // URI:
-    // /contextPath/servletPath/users/{userId}
     @GET
     @Path("/{userId}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

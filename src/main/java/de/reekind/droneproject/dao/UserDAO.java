@@ -4,44 +4,49 @@ import de.reekind.droneproject.DbUtil;
 import de.reekind.droneproject.model.User;
 import de.reekind.droneproject.model.UserRole;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.*;
 
 public class UserDAO {
-    private static final Map<Integer, User> userMap = new HashMap<>();
     private static Connection dbConnection;
     static {
         dbConnection = DbUtil.getConnection();
-        init();
     }
 
-    private static void init() {
+    public static User getUser(Integer userId) {
+        User user = null;
+        try {
+            PreparedStatement statement = dbConnection.prepareStatement("SELECT userID, name, password, userRoleId " +
+                    "FROM users WHERE userID = ?");
+            statement.setInt(1,userId);
+            ResultSet resultSet = statement.executeQuery();
+            while(resultSet.next()) {
+                user = new User(resultSet.getInt("userID")
+                        , resultSet.getString("name")
+                        , resultSet.getString("password")
+                        , UserRoleDAO.getUserRole(resultSet.getInt("userRoleId")));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return user;
+    }
+
+    public static List<User> getAllUsers() {
+        List<User> list = new ArrayList<>();
         try {
             Statement statement = dbConnection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT userID, name, password, userRoleId FROM users");
             while(resultSet.next()) {
                 User user = new User(resultSet.getInt("userID")
-                , resultSet.getString("name")
-                , resultSet.getString("password")
-                , new UserRole());
-                userMap.put(user.getUserId(), user);
+                        , resultSet.getString("name")
+                        , resultSet.getString("password")
+                        , UserRoleDAO.getUserRole(resultSet.getInt("userRoleId")));
+                list.add(user);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    public static User getUser(Integer userId) {
-        return userMap.get(userId);
-    }
-
-    public static List<User> getAllUsers() {
-        Collection<User> c = userMap.values();
-        List<User> list = new ArrayList<>();
-        list.addAll(c);
         return list;
     }
 }

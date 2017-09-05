@@ -11,16 +11,12 @@ import java.util.List;
 @Path("/orders")
 public class OrderService {
 
-    // URI:
-    // /contextPath/servletPath/orders
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public List<Order> getOrders_JSON() {
         return OrderDAO.getAllOrders();
     }
 
-    // URI:
-    // /contextPath/servletPath/orders/{orderId}
     @GET
     @Path("/{orderId}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -28,16 +24,12 @@ public class OrderService {
         return OrderDAO.getOrder(orderId);
     }
 
-    // URI:
-    // /contextPath/servletPath/orders
     @POST
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public Order addOrder(Order order) {
         return OrderDAO.addOrder(order);
     }
 
-    // URI:
-    // /contextPath/servletPath/orders
     @PUT
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public Order updateOrder(Order order) {

@@ -17,11 +17,21 @@
                 <groupId>org.apache.tomcat.maven</groupId>
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <version>2.2</version>
+                <!-- Save config
                 <configuration>
-                    <!-- Remote tomcat-->
                     <update>true</update>
                     <server>droneproject</server>
                     <url>http://droneproject.reekind.de:8080/manager/text</url>
+                    <path>/</path>
+                    <port>8080</port>
+                    <username>droneproject_script</username>
+                    <password>EKqrDrGg2Wug</password>
+                </configuration>
+                --><configuration>
+                    <!-- Remote tomcat-->
+                    <update>true</update>
+                    <server>droneproject</server>
+                    <url>http://pphvs03.reekind.de:8080/manager/text</url>
                     <path>/</path>
                     <port>8080</port>
                     <username>droneproject_script</username>
@@ -92,7 +102,7 @@
             <artifactId>commons-codec</artifactId>
             <version>1.10</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java-->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
