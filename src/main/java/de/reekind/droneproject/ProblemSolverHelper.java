@@ -4,11 +4,13 @@ import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolutio
 import com.graphhopper.jsprit.core.problem.solution.route.VehicleRoute;
 import com.graphhopper.jsprit.core.problem.solution.route.activity.TourActivity;
 import de.reekind.droneproject.dao.DroneDAO;
+import de.reekind.droneproject.model.Drone;
 import de.reekind.droneproject.model.RouteCalculator;
 import de.reekind.droneproject.model.routeplanning.*;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
+import java.sql.*;
 
 /**
  * Created by timbe on 12.08.2017.
@@ -16,7 +18,6 @@ import java.io.IOException;
 public class ProblemSolverHelper {
 
     public static void main(String[] args) {
-
         RouteCalculator calculator = new RouteCalculator();
         VehicleRoutingProblemSolution bestSolution = calculator.calculateRoute();
         DeliveryPlan plan = new DeliveryPlan();

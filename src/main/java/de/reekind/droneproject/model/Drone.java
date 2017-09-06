@@ -9,9 +9,9 @@ import javax.xml.bind.annotation.*;
 public class Drone {
 
     private int droneId;
-    private String droneName;
+    private String droneName = "";
     private DroneType droneType;
-    private DroneStatus droneStatus;
+    private DroneStatus droneStatus = DroneStatus.Bereit;
     private Location location;
     private Depot depot;
     private float speed = 60;
@@ -27,7 +27,8 @@ public class Drone {
         this.droneType = _droneType;
         this.droneStatus = DroneStatus.GetValue(_droneStatus);
         this.depot = _droneDepot;
-        this.location = _droneDepot.getLocation();
+        if (this.depot != null)
+            this.location = _droneDepot.getLocation();
     }
 
     public Location getLocation() {

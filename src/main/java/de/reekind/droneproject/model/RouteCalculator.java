@@ -11,17 +11,12 @@ import com.graphhopper.jsprit.core.reporting.SolutionPrinter;
 import com.graphhopper.jsprit.core.util.*;
 import de.reekind.droneproject.DbUtil;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 // Hauptklasse für Verarbeitung
-@Path("/deliveryplan")
 public class RouteCalculator {
 
     private static Connection conn;
@@ -38,8 +33,6 @@ public class RouteCalculator {
         DbUtil.getConnection();
     }
 
-    @GET
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public VehicleRoutingProblemSolution calculateRoute()
     {
         // Get orders from DB

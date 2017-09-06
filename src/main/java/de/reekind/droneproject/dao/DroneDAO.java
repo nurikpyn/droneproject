@@ -45,27 +45,33 @@ public class DroneDAO {
     }
 
     public static Drone addDrone(Drone drone) {
-        droneMap.put(drone.getDroneId(), drone);
         try {
             PreparedStatement statement = dbConnection.prepareStatement("INSERT INTO drones (droneTypeID, droneStatus, droneDepotID, droneName) " +
-                    "VALUES (?,?,?,?)");
-            statement.setInt(1,drone.getDroneType().getDroneTypeId());
+                    "VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+            if (drone.getDroneType() != null)
+                statement.setInt(1,drone.getDroneType().getDroneTypeId());
+            else
+                statement.setInt(1,0);
             statement.setInt(2,drone.getDroneStatus().GetID());
-            statement.setInt(3,drone.getDepot().getDepotID());
+            if (drone.getDepot() != null)
+                statement.setInt(3,drone.getDepot().getDepotID());
+            else
+                statement.setInt(3,0);
             statement.setString(4,drone.getDroneName());
-            if (statement.execute()) {
-                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                    if (generatedKeys.first()) {
-                        drone.setDroneId(((int) generatedKeys.getLong(1)));
-                    }
-                    else {
-                        throw new SQLException("Creating drone failed, no ID obtained.");
-                    }
+
+            statement.execute();
+                ResultSet generatedKeys = statement.getGeneratedKeys();
+                if (generatedKeys.first()) {
+                    int generatedKey =  generatedKeys.getInt(1);
+                    drone.setDroneId(generatedKey);
                 }
-            }
+                else {
+                    throw new SQLException("Creating drone failed, no ID obtained.");
+                }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+        droneMap.put(drone.getDroneId(), drone);
         return drone;
     }
 

@@ -85,41 +85,62 @@ public class OrderDAO {
                 else
                     preparedStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
 
-                preparedStatement.setInt(3,order.getLocation().locationId);
+                if (order.getLocation() != null)
+                    preparedStatement.setInt(3,order.getLocation().locationId);
+                else
+                    preparedStatement.setInt(3, 0);
+
                 preparedStatement.setInt(4,order.getWeight());
-                preparedStatement.setInt(5,0);
+
+                if (order.getStatus() != null)
+                    preparedStatement.setInt(5,order.getStatus().GetID());
+                else
+                    preparedStatement.setInt(5,0);
+
                 if (order.getDrone() != null)
                     preparedStatement.setInt(6,order.getDrone().getDroneId());
                 else
                     preparedStatement.setInt(6,0);
+
+                preparedStatement.execute();
+
             } else { //Automatische Berechnung der Bestellnummer
                 sqlStatement = "INSERT INTO orders (orderTime, adressID, weight, orderStatus, droneID) VALUES (?,?,?,?,?)";
                 preparedStatement = dbConnection.prepareStatement(
                         sqlStatement, Statement.RETURN_GENERATED_KEYS);
+
                 if(order.getOrderTime() != null)
                     preparedStatement.setTimestamp(1, order.getOrderTime());
                 else
                     preparedStatement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
 
                 preparedStatement.setInt(2,order.getLocation().locationId);
+
                 preparedStatement.setInt(3,order.getWeight());
-                preparedStatement.setInt(4,0);
+
+                if (order.getStatus() != null)
+                    preparedStatement.setInt(4,order.getStatus().GetID());
+                else
+                    preparedStatement.setInt(4,0);
+
                 if (order.getDrone() != null)
                     preparedStatement.setInt(5,order.getDrone().getDroneId());
                 else
                     preparedStatement.setInt(5,0);
+
+                preparedStatement.execute();
+
+                try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        order.setOrderId(((int) generatedKeys.getLong(1)));
+                    }
+                    else {
+                        throw new SQLException("Creating order failed, no ID obtained.");
+                    }
+                }
             } //order.getOrderId() == 0
 
-            preparedStatement.execute();
 
-            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    order.setOrderId(((int) generatedKeys.getLong(1)));
-                }
-                else {
-                    throw new SQLException("Creating order failed, no ID obtained.");
-                }
-            }
         } catch(SQLException ex) {
             ex.printStackTrace();
         }
