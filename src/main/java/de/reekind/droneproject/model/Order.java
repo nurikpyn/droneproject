@@ -1,5 +1,6 @@
 package de.reekind.droneproject.model;
 
+import com.graphhopper.jsprit.core.problem.job.Service;
 import de.reekind.droneproject.model.enumeration.OrderStatus;
 
 import javax.xml.bind.annotation.*;
@@ -18,7 +19,6 @@ public class Order {
     private Drone drone;
     private Location location;
     private List<OrderHistoryPoint> orderHistoryPointList;
-
 
     //TODO Validierung der Bestellungen: Zeitpunkt nicht vor 2017, Adresse irgendwie im Raum, Gewicht unter 4000
     public Order() {
@@ -93,5 +93,13 @@ public class Order {
 
     public void setDrone(Drone drone) {
         this.drone = drone;
+    }
+
+    public Service toJspritService () {
+        Service.Builder servBuilder = Service.Builder.newInstance(Integer.toString(orderId));
+        servBuilder.addSizeDimension(DroneType.WEIGHT_INDEX, weight);
+        servBuilder.addSizeDimension(DroneType.PACKAGE_INDEX, 1);
+        servBuilder.setLocation(location.toJspritLocation());
+        return servBuilder.build();
     }
 }

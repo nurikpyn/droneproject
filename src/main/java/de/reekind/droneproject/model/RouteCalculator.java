@@ -6,28 +6,28 @@ import com.graphhopper.jsprit.core.problem.VehicleRoutingProblem;
 import com.graphhopper.jsprit.core.problem.job.Service;
 import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolution;
 import com.graphhopper.jsprit.core.problem.vehicle.Vehicle;
-import com.graphhopper.jsprit.core.problem.vehicle.VehicleImpl;
 import com.graphhopper.jsprit.core.reporting.SolutionPrinter;
 import com.graphhopper.jsprit.core.util.*;
 import de.reekind.droneproject.DbUtil;
+import de.reekind.droneproject.dao.DroneDAO;
+import de.reekind.droneproject.dao.OrderDAO;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 // Hauptklasse für Verarbeitung
 public class RouteCalculator {
 
     private static Connection conn;
 
-    public ArrayList<Order> listOfOrders = new ArrayList<>();
-    public List<Drone> listOfDrones = new ArrayList<>();
-    public List<DroneType> listOfDroneTypes = new ArrayList<>();
-    public ArrayList<Depot> listOfDepots = new ArrayList<>();
+    /*public ArrayList<Order> listOfOrders = new ArrayList<>();
+    public ArrayList<Drone> listOfDrones = new ArrayList<>();
+    public ArrayList<DroneType> listOfDroneTypes = new ArrayList<>();
+    public ArrayList<Depot> listOfDepots = new ArrayList<>();*/
 
-    public List<Service> listOfServices = new ArrayList<>();
-    public List<Vehicle> listOfVehicles = new ArrayList<>();
+    public ArrayList<Service> listOfServices = new ArrayList<>();
+    public ArrayList<Vehicle> listOfVehicles = new ArrayList<>();
 
     public RouteCalculator() {
         DbUtil.getConnection();
@@ -35,25 +35,94 @@ public class RouteCalculator {
 
     public VehicleRoutingProblemSolution calculateRoute()
     {
-        // Get orders from DB
-        getOrdersFromDB();
-        // Get drones from DB
-        // Also get dronetypes
-        getDronesAndTypesFromDB();
         // Define VehicleTypes and Vehicles
-        createVRPVehicles();
+        // For each drone, create a corresponding Vehicle in Jsprit
+        for (Drone drone: DroneDAO.getAllDrones())
+        {
+            listOfVehicles.add(drone.toJspritVehicle());
+        }
         // Add services to problem
-        createVRPServices();
+        for (Order o : OrderDAO.getAllOrders())
+        {
+            listOfServices.add(o.toJspritService());
+        }
         // Solve problem
        return  solveVRPProblem();
     }
 
+
+
+
+    private VehicleRoutingProblemSolution solveVRPProblem()
+    {
+        VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
+        for (Vehicle v: listOfVehicles)
+        {
+            vrpBuilder.addVehicle(v);
+        }
+        for (Service s: listOfServices)
+        {
+            vrpBuilder.addJob(s);
+        }
+        vrpBuilder.setFleetSize(VehicleRoutingProblem.FleetSize.FINITE);
+
+        //TODO Set cost /speed
+        VehicleRoutingTransportCostsMatrix.Builder costMatrixBuilder;
+        costMatrixBuilder = VehicleRoutingTransportCostsMatrix.Builder.newInstance(true);
+
+        // See VehicleRoutingTransportCosts implementations!!!!
+        //VehicleRoutingTransportCosts transCost = new EuclideanCosts();
+
+        //vrpBuilder.setRoutingCost(transCost);
+
+        VehicleRoutingProblem problem = vrpBuilder.build();
+
+        VehicleRoutingAlgorithm algorithm = Jsprit.createAlgorithm(problem);
+
+        Collection<VehicleRoutingProblemSolution> solutions = algorithm.searchSolutions();
+
+        VehicleRoutingProblemSolution bestSolution = Solutions.bestOf(solutions);
+
+        // Debug
+        SolutionPrinter.print(problem, bestSolution, SolutionPrinter.Print.VERBOSE);
+
+        return bestSolution;
+    }
+/*
+    private void createVRPVehicles()
+    {
+        // For each drone, create a corresponding Vehicle in Jsprit
+        for (Drone drone: listOfDrones)
+        {
+            VehicleImpl.Builder vehicleBuilder = VehicleImpl.Builder.newInstance(Integer.toString(drone.getDroneId()));
+            vehicleBuilder.setStartLocation(drone.getDepot().getLocation().toJspritLocation());
+            vehicleBuilder.setType(drone.getDroneType().toJspritVehicleType());
+            VehicleImpl vehicle = vehicleBuilder.build();
+            listOfVehicles.add(vehicle);
+        }
+    }
+
+    private void createVRPServices()
+    {
+        // For each order, create a corresponding Service in Jsprit
+        //TODO auslagern in Order
+        for (Order o: listOfOrders)
+        {
+            Service serv;
+            Service.Builder servBuilder = Service.Builder.newInstance(Integer.toString(o.getOrderId()));
+            servBuilder.addSizeDimension(DroneType.WEIGHT_INDEX, o.getWeight());
+            servBuilder.setLocation(o.getLocation().toJspritLocation());
+            serv = servBuilder.build();
+            listOfServices.add(serv);
+        }
+    }
+ */
     /**
      * Lade Bestellungen aus der Datenbank (hinterher aus dem DAO, welche den Kriterien entsprechen
      * Status: Fertig zur Abfertigung
      * Zeit ..
      * TODO: Das einbauen
-     */
+     *
     private void getOrdersFromDB()
     {
         try
@@ -64,9 +133,9 @@ public class RouteCalculator {
 
             //Get Orders
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT orderId, orderTime, adresses.latitude, adresses.longitude, weight, orderStatus, droneId " +
+            rs = stmt.executeQuery("SELECT orderId, orderTime, locations.latitude, locations.longitude, weight, orderStatus, orderStopId " +
                                         "FROM orders " +
-                                        "JOIN adresses on adresses.adressID = orders.adressID " +
+                                        "JOIN locations on locations.locationId = orders.locationId " +
                                         "ORDER BY orderId ASC");
 
             while (rs.next()) {
@@ -118,7 +187,7 @@ public class RouteCalculator {
             //Get Depots
             // Join to only get the relevant types
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT depots.depotID, depots.name, depots.latitude, depots.longitude " +
+            rs = stmt.executeQuery("SELECT depots.depotID, depots.depotName, depots.latitude, depots.longitude " +
                                         "FROM depots " +
                                         "LEFT JOIN drones ON depots.depotID = drones.droneDepotID " +
                                         "WHERE drones.droneDepotID IS NOT NULL " +
@@ -163,70 +232,5 @@ public class RouteCalculator {
             System.out.println("VendorError: " + ex.getErrorCode());
         }
     }
-
-
-    private void createVRPVehicles()
-    {
-        // For each drone, create a corresponding Vehicle in Jsprit
-        for (Drone drone: listOfDrones)
-        {
-            VehicleImpl.Builder vehicleBuilder = VehicleImpl.Builder.newInstance(Integer.toString(drone.getDroneId()));
-            vehicleBuilder.setStartLocation(drone.getDepot().getLocation().toJspritLocation());
-            vehicleBuilder.setType(drone.getDroneType().toJspritVehicleType());
-            VehicleImpl vehicle = vehicleBuilder.build();
-            listOfVehicles.add(vehicle);
-        }
-    }
-
-    private void createVRPServices()
-    {
-        // For each order, create a corresponding Service in Jsprit
-        //TODO auslagern in Order
-        for (Order o: listOfOrders)
-        {
-            Service serv;
-            Service.Builder servBuilder = Service.Builder.newInstance(Integer.toString(o.getOrderId()));
-            servBuilder.addSizeDimension(DroneType.WEIGHT_INDEX, o.getWeight());
-            servBuilder.setLocation(o.getLocation().toJspritLocation());
-            serv = servBuilder.build();
-            listOfServices.add(serv);
-        }
-    }
-
-    private VehicleRoutingProblemSolution solveVRPProblem()
-    {
-        VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
-        for (Vehicle v: listOfVehicles)
-        {
-            vrpBuilder.addVehicle(v);
-        }
-        for (Service s: listOfServices)
-        {
-            vrpBuilder.addJob(s);
-        }
-        vrpBuilder.setFleetSize(VehicleRoutingProblem.FleetSize.FINITE);
-
-        //TODO Set cost /speed
-        VehicleRoutingTransportCostsMatrix.Builder costMatrixBuilder;
-        costMatrixBuilder = VehicleRoutingTransportCostsMatrix.Builder.newInstance(true);
-
-        // See VehicleRoutingTransportCosts implementations!!!!
-        //VehicleRoutingTransportCosts transCost = new EuclideanCosts();
-
-        //vrpBuilder.setRoutingCost(transCost);
-
-        VehicleRoutingProblem problem = vrpBuilder.build();
-
-        VehicleRoutingAlgorithm algorithm = Jsprit.createAlgorithm(problem);
-
-        Collection<VehicleRoutingProblemSolution> solutions = algorithm.searchSolutions();
-
-        VehicleRoutingProblemSolution bestSolution = Solutions.bestOf(solutions);
-
-        // Debug
-        SolutionPrinter.print(problem, bestSolution, SolutionPrinter.Print.VERBOSE);
-
-        return bestSolution;
-    }
-
+*/
 }

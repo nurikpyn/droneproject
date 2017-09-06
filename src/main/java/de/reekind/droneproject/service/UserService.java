@@ -15,10 +15,16 @@ public class UserService {
     @Path("/authenticate")
     @POST
     public Response authenticate(@FormParam("username") String username, @FormParam("password") String password) {
-        if (username.equals("test") && password.equals("test"))
-            return Response.ok().build();
-        else
+        User user = UserDAO.getUser(username);
+        if (user == null) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
+        } else {
+            if (user.getUsername().equals(username) && user.getPassword().equals(password))
+                return Response.ok().build();
+            else
+                return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
     }
 
     @GET

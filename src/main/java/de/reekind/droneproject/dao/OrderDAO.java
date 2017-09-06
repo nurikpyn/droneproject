@@ -23,11 +23,9 @@ public class OrderDAO {
         try
         {
             Statement stmt = dbConnection.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT orderId, orderTime" +
-                    ", adresses.adress, adresses.latitude" +
-                    ", adresses.longitude, weight, orderStatus, droneId " +
+            ResultSet rs = stmt.executeQuery("SELECT orderId, orderTime," +
+                    " weight, orderStatus, orderStopId, locationId " +
                     "FROM orders " +
-                    "JOIN adresses ON adresses.adressID = orders.adressID " +
                     "ORDER BY orderId ASC");
 
             //Füge einzelne Bestellungen in DAO/Map ein
@@ -35,7 +33,7 @@ public class OrderDAO {
                 Order order = new Order(
                         rs.getInt("orderId")
                         , rs.getTimestamp("orderTime")
-                        , new Location(rs.getString("adress"), rs.getDouble("latitude"), rs.getDouble("longitude"))
+                        , LocationDAO.getLocation(rs.getInt("locationId"))
                         , rs.getInt("weight")
                         , rs.getInt("orderStatus"));
                 orderMap.put(order.getOrderId(), order);
@@ -75,7 +73,7 @@ public class OrderDAO {
 
             if (order.getOrderId() != 0) {
 
-                sqlStatement = "INSERT INTO orders (orderID, orderTime, adressID, weight, orderStatus, droneID) VALUES (?,?,?,?,?,?)";
+                sqlStatement = "INSERT INTO orders (orderID, orderTime, locationId, weight, orderStatus, orderStopId) VALUES (?,?,?,?,?,?)";
 
                 preparedStatement = dbConnection.prepareStatement(
                         sqlStatement);
@@ -105,7 +103,7 @@ public class OrderDAO {
                 preparedStatement.execute();
 
             } else { //Automatische Berechnung der Bestellnummer
-                sqlStatement = "INSERT INTO orders (orderTime, adressID, weight, orderStatus, droneID) VALUES (?,?,?,?,?)";
+                sqlStatement = "INSERT INTO orders (orderTime, locationId, weight, orderStatus, orderStopId) VALUES (?,?,?,?,?)";
                 preparedStatement = dbConnection.prepareStatement(
                         sqlStatement, Statement.RETURN_GENERATED_KEYS);
 

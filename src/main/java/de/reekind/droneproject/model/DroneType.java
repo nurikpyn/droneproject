@@ -15,6 +15,7 @@ public class DroneType {
     private float maxSpeed;
     static int WEIGHT_INDEX = 0; //static final
     static int RANGE_INDEX = 1;
+    static int PACKAGE_INDEX = 2;
 
     public DroneType(){}
 
@@ -94,6 +95,8 @@ public class DroneType {
         VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance(Integer.toString(this.droneTypeId));
         vehicleTypeBuilder.addCapacityDimension(WEIGHT_INDEX, (int) this.maxWeight);
         vehicleTypeBuilder.addCapacityDimension(RANGE_INDEX, (int) this.maxRange);
+        vehicleTypeBuilder.addCapacityDimension(PACKAGE_INDEX, (int) this.maxPackageCount);
+
         vehicleTypeBuilder.setCostPerDistance(1000);
         vehicleTypeBuilder.setMaxVelocity(kmhToMs(maxSpeed));
         return vehicleTypeBuilder.build();

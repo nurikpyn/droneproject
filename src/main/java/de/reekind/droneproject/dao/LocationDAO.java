@@ -22,15 +22,15 @@ public class LocationDAO {
         try
         {
             Statement stmt = dbConnection.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT adresses.adressID " +
-                    ", adresses.adress, adresses.latitude" +
-                    ", adresses.longitude " +
-                    "FROM adresses " +
-                    "ORDER BY adressID ASC");
+            ResultSet rs = stmt.executeQuery("SELECT locations.locationId " +
+                    ", locations.name, locations.latitude" +
+                    ", locations.longitude " +
+                    "FROM locations " +
+                    "ORDER BY locationId ASC");
 
             //Füge einzelne Orte in DAO/Map ein
             while (rs.next()) {
-                Location location = new Location(rs.getInt("adressID"), rs.getString("adress")
+                Location location = new Location(rs.getInt("locationId"), rs.getString("name")
                         , rs.getDouble("latitude"), rs.getDouble("longitude"));
                 locationMap.put(location.locationId, location);
             }
@@ -55,7 +55,7 @@ public class LocationDAO {
 
             if (location.locationId != 0) {
 
-                sqlStatement = "INSERT INTO adresses (adressID, adress, latitude, longitude) VALUES (?,?,?,?)";
+                sqlStatement = "INSERT INTO locations (locationId, name, latitude, longitude) VALUES (?,?,?,?)";
 
                 preparedStatement = dbConnection.prepareStatement(
                         sqlStatement);
@@ -65,7 +65,7 @@ public class LocationDAO {
                 preparedStatement.setDouble(4,location.longitude);
                 preparedStatement.execute();
             } else { //Automatische Berechnung der AdressId
-                sqlStatement = "INSERT INTO adresses (adress, latitude, longitude) VALUES (?,?,?)";
+                sqlStatement = "INSERT INTO locations (name, latitude, longitude) VALUES (?,?,?)";
                 preparedStatement = dbConnection.prepareStatement(
                         sqlStatement, Statement.RETURN_GENERATED_KEYS);
                 preparedStatement.setString(1,location.getName());

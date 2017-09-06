@@ -1,5 +1,7 @@
 package de.reekind.droneproject.model;
 
+import com.graphhopper.jsprit.core.problem.vehicle.Vehicle;
+import com.graphhopper.jsprit.core.problem.vehicle.VehicleImpl;
 import de.reekind.droneproject.model.enumeration.DroneStatus;
 
 import javax.xml.bind.annotation.*;
@@ -95,5 +97,12 @@ public class Drone {
 
     public void setUptime(int uptime) {
         this.uptime = uptime;
+    }
+
+    public VehicleImpl toJspritVehicle() {
+        VehicleImpl.Builder vehicleBuilder = VehicleImpl.Builder.newInstance(Integer.toString(droneId));
+        vehicleBuilder.setStartLocation(depot.getLocation().toJspritLocation());
+        vehicleBuilder.setType(droneType.toJspritVehicleType());
+        return vehicleBuilder.build();
     }
 }

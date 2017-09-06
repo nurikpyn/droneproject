@@ -19,15 +19,15 @@ public class DepotDAO {
         ResultSet resultSet;
         List<DroneType> list = new ArrayList<>();
         try {
-            stmt = dbConnection.prepareStatement("SELECT depots.depotID, depots.name, depots.latitude, depots.longitude " +
+            stmt = dbConnection.prepareStatement("SELECT depots.depotId, depots.depotName, depots.latitude, depots.longitude " +
                     "FROM depots " +
                     "WHERE depots.depotID =  ?");
             stmt.setInt(1,depotId);
             resultSet = stmt.executeQuery();
             if (resultSet.first()) {
                 depot = new Depot(
-                        resultSet.getInt("depotID")
-                        , resultSet.getString("name")
+                        resultSet.getInt("depotId")
+                        , resultSet.getString("depotName")
                         ,new de.reekind.droneproject.model.Location(
                         resultSet.getFloat("latitude")
                         ,resultSet.getInt("longitude")));
@@ -44,15 +44,15 @@ public class DepotDAO {
         List<Depot> list = new ArrayList<>();
         try {
             stmt = dbConnection.createStatement();
-            resultSet = stmt.executeQuery("SELECT depots.depotID, depots.name, depots.latitude, depots.longitude " +
+            resultSet = stmt.executeQuery("SELECT depots.depotId, depots.depotName, depots.latitude, depots.longitude " +
                     "FROM depots " +
-                    "LEFT JOIN drones ON depots.depotID = drones.droneDepotID " +
-                    "WHERE drones.droneDepotID IS NOT NULL " +
-                    "GROUP BY drones.droneDepotID");
+                    "LEFT JOIN drones ON depots.depotId = drones.droneDepotId " +
+                    "WHERE drones.droneDepotId IS NOT NULL " +
+                    "GROUP BY drones.droneDepotId");
             while (resultSet.next()) {
                 Depot depot = new Depot(
-                        resultSet.getInt("depotID")
-                        , resultSet.getString("name")
+                        resultSet.getInt("depotId")
+                        , resultSet.getString("depotName")
                         ,new de.reekind.droneproject.model.Location(
                         resultSet.getFloat("latitude")
                         ,resultSet.getInt("longitude"))

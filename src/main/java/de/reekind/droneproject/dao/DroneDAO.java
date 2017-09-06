@@ -19,9 +19,9 @@ public class DroneDAO {
     private static void init() {
         try
         {
-            Statement stmt = dbConnection.createStatement();;
+            Statement stmt = dbConnection.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT droneId, droneName" +
-                    ", droneTypeID, droneStatus, droneDepotID " +
+                    ", droneTypeId, droneStatus, droneDepotId " +
                     "FROM drones");
 
             while (rs.next()) {
@@ -46,7 +46,7 @@ public class DroneDAO {
 
     public static Drone addDrone(Drone drone) {
         try {
-            PreparedStatement statement = dbConnection.prepareStatement("INSERT INTO drones (droneTypeID, droneStatus, droneDepotID, droneName) " +
+            PreparedStatement statement = dbConnection.prepareStatement("INSERT INTO drones (droneTypeId, droneStatus, droneDepotId, droneName) " +
                     "VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             if (drone.getDroneType() != null)
                 statement.setInt(1,drone.getDroneType().getDroneTypeId());

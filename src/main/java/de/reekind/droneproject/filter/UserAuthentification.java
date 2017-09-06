@@ -1,5 +1,7 @@
 package de.reekind.droneproject.filter;
 
+import de.reekind.droneproject.service.UserService;
+
 import java.io.IOException;
 import java.sql.*;
 import java.util.Base64;
@@ -35,7 +37,8 @@ public class UserAuthentification {
         final String password = tokenizer.nextToken();
 
         //return username.equals("info@reekind.de");
-        return AuthenticateUser(username, password);
+        UserService userService = new UserService();
+        return (userService.authenticate(username,password).getStatus() == 200);
     }
 
     /**

@@ -1,4 +1,6 @@
 package de.reekind.droneproject.filter;
+import de.reekind.droneproject.service.UserService;
+
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,7 +21,6 @@ public class AuthentificationFilter implements Filter {
                     .getHeader(AUTHENTICATION_HEADER);
 
             UserAuthentification authenticationService = new UserAuthentification();
-
             boolean authenticationStatus = authenticationService
                     .authenticate(authCredentials);
 
