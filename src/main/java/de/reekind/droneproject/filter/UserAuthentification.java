@@ -11,7 +11,6 @@ import java.util.StringTokenizer;
  * Created by timbe on 11.08.2017.
  */
 public class UserAuthentification {
-    Connection conn;
     public boolean authenticate(String authCredentials) {
 
         if (null == authCredentials)
@@ -36,20 +35,18 @@ public class UserAuthentification {
         final String username = tokenizer.nextToken();
         final String password = tokenizer.nextToken();
 
-        //return username.equals("info@reekind.de");
-        UserService userService = new UserService();
-        return (userService.authenticate(username,password).getStatus() == 200);
+        return (AuthenticateUser(username, password));
     }
 
     /**
      * Authenticates User against DB
-     * @param email emailaderess
+     * @param username username
      * @param password password
      * @return true if authorized
      */
-    public boolean AuthenticateUser(String email, String password) {
+    public boolean AuthenticateUser(String username, String password) {
 
-        return (email.equals("test")  && password.equals("test"));
+        return (username.equals("admin")  && password.equals("testpw4admin#"));
 
     }
 }
