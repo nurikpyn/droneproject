@@ -76,13 +76,37 @@ public class DroneDAO {
     }
 
     public static Drone updateDrone(Drone drone) {
+        try {
+            PreparedStatement statement = dbConnection.prepareStatement("UPDATE drones SET droneTypeId = ?, droneStatus = ?, droneDepotId = ?, droneName = ? " +
+                    "WHERE droneId = ?");
+            if (drone.getDroneType() != null)
+                statement.setInt(1,drone.getDroneType().getDroneTypeId());
+            else
+                statement.setInt(1,0);
+            statement.setInt(2,drone.getDroneStatus().GetID());
+            if (drone.getDepot() != null)
+                statement.setInt(3,drone.getDepot().getDepotID());
+            else
+                statement.setInt(3,0);
+            statement.setString(4,drone.getDroneName());
+            statement.setInt(5,drone.getDroneId());
+            statement.execute();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
         droneMap.put(drone.getDroneId(), drone);
-        //TODO Schreibe  Drohne in DB
         return drone;
     }
 
     public static void deleteDrone(Integer droneId) {
-        //TODO Lösche Drohne in DB
+        try {
+            PreparedStatement statement = dbConnection.prepareStatement("DELETE FROM drones WHERE droneId = ?");
+            statement.setInt(1,droneId);
+            statement.execute();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
         droneMap.remove(droneId);
     }
 

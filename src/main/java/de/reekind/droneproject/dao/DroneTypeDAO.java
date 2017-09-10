@@ -15,7 +15,7 @@ public class DroneTypeDAO {
 
     public static DroneType getDroneType(Integer droneTypeId) {
         DroneType droneType = null;
-        PreparedStatement stmt = null;
+        PreparedStatement stmt;
         ResultSet resultSet;
         List<DroneType> list = new ArrayList<>();
         try {
@@ -41,7 +41,7 @@ public class DroneTypeDAO {
     }
 
     public static List<DroneType> getAllDroneTypes() {
-        Statement stmt = null;
+        Statement stmt;
         ResultSet resultSet;
         List<DroneType> list = new ArrayList<>();
         try {

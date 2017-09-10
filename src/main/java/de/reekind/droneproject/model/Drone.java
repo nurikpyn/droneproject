@@ -1,6 +1,5 @@
 package de.reekind.droneproject.model;
 
-import com.graphhopper.jsprit.core.problem.vehicle.Vehicle;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleImpl;
 import de.reekind.droneproject.model.enumeration.DroneStatus;
 

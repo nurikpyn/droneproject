@@ -1,9 +1,6 @@
 package de.reekind.droneproject.filter;
 
-import de.reekind.droneproject.service.UserService;
-
 import java.io.IOException;
-import java.sql.*;
 import java.util.Base64;
 import java.util.StringTokenizer;
 

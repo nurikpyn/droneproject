@@ -93,9 +93,9 @@ public class DroneType {
 
     public VehicleType toJspritVehicleType() {
         VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance(Integer.toString(this.droneTypeId));
-        vehicleTypeBuilder.addCapacityDimension(WEIGHT_INDEX, (int) this.maxWeight);
+        vehicleTypeBuilder.addCapacityDimension(WEIGHT_INDEX, this.maxWeight);
         vehicleTypeBuilder.addCapacityDimension(RANGE_INDEX, (int) this.maxRange);
-        vehicleTypeBuilder.addCapacityDimension(PACKAGE_INDEX, (int) this.maxPackageCount);
+        vehicleTypeBuilder.addCapacityDimension(PACKAGE_INDEX, this.maxPackageCount);
 
         vehicleTypeBuilder.setCostPerDistance(1000);
         vehicleTypeBuilder.setMaxVelocity(kmhToMs(maxSpeed));

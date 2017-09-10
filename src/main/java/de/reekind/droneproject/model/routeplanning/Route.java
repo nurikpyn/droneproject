@@ -1,7 +1,6 @@
 package de.reekind.droneproject.model.routeplanning;
 
 import de.reekind.droneproject.model.Drone;
-import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 

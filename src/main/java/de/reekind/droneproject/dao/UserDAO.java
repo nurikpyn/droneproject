@@ -2,7 +2,6 @@ package de.reekind.droneproject.dao;
 
 import de.reekind.droneproject.DbUtil;
 import de.reekind.droneproject.model.User;
-import de.reekind.droneproject.model.UserRole;
 
 import java.sql.*;
 import java.util.*;

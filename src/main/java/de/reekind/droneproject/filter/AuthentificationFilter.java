@@ -1,5 +1,4 @@
 package de.reekind.droneproject.filter;
-import de.reekind.droneproject.service.UserService;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;

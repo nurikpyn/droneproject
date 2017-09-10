@@ -5,81 +5,7 @@ GRANT ALL PRIVILEGES ON `reekind\_dronepr`.* TO 'reekind_dronepr'@'%';
 
 
 
-DROP TABLE IF EXISTS orders;
-CREATE TABLE orders (
-  orderID INT NOT NULL AUTO_INCREMENT
-  , orderTime DATETIME NOT NULL
-  , adressID INT NOT NULL
-  , weight INT NOT NULL
-  , orderStatus INT NOT NULL
-  , droneID INT
-  , PRIMARY KEY (orderID)
-);
-
-DROP TABLE IF EXISTS adresses;
-CREATE TABLE adresses (
-  adressID INT NOT NULL AUTO_INCREMENT
-  , adress char NOT NULL
-  , latitude DOUBLE (9,6)
-  , longitude DOUBLE (9,6)
-  , PRIMARY KEY (adressID)
-);
-
-INSERT INTO `adresses` (`adressID`, `adress`, `latitude`, `longitude`) VALUES
-  (1, 'Strete', 50.309861, -3.629856),
-  (2, 'Thurlestone', 50.270653, -3.862912);
-
-DROP TABLE IF EXISTS drones;
-CREATE TABLE drones (
-  droneID INT NOT NULL AUTO_INCREMENT
-  , droneTypeID INT NOT NULL
-  , droneStatus INT NOT NULL
-  , droneDepotID INT NOT NULL
-  , PRIMARY KEY (droneID)
-);
-
-INSERT INTO `drones` (`droneID`, `droneTypeID`, `droneStatus`, `droneDepotID`) VALUES
-  (1, 1, 0, 1),
-  (2, 1, 0, 1),
-  (3, 1, 0, 1),
-  (4, 1, 0, 1);
-
-DROP TABLE IF EXISTS dronetypes;
-CREATE TABLE dronetypes (
-  droneTypeID INT NOT NULL AUTO_INCREMENT
-  , maxWeightInGrams INT NOT NULL
-  , maxPackageCount INT NOT NULL
-  , maxRange FLOAT NOT NULL
-  , PRIMARY KEY (droneTypeID)
-);
-
-INSERT INTO `dronetypes` (`droneTypeID`,  `maxWeightInGrams`,`maxPackageCount`, `maxRange`) VALUES
-  (1, 4000, 4, 60);
-
-
-DROP TABLE IF EXISTS users;
--- auto-generated definition
-create table users
-(
-  userID int auto_increment
-    primary key,
-  email varchar(250) not null,
-  passwordHash varchar(250) not null,
-  userType int not null
-);
-
-DROP TABLE IF EXISTS depots;
-CREATE TABLE `depots` (
-  `depotID` int(11) NOT NULL,
-  `name` varchar(150) NOT NULL,
-  `latitude` double(9,6) NOT NULL,
-  `longitude` double(9,6) NOT NULL,
-  PRIMARY KEY(depotID)
-);
-
-INSERT INTO `depots` (`depotID`, `name`, `latitude`, `longitude`) VALUES
-(1, 'Salcombe', 50.237000, -3.782000);
-
+DROP TABLE IF EXISTS orderHistory;
 CREATE TABLE orderHistory (
   orderHistoryId INT NOT NULL,
   orderId INT NOT NULL,
@@ -87,3 +13,118 @@ CREATE TABLE orderHistory (
   orderHistoryType INT NOT NULL,
   PRIMARY KEY(orderHistoryId)
 );
+
+DROP TABLE IF EXISTS depots;
+create table depots
+(
+  depotId int auto_increment
+    primary key,
+  depotName varchar(150) not null,
+  latitude double(9,6) not null,
+  longitude double(9,6) not null
+)
+;
+DROP TABLE IF EXISTS drones;
+create table drones
+(
+  droneId int auto_increment
+    primary key,
+  droneTypeId int not null,
+  droneStatus int not null,
+  droneDepotId int not null,
+  droneName varchar(150) null
+)
+;
+DROP TABLE IF EXISTS dronetypes;
+create table dronetypes
+(
+  droneTypeId int auto_increment
+    primary key,
+  maxWeight float not null,
+  maxPackageCount int not null,
+  maxRange float not null,
+  maxWeightInGrams int not null,
+  droneTypeName varchar(150) null,
+  speed int null
+)
+;
+DROP TABLE IF EXISTS locations;
+create table locations
+(
+  locationId int auto_increment
+    primary key,
+  name varchar(250) null,
+  latitude double(9,6) null,
+  longitude double(9,6) null
+)
+;
+DROP TABLE IF EXISTS orders;
+create table orders
+(
+  orderId int auto_increment
+    primary key,
+  orderTime datetime default CURRENT_TIMESTAMP not null,
+  adressId int null,
+  orderStatus int not null,
+  orderStopId int null,
+  weight int null
+)
+;
+DROP TABLE IF EXISTS routes;
+create table routes
+(
+  routeID int auto_increment
+    primary key,
+  creationTime timestamp default CURRENT_TIMESTAMP not null,
+  startTime timestamp default '0000-00-00 00:00:00' not null,
+  endTime timestamp default '0000-00-00 00:00:00' not null,
+  droneID int not null
+)
+;
+DROP TABLE IF EXISTS routestops;
+create table routestops
+(
+  routeStopId int auto_increment
+    primary key,
+  routeId int not null,
+  locationId int not null
+)
+;
+DROP TABLE IF EXISTS sample_orders;
+create table sample_orders
+(
+  orderTime datetime null,
+  deliveryPlace varchar(250) null,
+  weight float null
+)
+  comment 'Beispieltabelle'
+;
+DROP TABLE IF EXISTS status;
+create table status
+(
+  statusId int auto_increment
+    primary key,
+  type varchar(150) not null,
+  typeStatusId int null,
+  typeStatusValue varchar(250) null
+)
+;
+DROP TABLE IF EXISTS userroles;
+create table userroles
+(
+  userRoleId int auto_increment
+    primary key,
+  userRoleName varchar(150) null
+)
+;
+DROP TABLE IF EXISTS users;
+create table users
+(
+  userId int auto_increment
+    primary key,
+  name varchar(250) not null,
+  password varchar(250) not null,
+  userRoleId int not null
+)
+;
+
