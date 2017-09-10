@@ -4,7 +4,8 @@ import de.reekind.droneproject.DbUtil;
 import de.reekind.droneproject.model.User;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAO {
     private static Connection dbConnection;

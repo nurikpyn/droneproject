@@ -1,8 +1,11 @@
 package de.reekind.droneproject.model;
 
-import com.graphhopper.jsprit.core.problem.vehicle.*;
+import com.graphhopper.jsprit.core.problem.vehicle.VehicleType;
+import com.graphhopper.jsprit.core.problem.vehicle.VehicleTypeImpl;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -29,9 +32,6 @@ public class DroneType {
         this.maxWeight = _maxWeight;
         this.maxPackageCount = _maxPackageCount;
         this.maxRange = _maxRange;
-
-        // TODO: create vehicleTypes here, edit dimensions
-
     }
     public DroneType(int _droneTypeId, String _droneTypeName, int _maxWeight, int _maxPackageCount, float _maxRange, int _maxSpeed) {
         this.droneTypeId = _droneTypeId;

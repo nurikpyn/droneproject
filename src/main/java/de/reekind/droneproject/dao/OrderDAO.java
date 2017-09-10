@@ -1,7 +1,8 @@
 package de.reekind.droneproject.dao;
 
 import de.reekind.droneproject.DbUtil;
-import de.reekind.droneproject.model.*;
+import de.reekind.droneproject.model.Location;
+import de.reekind.droneproject.model.Order;
 import de.reekind.droneproject.model.enumeration.OrderStatus;
 
 import java.sql.*;
@@ -171,7 +172,7 @@ public class OrderDAO {
 
     /**
      * Lade alle bestehenden Bestellungen
-     * @return List<Orders> mit allen Bestellungen
+     * @return List<Order> mit allen Bestellungen
      */
     public static List<Order> getAllOrders() {
         Collection<Order> c = orderMap.values();

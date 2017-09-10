@@ -7,12 +7,13 @@ import com.graphhopper.jsprit.core.problem.job.Service;
 import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolution;
 import com.graphhopper.jsprit.core.problem.vehicle.Vehicle;
 import com.graphhopper.jsprit.core.reporting.SolutionPrinter;
-import com.graphhopper.jsprit.core.util.*;
+import com.graphhopper.jsprit.core.util.Solutions;
+import com.graphhopper.jsprit.core.util.VehicleRoutingTransportCostsMatrix;
 import de.reekind.droneproject.DbUtil;
 import de.reekind.droneproject.dao.DroneDAO;
 import de.reekind.droneproject.dao.OrderDAO;
 
-import java.sql.*;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 

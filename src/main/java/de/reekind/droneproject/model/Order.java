@@ -3,7 +3,9 @@ package de.reekind.droneproject.model;
 import com.graphhopper.jsprit.core.problem.job.Service;
 import de.reekind.droneproject.model.enumeration.OrderStatus;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.concurrent.TimeUnit;

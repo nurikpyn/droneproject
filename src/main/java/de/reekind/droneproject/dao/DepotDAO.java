@@ -1,10 +1,12 @@
 package de.reekind.droneproject.dao;
 
 import de.reekind.droneproject.DbUtil;
-import de.reekind.droneproject.model.*;
+import de.reekind.droneproject.model.Depot;
+import de.reekind.droneproject.model.DroneType;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DepotDAO {
     private static Connection dbConnection;

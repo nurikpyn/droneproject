@@ -9,7 +9,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 
-@Path("/users")
+@Path("/rest/users")
 public class UserService {
 
     @Path("/authenticate")

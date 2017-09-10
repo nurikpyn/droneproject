@@ -8,7 +8,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 
-@Path("/orders")
+@Path("/rest/orders")
 public class OrderService {
 
     @GET

@@ -1,7 +1,9 @@
 package de.reekind.droneproject.dao;
 
 import de.reekind.droneproject.DbUtil;
-import de.reekind.droneproject.model.*;
+import de.reekind.droneproject.model.Depot;
+import de.reekind.droneproject.model.Drone;
+import de.reekind.droneproject.model.DroneType;
 
 import java.sql.*;
 import java.util.*;
