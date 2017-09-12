@@ -46,33 +46,29 @@ public class DroneDAO {
         return droneMap.get(droneId);
     }
 
-    public static Drone addDrone(Drone drone) {
-        try {
-            PreparedStatement statement = dbConnection.prepareStatement("INSERT INTO drones (droneTypeId, droneStatus, droneDepotId, droneName) " +
-                    "VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
-            if (drone.getDroneType() != null)
-                statement.setInt(1,drone.getDroneType().getDroneTypeId());
-            else
-                statement.setInt(1,0);
-            statement.setInt(2,drone.getDroneStatus().GetID());
-            if (drone.getDepot() != null)
-                statement.setInt(3,drone.getDepot().getDepotID());
-            else
-                statement.setInt(3,0);
-            statement.setString(4,drone.getDroneName());
+    public static Drone addDrone(Drone drone) throws SQLException {
+        PreparedStatement statement = dbConnection.prepareStatement("INSERT INTO drones (droneTypeId, droneStatus, droneDepotId, droneName) " +
+                "VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+        if (drone.getDroneType() != null)
+            statement.setInt(1,drone.getDroneType().getDroneTypeId());
+        else
+            statement.setInt(1,0);
+        statement.setInt(2,drone.getDroneStatus().GetID());
+        if (drone.getDepot() != null)
+            statement.setInt(3,drone.getDepot().getDepotID());
+        else
+            statement.setInt(3,0);
+        statement.setString(4,drone.getDroneName());
 
-            statement.execute();
-                ResultSet generatedKeys = statement.getGeneratedKeys();
-                if (generatedKeys.first()) {
-                    int generatedKey =  generatedKeys.getInt(1);
-                    drone.setDroneId(generatedKey);
-                }
-                else {
-                    throw new SQLException("Creating drone failed, no ID obtained.");
-                }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+        statement.execute();
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.first()) {
+                int generatedKey =  generatedKeys.getInt(1);
+                drone.setDroneId(generatedKey);
+            }
+            else {
+                throw new SQLException("Creating drone failed, no ID obtained.");
+            }
         droneMap.put(drone.getDroneId(), drone);
         return drone;
     }

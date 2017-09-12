@@ -30,7 +30,7 @@ public class ProblemSolverHelper {
                     route.EndTime = jspritRoute.getEnd().getEndTime();
                     jspritRoute.getActivities().forEach((TourActivity activity) -> {
                         RouteStop stop = new RouteStop();
-                        stop.Orders.add(OrderDAO.getOrder(Integer.parseInt(activity.getName())));
+                        stop.Orders.add(OrderDAO.getOrder(334));
                         stop.ArrivalTime = activity.getArrTime();
                         route.RouteStops.add(stop);
                     });

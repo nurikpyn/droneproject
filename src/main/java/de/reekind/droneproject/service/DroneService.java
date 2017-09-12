@@ -5,6 +5,8 @@ import de.reekind.droneproject.model.Drone;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.sql.SQLException;
 import java.util.List;
 
 
@@ -26,8 +28,12 @@ public class DroneService {
 
     @POST
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    public Drone addDrone(Drone drone) {
-        return DroneDAO.addDrone(drone);
+    public Response addDrone(Drone drone) {
+        try {
+            return Response.ok(DroneDAO.addDrone(drone)).build();
+        } catch (SQLException ex) {
+            return  Response.serverError().entity(ex.getMessage()).build();
+        }
     }
 
     @PUT
