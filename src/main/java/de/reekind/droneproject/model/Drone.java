@@ -60,6 +60,16 @@ public class Drone {
         this.droneStatus = droneStatus;
     }
 
+    public void updateDroneStatus(DroneStatus droneStatus)
+    {
+        if (droneStatus == DroneStatus.GetValue(0))
+        {
+            setDroneStatus(droneStatus);
+            RouteCalculator routeCalc = new RouteCalculator();
+            routeCalc.calculateRoute();
+        }
+    }
+
     public DroneType getDroneType() {
         return droneType;
     }

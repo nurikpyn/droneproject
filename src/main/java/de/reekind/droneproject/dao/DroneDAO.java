@@ -4,6 +4,7 @@ import de.reekind.droneproject.DbUtil;
 import de.reekind.droneproject.model.Depot;
 import de.reekind.droneproject.model.Drone;
 import de.reekind.droneproject.model.DroneType;
+import de.reekind.droneproject.model.enumeration.DroneStatus;
 
 import java.sql.*;
 import java.util.*;

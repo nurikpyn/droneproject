@@ -98,6 +98,7 @@ public class DroneType {
         vehicleTypeBuilder.addCapacityDimension(PACKAGE_INDEX, this.maxPackageCount);
 
         vehicleTypeBuilder.setCostPerDistance(1000);
+        vehicleTypeBuilder.setFixedCost(0);
         vehicleTypeBuilder.setMaxVelocity(kmhToMs(maxSpeed));
         return vehicleTypeBuilder.build();
     }

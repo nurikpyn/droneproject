@@ -6,7 +6,12 @@ import de.reekind.droneproject.model.enumeration.OrderStatus;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.temporal.Temporal;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -102,6 +107,17 @@ public class Order {
         servBuilder.addSizeDimension(DroneType.WEIGHT_INDEX, weight);
         servBuilder.addSizeDimension(DroneType.PACKAGE_INDEX, 1);
         servBuilder.setLocation(location.toJspritLocation());
+        // Get time difference between order and now. Used for priority!
+        Duration differenceDuration = Duration.between(orderTime.toInstant(), java.time.Instant.now());
+        if (differenceDuration.toMillis() > Duration.ofHours(1).toMillis())
+        {
+            // priority values from 1 to 10 are allowed where 1 = high and 10 is low
+            servBuilder.setPriority(1);
+        }
+        else
+        {
+            servBuilder.setPriority(2);
+        }
         return servBuilder.build();
     }
 }

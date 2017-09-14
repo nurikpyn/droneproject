@@ -44,6 +44,54 @@ public class OrderDAO {
         }
     }
 
+    private static void reloadOrders() {
+        try
+        {
+            Statement stmt = dbConnection.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT orderId, orderTime," +
+                    " weight, orderStatus, orderStopId, locationId " +
+                    "FROM orders " +
+                    "ORDER BY orderId ASC");
+
+            //Füge einzelne Bestellungen in DAO/Map ein
+            while (rs.next()) {
+                // If order is not in the ordermap, create new order
+                if(!orderMap.containsKey(rs.getInt("orderId")))
+                {
+                    Order order = new Order(
+                            rs.getInt("orderId")
+                            , rs.getTimestamp("orderTime")
+                            , LocationDAO.getLocation(rs.getInt("locationId"))
+                            , rs.getInt("weight")
+                            , rs.getInt("orderStatus"));
+                    orderMap.put(order.getOrderId(), order);
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
+    private static int countOrders()
+    {
+        int amountOfOrders = -1;
+        try
+        {
+            Statement stmt = dbConnection.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT count(orderId)" +
+                    "FROM orders ");
+
+            // Only one line available
+            while (rs.next()) {
+                amountOfOrders = rs.getInt("orderId");
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return amountOfOrders;
+    }
+
     /**
      * Gebe Bestellung mit angegebener OrderId zurück
      * @param orderId Bestellnummer
