@@ -4,6 +4,8 @@ import de.reekind.droneproject.DbUtil;
 import de.reekind.droneproject.model.Location;
 import de.reekind.droneproject.model.Order;
 import de.reekind.droneproject.model.enumeration.OrderStatus;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.*;
@@ -12,6 +14,8 @@ public class OrderDAO {
 
     private static final Map<Integer, Order> orderMap = new HashMap<>();
     private static Connection dbConnection;
+    final static Logger _log = LogManager.getLogger();
+
     static {
         dbConnection = DbUtil.getConnection();
         initOrders();
@@ -21,6 +25,7 @@ public class OrderDAO {
      * Lade Bestellungen beim Start der Applikation
      */
     private static void initOrders() {
+        _log.debug("Lade Bestellungen aus Datenbank");
         try
         {
             Statement stmt = dbConnection.createStatement();
@@ -40,7 +45,7 @@ public class OrderDAO {
                 orderMap.put(order.getOrderId(), order);
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            _log.error(ex);
         }
     }
 

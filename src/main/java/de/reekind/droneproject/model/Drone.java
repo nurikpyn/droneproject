@@ -6,6 +6,8 @@ import de.reekind.droneproject.model.enumeration.DroneStatus;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -36,6 +38,21 @@ public class Drone {
 
     public Location getLocation() {
         return location;
+    }
+
+    public void StartDrone(int routeId) {
+        //Setze Drohnenstatus
+        //Location berechnen falls gefragt
+        //Wenn zeit von start dauer bis zum abladen: bestellstatus ändern
+        //5 min vor Ende calculator anwerfen
+        int MINUTES = 10; // The delay in minutes
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() { // Function runs every MINUTES minutes.
+                // Run the code you want here - has to be static
+            }
+        }, 0, 1000 * 60 * MINUTES);
     }
 
     public void setLocation(Location location) {

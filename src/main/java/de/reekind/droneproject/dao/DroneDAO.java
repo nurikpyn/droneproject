@@ -5,6 +5,8 @@ import de.reekind.droneproject.model.Depot;
 import de.reekind.droneproject.model.Drone;
 import de.reekind.droneproject.model.DroneType;
 import de.reekind.droneproject.model.enumeration.DroneStatus;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.*;
@@ -13,6 +15,7 @@ public class DroneDAO {
 
     private static final Map<Integer, Drone> droneMap = new HashMap<>();
     private static Connection dbConnection;
+    final static Logger _log = LogManager.getLogger();
 
     static {
         dbConnection = DbUtil.getConnection();
@@ -20,6 +23,7 @@ public class DroneDAO {
     }
 
     private static void init() {
+        _log.info("Lade Drohnen aus Datenbank");
         try
         {
             Statement stmt = dbConnection.createStatement();
@@ -39,7 +43,7 @@ public class DroneDAO {
                 droneMap.put(drone.getDroneId(), drone);
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            _log.error(ex);
         }
     }
 
@@ -53,12 +57,12 @@ public class DroneDAO {
         if (drone.getDroneType() != null)
             statement.setInt(1,drone.getDroneType().getDroneTypeId());
         else
-            statement.setInt(1,0);
+            statement.setInt(1,1);
         statement.setInt(2,drone.getDroneStatus().GetID());
         if (drone.getDepot() != null)
             statement.setInt(3,drone.getDepot().getDepotID());
         else
-            statement.setInt(3,0);
+            statement.setInt(3,1);
         statement.setString(4,drone.getDroneName());
 
         statement.execute();
@@ -91,7 +95,7 @@ public class DroneDAO {
             statement.setInt(5,drone.getDroneId());
             statement.execute();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            _log.error(ex);
         }
 
         droneMap.put(drone.getDroneId(), drone);
@@ -104,7 +108,7 @@ public class DroneDAO {
             statement.setInt(1,droneId);
             statement.execute();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            _log.error(ex);
         }
         droneMap.remove(droneId);
     }

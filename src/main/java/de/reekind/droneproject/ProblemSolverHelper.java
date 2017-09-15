@@ -9,6 +9,8 @@ import de.reekind.droneproject.model.RouteCalculator;
 import de.reekind.droneproject.model.routeplanning.DeliveryPlan;
 import de.reekind.droneproject.model.routeplanning.Route;
 import de.reekind.droneproject.model.routeplanning.RouteStop;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
@@ -17,6 +19,7 @@ import java.io.IOException;
  * Created by timbe on 12.08.2017.
  */
 public class ProblemSolverHelper {
+    final static Logger _log = LogManager.getLogger(ProblemSolverHelper.class);
 
     public static void main(String[] args) {
         RouteCalculator calculator = new RouteCalculator();
@@ -45,7 +48,7 @@ public class ProblemSolverHelper {
         try {
             System.out.println(mapper.writeValueAsString(plan));
         } catch (IOException e) {
-            e.printStackTrace();
+            _log.error(e);
         }
     }
 }
