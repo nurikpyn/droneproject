@@ -17,7 +17,8 @@ public class Drone {
     private String droneName = "";
     private DroneType droneType;
     private DroneStatus droneStatus = DroneStatus.Bereit;
-    private Location location;
+    private Double latitude;
+    private Double longitude;
     private Depot depot;
     private float speed = 60;
     private int uptime = 20;
@@ -32,12 +33,10 @@ public class Drone {
         this.droneType = _droneType;
         this.droneStatus = DroneStatus.GetValue(_droneStatus);
         this.depot = _droneDepot;
-        if (this.depot != null)
-            this.location = _droneDepot.getLocation();
-    }
-
-    public Location getLocation() {
-        return location;
+        if (this.depot != null) {
+            this.latitude = depot.getLocation().latitude;
+            this.longitude = depot.getLocation().longitude;
+        }
     }
 
     public void StartDrone(int routeId) {
@@ -55,10 +54,6 @@ public class Drone {
         }, 0, 1000 * 60 * MINUTES);
     }
 
-    public void setLocation(Location location) {
-        this.location = location;
-        //TODO Set Location in DB (only on shutdown?)
-    }
 
     public int getDroneId() {
         return droneId;
@@ -101,6 +96,10 @@ public class Drone {
 
     public void setDepot(Depot depot) {
         this.depot = depot;
+        if (this.depot != null) {
+            this.latitude = depot.getLocation().latitude;
+            this.longitude = depot.getLocation().longitude;
+        }
     }
 
     public String getDroneName() {
@@ -132,5 +131,21 @@ public class Drone {
         vehicleBuilder.setStartLocation(depot.getLocation().toJspritLocation());
         vehicleBuilder.setType(droneType.toJspritVehicleType());
         return vehicleBuilder.build();
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 }

@@ -4,6 +4,8 @@ import de.reekind.droneproject.DbUtil;
 import de.reekind.droneproject.model.enumeration.RouteStatus;
 import de.reekind.droneproject.model.routeplanning.Route;
 import de.reekind.droneproject.model.routeplanning.RouteStop;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -11,6 +13,7 @@ import java.util.List;
 
 public class RouteDAO {
     private static Connection dbConnection;
+    final static Logger _log = LogManager.getLogger();
     static {
         dbConnection = DbUtil.getConnection();
     }
@@ -44,6 +47,7 @@ public class RouteDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            _log.error(e);
         }
         return list;
     }
@@ -78,6 +82,52 @@ public class RouteDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        return route;
+    }
+
+    public static Route addRoute(Route route) {
+        if(route != null) {
+            try {
+                PreparedStatement statement = dbConnection.prepareStatement(
+                        "INSERT INTO routes (startTime, endTime, droneID, routeStatus) VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                statement.setDouble(1,route.StartTime);
+                statement.setDouble(2,route.EndTime);
+                statement.setInt(3,route.Drone.getDroneId());
+                statement.setInt(4,route.getRouteStatus().GetID());
+                statement.execute();
+
+                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        route.RouteId =  generatedKeys.getInt(1);
+                    }
+                    else {
+                        throw new SQLException("Creating order failed, no ID obtained.");
+                    }
+                }
+                for (RouteStop routeStop : route.RouteStops){
+                    PreparedStatement routeStopsStatement = dbConnection.prepareStatement(
+                            "INSERT INTO routestops (routeId, locationId) VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
+                    routeStopsStatement.setInt(1,route.RouteId);
+                    if (routeStop.Location != null)
+                        routeStopsStatement.setInt(2,routeStop.Location.locationId);
+                    else
+                        routeStopsStatement.setInt(2,0);
+                    routeStopsStatement.execute();
+
+                    try (ResultSet generatedKeys = routeStopsStatement.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            routeStop.setRouteStopId(generatedKeys.getInt(1));
+                        }
+                        else {
+                            throw new SQLException("Creating order failed, no ID obtained.");
+                        }
+                    }
+                }
+            }
+            catch (SQLException ex) {
+                _log.error(ex);
+            }
         }
         return route;
     }

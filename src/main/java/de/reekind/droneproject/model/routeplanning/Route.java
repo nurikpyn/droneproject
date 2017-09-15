@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class Route {
     public Integer RouteId;
     public Drone Drone;
-    private RouteStatus routeStatus;
+    private RouteStatus routeStatus = RouteStatus.Geplant;
     public double StartTime;
     public double EndTime;
     public ArrayList<RouteStop> RouteStops = new ArrayList<>();

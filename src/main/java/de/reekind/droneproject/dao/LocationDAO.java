@@ -1,7 +1,11 @@
 package de.reekind.droneproject.dao;
 
+import com.graphhopper.jsprit.core.util.Coordinate;
 import de.reekind.droneproject.DbUtil;
 import de.reekind.droneproject.model.Location;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.HashMap;
@@ -10,6 +14,7 @@ import java.util.Map;
 public class LocationDAO {
     private static final Map<Integer, Location> locationMap = new HashMap<>();
     private static Connection dbConnection;
+    final static Logger _log = LogManager.getLogger();
     static {
         dbConnection = DbUtil.getConnection();
         init();
@@ -48,6 +53,40 @@ public class LocationDAO {
         return locationMap.get(locationId);
     }
 
+    /**
+     * Gebe Location mit angegebenen Koordinaten zurück
+     * @param coordinate Latitude+ Longitude
+     * @return Location mit angegebener LocationId
+     */
+    public static Location getLocation(Coordinate coordinate) {
+        Location location = null;
+        try {
+            PreparedStatement preparedStatement;
+            String sqlStatement = "SELECT locationId,latitude,longitude,name " +
+                    "FROM locations WHERE latitude = ? AND longitude = ?";
+
+            preparedStatement = dbConnection.prepareStatement(
+                    sqlStatement);
+            preparedStatement.setDouble(1,coordinate.getX());
+            preparedStatement.setDouble(2,coordinate.getY());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.first()) {
+                location =  new Location(
+                        resultSet.getInt("locationId")
+                        ,resultSet.getString("name")
+                        ,resultSet.getDouble("latitude")
+                        ,resultSet.getDouble("longitude"));
+            } else {
+                _log.error("Kein Ort zu angegebenen Koordinaten X %,d?, Y %,d gefunden",coordinate.getX(),coordinate.getY());
+            }
+
+        } catch(SQLException ex) {
+            _log.error(ex);
+        }
+        return location;
+    }
+
+
     public static Location addLocation(Location location) {
         try {
             String sqlStatement;
@@ -85,7 +124,7 @@ public class LocationDAO {
 
 
         } catch(SQLException ex) {
-            ex.printStackTrace();
+            _log.error(ex);
         }
 
         //Füge Location in DAO ein

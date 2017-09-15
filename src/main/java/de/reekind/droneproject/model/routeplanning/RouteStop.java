@@ -6,6 +6,10 @@ import de.reekind.droneproject.model.Order;
 import java.util.ArrayList;
 
 public class RouteStop {
+    public void setRouteStopId(int routeStopId) {
+        this.routeStopId = routeStopId;
+    }
+
     private int routeStopId;
     public ArrayList<Order> Orders = new ArrayList<>();
     public double ArrivalTime;

@@ -4,7 +4,9 @@ import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolutio
 import com.graphhopper.jsprit.core.problem.solution.route.VehicleRoute;
 import com.graphhopper.jsprit.core.problem.solution.route.activity.TourActivity;
 import de.reekind.droneproject.dao.DroneDAO;
+import de.reekind.droneproject.dao.LocationDAO;
 import de.reekind.droneproject.dao.OrderDAO;
+import de.reekind.droneproject.dao.RouteDAO;
 import de.reekind.droneproject.model.RouteCalculator;
 import de.reekind.droneproject.model.routeplanning.DeliveryPlan;
 import de.reekind.droneproject.model.routeplanning.Route;
@@ -39,9 +41,11 @@ public class ProblemSolverHelper {
                 }
                 RouteStop stop = new RouteStop();
                 stop.Orders.add(OrderDAO.getOrder(Integer.parseInt(jobId)));
+                stop.Location = LocationDAO.getLocation(activity.getLocation().getCoordinate());
                 stop.ArrivalTime = activity.getArrTime();
                 route.RouteStops.add(stop);
             }
+            RouteDAO.addRoute(route);
             plan.Routes.add(route);
         }
         ObjectMapper mapper = new ObjectMapper();

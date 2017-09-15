@@ -3,6 +3,7 @@ package de.reekind.droneproject.model;
 import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
 import com.google.maps.model.GeocodingResult;
+import com.graphhopper.jsprit.core.util.Coordinate;
 
 import javax.xml.bind.annotation.XmlType;
 
@@ -51,6 +52,10 @@ public class Location {
 
     public com.graphhopper.jsprit.core.problem.Location toJspritLocation() {
         return com.graphhopper.jsprit.core.problem.Location.newInstance(this.latitude,this.longitude);
+    }
+
+    private Coordinate toJspritCoordinates() {
+        return Coordinate.newInstance(this.latitude,this.longitude);
     }
 
     public String getName() {
