@@ -22,22 +22,25 @@ public class ProblemSolverHelper {
         RouteCalculator calculator = new RouteCalculator();
         VehicleRoutingProblemSolution bestSolution = calculator.calculateRoute();
         DeliveryPlan plan = new DeliveryPlan();
-        bestSolution.getRoutes().forEach(
-                (VehicleRoute jspritRoute) -> {
-                    Route route = new Route();
-                    route.Drone = DroneDAO.getDrone(Integer.parseInt(jspritRoute.getVehicle().getId()));
-                    route.StartTime = jspritRoute.getDepartureTime();
-                    route.EndTime = jspritRoute.getEnd().getEndTime();
-                    jspritRoute.getActivities().forEach((TourActivity activity) -> {
-                        RouteStop stop = new RouteStop();
-                        stop.Orders.add(OrderDAO.getOrder(Integer.parseInt(activity.getName())));
-                        stop.ArrivalTime = activity.getArrTime();
-                        route.RouteStops.add(stop);
-                    });
-
-                    plan.Routes.add(route);
+        // For each route in in the best solution...
+        for (VehicleRoute jspritRoute : bestSolution.getRoutes()) {
+            Route route = new Route();
+            route.Drone = DroneDAO.getDrone(Integer.parseInt(jspritRoute.getVehicle().getId()));
+            route.StartTime = jspritRoute.getDepartureTime();
+            route.EndTime = jspritRoute.getEnd().getEndTime();
+            // for each point in the route...
+            for (TourActivity activity : jspritRoute.getActivities()) {
+                String jobId = "-1";
+                if (activity instanceof TourActivity.JobActivity) {
+                    jobId = ((TourActivity.JobActivity)activity).getJob().getId();
                 }
-        );
+                RouteStop stop = new RouteStop();
+                stop.Orders.add(OrderDAO.getOrder(Integer.parseInt(jobId)));
+                stop.ArrivalTime = activity.getArrTime();
+                route.RouteStops.add(stop);
+            }
+            plan.Routes.add(route);
+        }
         ObjectMapper mapper = new ObjectMapper();
         try {
             System.out.println(mapper.writeValueAsString(plan));

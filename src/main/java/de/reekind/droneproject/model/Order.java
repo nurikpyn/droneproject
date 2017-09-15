@@ -112,6 +112,7 @@ public class Order {
         if (differenceDuration.toMillis() > Duration.ofHours(1).toMillis())
         {
             // priority values from 1 to 10 are allowed where 1 = high and 10 is low
+            // Orders older than one hour have to be sent ASAP.
             servBuilder.setPriority(1);
         }
         else
