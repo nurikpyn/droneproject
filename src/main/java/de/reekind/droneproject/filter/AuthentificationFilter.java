@@ -11,6 +11,7 @@ import java.io.IOException;
  */
 public class AuthentificationFilter implements Filter {
     public static final String AUTHENTICATION_HEADER = "Authorization";
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,
                          FilterChain filter) throws IOException, ServletException {
@@ -35,8 +36,10 @@ public class AuthentificationFilter implements Filter {
     }
 
     @Override
-    public void destroy() {}
+    public void destroy() {
+    }
 
     @Override
-    public void init(FilterConfig arg0) throws ServletException {}
+    public void init(FilterConfig arg0) throws ServletException {
+    }
 }

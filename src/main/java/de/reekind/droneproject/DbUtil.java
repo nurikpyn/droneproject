@@ -28,6 +28,7 @@ public class DbUtil {
                     Class.forName(dbDriver).newInstance();
                     dbConnection = DriverManager.getConnection(connectionUrl,
                             userName, password);
+                    //dbConnection.setNetworkTimeout(,5000);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

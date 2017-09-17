@@ -13,13 +13,14 @@ import java.util.List;
 @Path("/rest/depots")
 public class DepotService {
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public List<Depot> getDroneTypes_JSON() {
         return DepotDAO.getAllDepots();
     }
+
     @GET
     @Path("/{depotId}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Depot getDroneType(@PathParam("depotId") Integer depotId) {
         return DepotDAO.getDepot(depotId);
     }

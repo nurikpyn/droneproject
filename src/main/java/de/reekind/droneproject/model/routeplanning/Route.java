@@ -2,21 +2,22 @@ package de.reekind.droneproject.model.routeplanning;
 
 import de.reekind.droneproject.model.Drone;
 import de.reekind.droneproject.model.enumeration.RouteStatus;
+import org.joda.time.DateTime;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 
 public class Route {
     public Integer RouteId;
     public Drone Drone;
-    private RouteStatus routeStatus = RouteStatus.Geplant;
-    public double StartTime;
-    public double EndTime;
+    public DateTime StartTime;
+    public DateTime EndTime;
     public ArrayList<RouteStop> RouteStops = new ArrayList<>();
+    private RouteStatus routeStatus = RouteStatus.Geplant;
 
-    public Route() {}
+    public Route() {
+    }
 
-    public Route(int routeId, Drone drone, double startTime, double endTime, ArrayList<RouteStop> routeStops, RouteStatus routeStatus) {
+    public Route(int routeId, Drone drone, DateTime startTime, DateTime endTime, ArrayList<RouteStop> routeStops, RouteStatus routeStatus) {
         this.RouteId = routeId;
         this.Drone = drone;
         this.StartTime = startTime;

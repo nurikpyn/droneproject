@@ -18,6 +18,7 @@ public class User {
     public User() {
 
     }
+
     public User(int userId, String username, String password, UserRole userRole) {
         this.UserId = userId;
         this.Username = username;

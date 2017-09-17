@@ -11,7 +11,8 @@ public class UserRole {
     private int userRoleId;
     private String userRoleName;
 
-    public UserRole() {}
+    public UserRole() {
+    }
 
     public UserRole(int _userRoleId, String _userRoleName) {
         this.userRoleId = _userRoleId;

@@ -2,6 +2,9 @@ package de.reekind.droneproject.model;
 
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleImpl;
 import de.reekind.droneproject.model.enumeration.DroneStatus;
+import de.reekind.droneproject.model.enumeration.RouteStatus;
+import de.reekind.droneproject.model.routeplanning.Route;
+import org.joda.time.DateTime;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -14,7 +17,6 @@ import java.util.TimerTask;
 public class Drone {
 
     private int droneId;
-    private String droneName = "";
     private DroneType droneType;
     private DroneStatus droneStatus = DroneStatus.Bereit;
     private Double latitude;
@@ -23,13 +25,11 @@ public class Drone {
     private float speed = 60;
     private int uptime = 20;
 
-    public Drone(){}
+    public Drone() {
+    }
 
-    // New Constructor for use in RouteCalculator
-    public Drone(int _droneId, String _droneName, DroneType _droneType, int _droneStatus, Depot _droneDepot)
-    {
+    public Drone(int _droneId, DroneType _droneType, int _droneStatus, Depot _droneDepot) {
         this.droneId = _droneId;
-        this.droneName = _droneName;
         this.droneType = _droneType;
         this.droneStatus = DroneStatus.GetValue(_droneStatus);
         this.depot = _droneDepot;
@@ -39,7 +39,7 @@ public class Drone {
         }
     }
 
-    public void StartDrone(int routeId) {
+    public void StartDrone(Route route) {
         //Setze Drohnenstatus
         //Location berechnen falls gefragt
         //Wenn zeit von start dauer bis zum abladen: bestellstatus ändern
@@ -49,7 +49,13 @@ public class Drone {
         timer.schedule(new TimerTask() {
             @Override
             public void run() { // Function runs every MINUTES minutes.
-                // Run the code you want here - has to be static
+                if (droneStatus == DroneStatus.InAuslieferung) {
+
+                    if (new DateTime(route.EndTime).minusMinutes(5).equals(new DateTime())) {
+                        droneStatus = DroneStatus.Bereit;
+                        route.setRouteStatus(RouteStatus.Beendet);
+                    }
+                }
             }
         }, 0, 1000 * 60 * MINUTES);
     }
@@ -70,12 +76,8 @@ public class Drone {
 
     public void setDroneStatus(DroneStatus droneStatus) {
         this.droneStatus = droneStatus;
-    }
 
-    public void updateDroneStatus(DroneStatus droneStatus)
-    {
-        if (droneStatus == DroneStatus.GetValue(0))
-        {
+        if (droneStatus == DroneStatus.GetValue(0)) {
             setDroneStatus(droneStatus);
             RouteCalculator routeCalc = new RouteCalculator();
             routeCalc.calculateRoute();
@@ -102,14 +104,6 @@ public class Drone {
         }
     }
 
-    public String getDroneName() {
-        return droneName;
-    }
-
-    public void setDroneName(String droneName) {
-        this.droneName = droneName;
-    }
-
     public float getSpeed() {
         return speed;
     }
@@ -126,13 +120,6 @@ public class Drone {
         this.uptime = uptime;
     }
 
-    public VehicleImpl toJspritVehicle() {
-        VehicleImpl.Builder vehicleBuilder = VehicleImpl.Builder.newInstance(Integer.toString(droneId));
-        vehicleBuilder.setStartLocation(depot.getLocation().toJspritLocation());
-        vehicleBuilder.setType(droneType.toJspritVehicleType());
-        return vehicleBuilder.build();
-    }
-
     public Double getLatitude() {
         return latitude;
     }
@@ -147,5 +134,12 @@ public class Drone {
 
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
+    }
+
+    public VehicleImpl toJspritVehicle() {
+        VehicleImpl.Builder vehicleBuilder = VehicleImpl.Builder.newInstance(Integer.toString(droneId));
+        vehicleBuilder.setStartLocation(depot.getLocation().toJspritLocation());
+        vehicleBuilder.setType(droneType.toJspritVehicleType());
+        return vehicleBuilder.build();
     }
 }

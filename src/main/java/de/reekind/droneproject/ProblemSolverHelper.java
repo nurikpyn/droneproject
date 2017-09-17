@@ -14,6 +14,7 @@ import de.reekind.droneproject.model.routeplanning.RouteStop;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.joda.time.DateTime;
 
 import java.io.IOException;
 
@@ -31,28 +32,30 @@ public class ProblemSolverHelper {
         for (VehicleRoute jspritRoute : bestSolution.getRoutes()) {
             Route route = new Route();
             route.Drone = DroneDAO.getDrone(Integer.parseInt(jspritRoute.getVehicle().getId()));
-            route.StartTime = jspritRoute.getDepartureTime();
-            route.EndTime = jspritRoute.getEnd().getEndTime();
+            //route.StartTime = Timestamp.from(Instant.ofEpochMilli((long)jspritRoute.getDepartureTime()));
+            //route.EndTime =  Timestamp.from(Instant.ofEpochMilli((long)jspritRoute.getEnd().getEndTime()));
+
+            route.StartTime = DateTime.now();
+            route.EndTime = DateTime.now();
             // for each point in the route...
             for (TourActivity activity : jspritRoute.getActivities()) {
                 String jobId = "-1";
                 if (activity instanceof TourActivity.JobActivity) {
-                    jobId = ((TourActivity.JobActivity)activity).getJob().getId();
+                    jobId = ((TourActivity.JobActivity) activity).getJob().getId();
                 }
                 RouteStop stop = new RouteStop();
                 stop.Orders.add(OrderDAO.getOrder(Integer.parseInt(jobId)));
                 stop.Location = LocationDAO.getLocation(activity.getLocation().getCoordinate());
-                stop.ArrivalTime = activity.getArrTime();
+                //stop.ArrivalTime = activity.getArrTime();
                 route.RouteStops.add(stop);
             }
-            RouteDAO.addRoute(route);
-            plan.Routes.add(route);
+            plan.Routes.add(RouteDAO.addRoute(route));
         }
         ObjectMapper mapper = new ObjectMapper();
         try {
             System.out.println(mapper.writeValueAsString(plan));
-        } catch (IOException e) {
-            _log.error(e);
+        } catch (IOException ex) {
+            _log.error("Fehler beim Mappen der Objekte in JSON", ex);
         }
     }
 }

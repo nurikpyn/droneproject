@@ -10,17 +10,18 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DroneType {
+    static int WEIGHT_INDEX = 0; //static final
+    static int RANGE_INDEX = 1;
+    static int PACKAGE_INDEX = 2;
     private int droneTypeId;
     private String droneTypeName;
     private int maxWeight;
     private int maxPackageCount;
     private float maxRange;
     private float maxSpeed;
-    static int WEIGHT_INDEX = 0; //static final
-    static int RANGE_INDEX = 1;
-    static int PACKAGE_INDEX = 2;
 
-    public DroneType(){}
+    public DroneType() {
+    }
 
     public DroneType(int _droneTypeId) {
         this.droneTypeId = _droneTypeId;
@@ -33,6 +34,7 @@ public class DroneType {
         this.maxPackageCount = _maxPackageCount;
         this.maxRange = _maxRange;
     }
+
     public DroneType(int _droneTypeId, String _droneTypeName, int _maxWeight, int _maxPackageCount, float _maxRange, int _maxSpeed) {
         this.droneTypeId = _droneTypeId;
         this.droneTypeName = _droneTypeName;
@@ -86,6 +88,7 @@ public class DroneType {
     public boolean equals(Object obj) {
         return obj.toString().equals(Integer.toString(this.droneTypeId)) || super.equals(obj);
     }
+
     @Override
     public String toString() {
         return Integer.toString(this.getDroneTypeId());
@@ -103,8 +106,7 @@ public class DroneType {
         return vehicleTypeBuilder.build();
     }
 
-    private float kmhToMs(float speedInKmh)
-    {
+    private float kmhToMs(float speedInKmh) {
         return (speedInKmh * 3600 / 1000);
     }
 

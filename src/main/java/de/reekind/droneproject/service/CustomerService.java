@@ -13,7 +13,7 @@ import javax.ws.rs.core.MediaType;
 public class CustomerService {
     @GET
     @Path("/orderinfo/{orderId}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public String getOrderInfo(@PathParam("orderId") Integer orderId) {
         Order order = OrderDAO.getOrder(orderId);
         if (order != null && order.getStatus() != null)

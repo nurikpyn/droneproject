@@ -9,6 +9,7 @@ import java.util.List;
 
 public class UserDAO {
     private static Connection dbConnection;
+
     static {
         dbConnection = DbUtil.getConnection();
     }
@@ -18,9 +19,9 @@ public class UserDAO {
         try {
             PreparedStatement statement = dbConnection.prepareStatement("SELECT userId, name, password, userRoleId " +
                     "FROM users WHERE userId = ?");
-            statement.setInt(1,userId);
+            statement.setInt(1, userId);
             ResultSet resultSet = statement.executeQuery();
-            while(resultSet.next()) {
+            while (resultSet.next()) {
                 user = new User(resultSet.getInt("userID")
                         , resultSet.getString("name")
                         , resultSet.getString("password")
@@ -31,14 +32,15 @@ public class UserDAO {
         }
         return user;
     }
+
     public static User getUser(String userName) {
         User user = null;
         try {
             PreparedStatement statement = dbConnection.prepareStatement("SELECT userId, name, password, userRoleId " +
                     "FROM users WHERE name = ?");
-            statement.setString(1,userName);
+            statement.setString(1, userName);
             ResultSet resultSet = statement.executeQuery();
-            while(resultSet.next()) {
+            while (resultSet.next()) {
                 user = new User(resultSet.getInt("userID")
                         , resultSet.getString("name")
                         , resultSet.getString("password")
@@ -55,7 +57,7 @@ public class UserDAO {
         try {
             Statement statement = dbConnection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT userId, name, password, userRoleId FROM users");
-            while(resultSet.next()) {
+            while (resultSet.next()) {
                 User user = new User(resultSet.getInt("userID")
                         , resultSet.getString("name")
                         , resultSet.getString("password")

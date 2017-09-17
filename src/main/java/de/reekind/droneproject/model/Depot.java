@@ -16,6 +16,7 @@ public class Depot {
 
     public Depot() {
     }
+
     public Depot(int _depotID, String _depotName, Location _location) {
         this.depotID = _depotID;
         this.depotName = _depotName;
@@ -41,10 +42,12 @@ public class Depot {
     public void setDepotID(int ID) {
         this.depotID = ID;
     }
+
     @Override
     public boolean equals(Object obj) {
         return obj.toString().equals(Integer.toString(this.depotID)) || super.equals(obj);
     }
+
     @Override
     public String toString() {
         return Integer.toString(this.depotID);

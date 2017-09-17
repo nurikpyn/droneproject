@@ -10,6 +10,7 @@ import java.sql.Statement;
 
 public class UserRoleDAO {
     private static Connection dbConnection;
+
     static {
         dbConnection = DbUtil.getConnection();
     }
@@ -18,8 +19,8 @@ public class UserRoleDAO {
         try {
             Statement statement = dbConnection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT userRoleId, userRoleName FROM userroles");
-            if (resultSet.first()){
-                return new UserRole(resultSet.getInt("userRoleid"),resultSet.getString("userRoleName"));
+            if (resultSet.first()) {
+                return new UserRole(resultSet.getInt("userRoleid"), resultSet.getString("userRoleName"));
             } else {
                 return null; //TODO Really null and not exceptoipm?
             }

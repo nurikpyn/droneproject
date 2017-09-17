@@ -21,7 +21,7 @@ public class OurProblem {
     private VehicleRoutingProblem problem;
 
     public static void main(String[] args) {
-        		/*
+                /*
          * get a vehicle type-builder and build a type with the typeId "vehicleType" and one capacity dimension, i.e. weight, and capacity dimension value of 2
 		 */
         final int WEIGHT_INDEX = 0;

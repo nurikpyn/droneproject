@@ -37,13 +37,14 @@ public class UserAuthentification {
 
     /**
      * Authenticates User against DB
+     *
      * @param username username
      * @param password password
      * @return true if authorized
      */
     public boolean AuthenticateUser(String username, String password) {
 
-        return (username.equals("admin")  && password.equals("testpw4admin#"));
+        return (username.equals("admin") && password.equals("testpw4admin#"));
 
     }
 }

@@ -28,14 +28,14 @@ public class UserService {
     }
 
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public List<User> getUsers_JSON() {
         return UserDAO.getAllUsers();
     }
 
     @GET
     @Path("/{userId}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public User getUser(@PathParam("userId") Integer userId) {
         return UserDAO.getUser(userId);
     }

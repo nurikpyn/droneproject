@@ -34,35 +34,27 @@ public class RouteCalculator {
         DbUtil.getConnection();
     }
 
-    public VehicleRoutingProblemSolution calculateRoute()
-    {
+    public VehicleRoutingProblemSolution calculateRoute() {
         // Define VehicleTypes and Vehicles
         // For each drone, create a corresponding Vehicle in Jsprit
-        for (Drone drone: DroneDAO.getAllDrones())
-        {
+        for (Drone drone : DroneDAO.getAllDrones()) {
             listOfVehicles.add(drone.toJspritVehicle());
         }
         // Add services to problem
-        for (Order o : OrderDAO.getAllOrders())
-        {
+        for (Order o : OrderDAO.getAllOrders()) {
             listOfServices.add(o.toJspritService());
         }
         // Solve problem
-       return  solveVRPProblem();
+        return solveVRPProblem();
     }
 
 
-
-
-    private VehicleRoutingProblemSolution solveVRPProblem()
-    {
+    private VehicleRoutingProblemSolution solveVRPProblem() {
         VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
-        for (Vehicle v: listOfVehicles)
-        {
+        for (Vehicle v : listOfVehicles) {
             vrpBuilder.addVehicle(v);
         }
-        for (Service s: listOfServices)
-        {
+        for (Service s : listOfServices) {
             vrpBuilder.addJob(s);
         }
         vrpBuilder.setFleetSize(VehicleRoutingProblem.FleetSize.FINITE);
