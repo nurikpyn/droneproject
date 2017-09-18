@@ -1,6 +1,8 @@
 package de.reekind.droneproject.model;
 
 import com.graphhopper.jsprit.core.problem.job.Service;
+import de.reekind.droneproject.dao.DepotDAO;
+import de.reekind.droneproject.dao.DroneTypeDAO;
 import de.reekind.droneproject.model.enumeration.OrderStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +17,7 @@ import java.util.List;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Order {
-    final static Logger _log = LogManager.getLogger();
+    private final static Logger _log = LogManager.getLogger();
     private int orderId;
     private DateTime orderTime;
     private DateTime orderReadyTime;
@@ -64,7 +66,12 @@ public class Order {
 
     //TODO Validierung der Bestellungen: Zeitpunkt nicht vor 2017, Adresse irgendwie im Raum, Gewicht unter 4000
     private boolean validateOrder() {
-        return orderTime.isBeforeNow() && weight < 4001;
+        //TODO Locations dynamisch berechnen
+        Location depotLocation = DepotDAO.getDepot(1).getLocation();
+        DroneType droneType = DroneTypeDAO.getDroneType(1);
+
+        return orderTime.isBeforeNow() && weight < 4001 && Location.distanceInKm(
+                depotLocation.latitude, depotLocation.longitude,location.latitude,location.longitude) < (droneType.getMaxRange()/2);
     }
 
     public int getOrderId() {
