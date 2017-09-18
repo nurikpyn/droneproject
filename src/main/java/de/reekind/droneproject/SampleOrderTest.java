@@ -21,12 +21,10 @@ public class SampleOrderTest {
             ResultSet rs = statement.executeQuery("SELECT orderTime, deliveryPlace, weight * 1000 FROM sample_orders");
 
             while (rs.next()) {
-                Location xx = new Location(rs.getString(2));
-                LocationDAO.addLocation(xx);
-
-
+                Location location = new Location();
+                location.setName(rs.getString(2));
                 Order order = new Order(new DateTime(rs.getTimestamp(1))
-                        , xx
+                        , location
                         , rs.getInt(3));
                 OrderDAO.addOrder(order);
             }

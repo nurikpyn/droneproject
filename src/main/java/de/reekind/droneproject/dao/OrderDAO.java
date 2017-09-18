@@ -44,7 +44,11 @@ public class OrderDAO {
                         , resultSet.getInt("weight")
                         , resultSet.getInt("orderStatus")
                         , resultSet.getInt("orderRouteStopId"));
-                orderMap.put(order.getOrderId(), order);
+
+                if (order.validateOrder())
+                    orderMap.put(order.getOrderId(), order);
+                else
+                    _log.error(String.format("Bestellung mit orderId %d ist nicht valide.",order.getOrderId()));
             }
         } catch (SQLException e) {
             _log.error("Fehler beim Neuladen der Bestellungen", e);
@@ -150,18 +154,20 @@ public class OrderDAO {
      * @return Bestellung als DAO Element
      */
     public static Order addOrder(Order order) {
+
+        //Validiere Bestellung
+        if (order.validateOrder())
+            orderMap.put(order.getOrderId(), order);
+        else
+            _log.error(String.format("Bestellung mit orderId %d ist nicht valide.",order.getOrderId()));
+
         try {
             String sqlStatement;
             PreparedStatement preparedStatement;
 
             Location _location = order.getLocation();
-            if (_location != null && _location.locationId == 0) {
-                if (_location.longitude == 0 && _location.latitude == 0) {
-                    if (_location.getName() != null) {
-                        order.setLocation(LocationDAO.getLocation(_location.getName()));
-                    }
-                }
-            }
+            //Existierende Location mit LocationID aus DB holen oder neue erstellen
+            _location = LocationDAO.addLocation(_location);
             sqlStatement = "INSERT INTO orders (orderTime, locationId" +
                     ", weight, orderStatus, orderRouteStopId) VALUES (?,?,?,?,?)";
             preparedStatement = dbConnection.prepareStatement(
@@ -172,7 +178,7 @@ public class OrderDAO {
             else
                 preparedStatement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
 
-            preparedStatement.setInt(2, order.getLocation().locationId);
+            preparedStatement.setInt(2, _location.locationId);
 
             preparedStatement.setInt(3, order.getWeight());
 

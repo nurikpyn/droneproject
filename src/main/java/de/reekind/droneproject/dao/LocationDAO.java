@@ -112,10 +112,46 @@ public class LocationDAO {
                 _log.error("Kein Ort zu angegebenen Koordinaten X %,d?, Y %,d gefunden", coordinate.getX(), coordinate.getY());
             }
 
-        } catch (SQLException ex) {
-            _log.error(ex);
+        } catch (SQLException e) {
+            _log.error("Fehler beim Laden anhand von Koordinaten",e);
         }
         return location;
+    }
+
+
+    /**
+     * Gebe Location mit angegebenen Koordinaten zurück
+     *
+     * @param location location
+     * @return Location mit angegebener LocationId
+     */
+    public static Location exists(Location location) {
+        Location _location = null;
+        try {
+            PreparedStatement preparedStatement;
+            String sqlStatement = "SELECT locationId, name, latitude, longitude " +
+                    "FROM locations " +
+                    "WHERE locationId = ? OR name = ? OR (latitude = ? AND longitude = ?)";
+
+            preparedStatement = dbConnection.prepareStatement(
+                    sqlStatement);
+            preparedStatement.setInt(1, location.locationId);
+            preparedStatement.setString(2, location.getName());
+            preparedStatement.setDouble(3, location.latitude);
+            preparedStatement.setDouble(4, location.longitude);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.first()) {
+                _location = new Location(
+                        resultSet.getInt("locationId")
+                        , resultSet.getString("name")
+                        , resultSet.getDouble("latitude")
+                        , resultSet.getDouble("longitude"));
+            }
+
+        } catch (SQLException e) {
+            _log.error("Fehler beim Prüfen auf Existenz",e);
+        }
+        return _location;
     }
 
     /**
@@ -125,6 +161,13 @@ public class LocationDAO {
      * @return Location mit Id
      */
     public static Location addLocation(Location location) {
+        //Location mit angegebener Adresse oder Koordinaten bereits vorhanden
+        Location _existLocation = LocationDAO.exists(location);
+        //Wenn ja, dann gebe einfach diese Zurück
+        if (_existLocation != null)
+            return _existLocation;
+
+
         try {
             PreparedStatement preparedStatement;
             preparedStatement = dbConnection.prepareStatement(
@@ -139,11 +182,11 @@ public class LocationDAO {
                 if (generatedKeys.next()) {
                     location.locationId = generatedKeys.getInt(1);
                 } else {
-                    throw new SQLException("Creating order failed, no ID obtained.");
+                    throw new SQLException("Creating Location failed, no ID obtained.");
                 }
             }
         } catch (SQLException e) {
-            _log.error("Fehler beim hinzufügen von Location", e);
+            _log.error("Fehler beim Hinzufügen von Location", e);
         }
         return location;
     }

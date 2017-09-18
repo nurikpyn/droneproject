@@ -4,6 +4,7 @@ import com.graphhopper.jsprit.core.problem.job.Service;
 import de.reekind.droneproject.dao.DepotDAO;
 import de.reekind.droneproject.dao.DroneTypeDAO;
 import de.reekind.droneproject.model.enumeration.OrderStatus;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
@@ -28,9 +29,6 @@ public class Order {
     private List<OrderHistoryPoint> orderHistoryPointList;
 
     public Order() {
-        if (!validateOrder()) {
-            _log.error("Validierung der Bestellung fehlgeschlagen");
-        }
     }
 
 
@@ -38,18 +36,12 @@ public class Order {
         this.orderTime = _orderTime;
         this.location = new Location(deliveryPlace);
         this.weight = weight;
-        if (!validateOrder()) {
-            _log.error("Validierung der Bestellung fehlgeschlagen");
-        }
     }
 
     public Order(DateTime _orderTime, Location deliveryPlace, int weight) {
         this.orderTime = _orderTime;
         this.location = deliveryPlace;
         this.weight = weight;
-        if (!validateOrder()) {
-            _log.error("Validierung der Bestellung fehlgeschlagen");
-        }
     }
 
     public Order(int _orderId, DateTime _orderTime, Location _location, int _weight, int _orderStatus, int _routeStopId) {
@@ -59,19 +51,27 @@ public class Order {
         this.weight = _weight;
         this.orderStatus = OrderStatus.values()[_orderStatus];
         this.routeStopId = _routeStopId;
-        if (!validateOrder()) {
-            _log.error("Validierung der Bestellung fehlgeschlagen");
-        }
     }
 
     //TODO Validierung der Bestellungen: Zeitpunkt nicht vor 2017, Adresse irgendwie im Raum, Gewicht unter 4000
-    private boolean validateOrder() {
+    public boolean validateOrder() {
         //TODO Locations dynamisch berechnen
         Location depotLocation = DepotDAO.getDepot(1).getLocation();
         DroneType droneType = DroneTypeDAO.getDroneType(1);
 
-        return orderTime.isBeforeNow() && weight < 4001 && Location.distanceInKm(
-                depotLocation.latitude, depotLocation.longitude,location.latitude,location.longitude) < (droneType.getMaxRange()/2);
+        if (weight >= 4000) {
+            _log.error("Gewicht über 4000 g");
+            return false;
+        }
+        double distance =  Location.distanceInKm(
+            depotLocation.latitude, depotLocation.longitude,
+            location.latitude,location.longitude);
+
+        if ( distance > (droneType.getMaxRange()/2)) {
+            _log.error("Distanz zu groß! Vorhanden: {} Maximal: {}",distance, droneType.getMaxRange()/2);
+            return false;
+        }
+        return true;
     }
 
     public int getOrderId() {
