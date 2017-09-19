@@ -7,6 +7,7 @@ import de.reekind.droneproject.dao.DroneDAO;
 import de.reekind.droneproject.dao.LocationDAO;
 import de.reekind.droneproject.dao.OrderDAO;
 import de.reekind.droneproject.dao.RouteDAO;
+import de.reekind.droneproject.model.OrderImport;
 import de.reekind.droneproject.model.RouteCalculator;
 import de.reekind.droneproject.model.routeplanning.DeliveryPlan;
 import de.reekind.droneproject.model.routeplanning.Route;
@@ -26,6 +27,7 @@ public class ProblemSolverHelper {
     final static Logger _log = LogManager.getLogger(ProblemSolverHelper.class);
 
     public static void main(String[] args) {
+
         RouteCalculator calculator = new RouteCalculator();
         ArrayList<Route> bestSolution = calculator.calculateRoute();
 

@@ -12,27 +12,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Depot {
     private int depotID;
     private String depotName;
-    private Location location;
+    private double latitude;
+    private double longitude;
 
     public Depot() {
     }
-
-    public Depot(int _depotID, String _depotName, Location _location) {
+    public Depot(int _depotID, String _depotName, double _latitude, double _longitude) {
         this.depotID = _depotID;
         this.depotName = _depotName;
-        this.location = _location;
-    }
-
-    public Depot(int _depotID) {
-        this.depotID = _depotID;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
+        this.latitude = _latitude;
+        this.longitude = _longitude;
     }
 
     public int getDepotID() {
@@ -60,5 +49,21 @@ public class Depot {
 
     public void setDepotName(String depotName) {
         this.depotName = depotName;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 }

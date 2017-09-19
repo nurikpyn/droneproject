@@ -2,7 +2,6 @@ package de.reekind.droneproject.dao;
 
 import de.reekind.droneproject.DbUtil;
 import de.reekind.droneproject.model.Depot;
-import de.reekind.droneproject.model.DroneType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,9 +37,8 @@ public class DepotDAO {
                 depot = new Depot(
                         resultSet.getInt("depotId")
                         , resultSet.getString("depotName")
-                        , new de.reekind.droneproject.model.Location(
-                        resultSet.getDouble("latitude")
-                        , resultSet.getDouble("longitude")));
+                        , resultSet.getDouble("latitude")
+                        , resultSet.getDouble("longitude"));
             }
         } catch (SQLException e) {
             _log.error("Fehler beim Laden der Depots", e);
@@ -69,9 +67,8 @@ public class DepotDAO {
                 Depot depot = new Depot(
                         resultSet.getInt("depotId")
                         , resultSet.getString("depotName")
-                        , new de.reekind.droneproject.model.Location(
-                        resultSet.getDouble("latitude")
-                        , resultSet.getDouble("longitude"))
+                        , resultSet.getDouble("latitude")
+                        , resultSet.getDouble("longitude")
                 );
                 list.add(depot);
             }

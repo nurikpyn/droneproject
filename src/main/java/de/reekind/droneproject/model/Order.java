@@ -4,7 +4,6 @@ import com.graphhopper.jsprit.core.problem.job.Service;
 import de.reekind.droneproject.dao.DepotDAO;
 import de.reekind.droneproject.dao.DroneTypeDAO;
 import de.reekind.droneproject.model.enumeration.OrderStatus;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
@@ -35,7 +34,10 @@ public class Order {
 
 
     public Order(DateTime _orderTime, String deliveryPlace, int weight) {
-        this.orderTime = _orderTime;
+        if (_orderTime != null)
+            this.orderTime = _orderTime;
+        else
+            this.orderTime = DateTime.now();
         this.location = new Location(deliveryPlace);
         this.weight = weight;
     }
@@ -58,7 +60,7 @@ public class Order {
     //TODO Validierung der Bestellungen: Zeitpunkt nicht vor 2017, Adresse irgendwie im Raum, Gewicht unter 4000
     public boolean validateOrder() {
         //TODO Locations dynamisch berechnen
-        Location depotLocation = DepotDAO.getDepot(1).getLocation();
+        Depot depotLocation = DepotDAO.getDepot(1);
         DroneType droneType = DroneTypeDAO.getDroneType(1);
 
         if (weight >= 4000) {
@@ -66,8 +68,8 @@ public class Order {
             return false;
         }
         double distance =  Location.distanceInKm(
-            depotLocation.latitude, depotLocation.longitude,
-            location.latitude,location.longitude);
+            depotLocation.getLatitude(), depotLocation.getLongitude(),
+            location.getLatitude(),location.getLongitude());
 
         if ( distance > (droneType.getMaxRange()/2)) {
             _log.error("Distanz zu groß! Vorhanden: {} Maximal: {}",distance, droneType.getMaxRange()/2);

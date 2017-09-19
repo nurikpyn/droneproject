@@ -12,14 +12,17 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "ownLocation")
 public class Location {
     private final static Logger _log = LogManager.getLogger();
-    public double latitude;
-    public double longitude;
+    private double latitude;
+    private double longitude;
     public int locationId;
     private String name;
 
     public Location() {
     }
 
+    public Location(String adress) {
+        getCoordinatesFromAdress(adress);
+    }
     public Location(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
@@ -38,11 +41,11 @@ public class Location {
         this.locationId = locationId;
     }
 
-    public Location(String adress) {
-        getCoordinatesFromAdress(adress);
+    public boolean validate() {
+        return this.name != null && !this.name.equals("") && this.locationId != 0 && this.latitude != 0 && this.longitude != 0;
     }
 
-    public void getCoordinatesFromAdress(String adress) {
+    private void getCoordinatesFromAdress(String adress) {
         //Map Adress
         try {
             GeoApiContext context = new GeoApiContext.Builder()
@@ -53,31 +56,16 @@ public class Location {
             this.longitude = results[0].geometry.location.lng;
             this.name = adress;
         } catch (Exception e) {
-            _log.error("Fehler beim Abruf der Koordinaten aus einer Adresse",e);
+            _log.error("Fehler beim Abruf der Koordinaten aus Adresse {}",e,adress);
         }
     }
-
-
-    public com.graphhopper.jsprit.core.problem.Location toJspritLocation() {
+    com.graphhopper.jsprit.core.problem.Location toJspritLocation() {
         return com.graphhopper.jsprit.core.problem.Location.newInstance(this.latitude, this.longitude);
     }
 
-    private Coordinate toJspritCoordinates() {
-        return Coordinate.newInstance(this.latitude, this.longitude);
-    }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        getCoordinatesFromAdress(name);
-    }
-
-
-    public static double distanceInKm(double lat1, double lon1, double lat2, double lon2) {
+    static double distanceInKm(double lat1, double lon1, double lat2, double lon2) {
         int radius = 6371;
-
 
         double lat = Math.toRadians(lat2 - lat1);
         double lon = Math.toRadians(lon2- lon1);
@@ -87,5 +75,23 @@ public class Location {
         double d = radius * c;
 
         return Math.abs(d);
+    }
+    public double getLatitude() {
+        return latitude;
+    }
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+    public double getLongitude() {
+        return longitude;
+    }
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        getCoordinatesFromAdress(name);
     }
 }

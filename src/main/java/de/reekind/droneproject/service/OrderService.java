@@ -2,9 +2,11 @@ package de.reekind.droneproject.service;
 
 import de.reekind.droneproject.dao.OrderDAO;
 import de.reekind.droneproject.model.Order;
+import de.reekind.droneproject.model.OrderImport;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 
@@ -26,8 +28,8 @@ public class OrderService {
 
     @POST
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Order addOrder(Order order) {
-        return OrderDAO.addOrder(order);
+    public Order addOrder(OrderImport order) {
+        return OrderDAO.addOrderImport(order);
     }
 
     @PUT
@@ -39,8 +41,11 @@ public class OrderService {
     @DELETE
     @Path("/{orderId}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public void deleteOrder(@PathParam("orderId") Integer orderId) {
-        OrderDAO.deleteOrder(orderId);
+    public Response deleteOrder(@PathParam("orderId") Integer orderId) {
+        if (OrderDAO.deleteOrder(orderId))
+            return Response.ok().build();
+        else
+            return Response.status(Response.Status.NOT_FOUND).build();
     }
 
 }

@@ -31,16 +31,14 @@ public class LocationDAO {
             preparedStatement.setInt(1, locationId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            //Füge einzelne Orte in DAO/Map ein
             if (resultSet.first()) {
-                Location location = new Location(
+                return new Location(
                         resultSet.getInt("locationId")
                         , resultSet.getString("name")
-                        , resultSet.getDouble("latitude")
+                        , resultSet.getDouble("Latitude")
                         , resultSet.getDouble("longitude"));
-                return location;
             } else {
-                _log.error(String.format("Keine Treffer für Ort mit locationId %d", locationId));
+                _log.info("Keine Treffer für Ort mit locationId {}", locationId);
                 return null;
             }
         } catch (SQLException e) {
@@ -66,14 +64,13 @@ public class LocationDAO {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.first()) {
-                Location location = new Location(
+                return  new Location(
                         resultSet.getInt("locationId")
                         , resultSet.getString("name")
                         , resultSet.getDouble("latitude")
                         , resultSet.getDouble("longitude"));
-                return location;
             } else {
-                _log.info(String.format("Keine Treffer für Ort mit locationId %s", name));
+                _log.info("Keine Treffer für Ort mit Adresse {}", name);
                 Location location = new Location(name);
                 addLocation(location);
                 return location;
@@ -126,19 +123,23 @@ public class LocationDAO {
      * @return Location mit angegebener LocationId
      */
     public static Location exists(Location location) {
+
+        if (location.locationId != 0)
+            return location;
+
+
         Location _location = null;
         try {
             PreparedStatement preparedStatement;
             String sqlStatement = "SELECT locationId, name, latitude, longitude " +
                     "FROM locations " +
-                    "WHERE locationId = ? OR name = ? OR (latitude = ? AND longitude = ?)";
+                    "WHERE locationId IS NOT NULL  AND (name = ? OR (latitude = ? AND longitude = ?))";
 
             preparedStatement = dbConnection.prepareStatement(
                     sqlStatement);
-            preparedStatement.setInt(1, location.locationId);
-            preparedStatement.setString(2, location.getName());
-            preparedStatement.setDouble(3, location.latitude);
-            preparedStatement.setDouble(4, location.longitude);
+            preparedStatement.setString(1, location.getName());
+            preparedStatement.setDouble(2, location.getLatitude());
+            preparedStatement.setDouble(3, location.getLongitude());
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.first()) {
                 _location = new Location(
@@ -161,6 +162,11 @@ public class LocationDAO {
      * @return Location mit Id
      */
     public static Location addLocation(Location location) {
+
+        if (location.validate())
+            return location;
+
+
         //Location mit angegebener Adresse oder Koordinaten bereits vorhanden
         Location _existLocation = LocationDAO.exists(location);
         //Wenn ja, dann gebe einfach diese Zurück
@@ -174,8 +180,8 @@ public class LocationDAO {
                     "INSERT INTO locations (name, latitude, longitude) " +
                             "VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, location.getName());
-            preparedStatement.setDouble(2, location.latitude);
-            preparedStatement.setDouble(3, location.longitude);
+            preparedStatement.setDouble(2, location.getLatitude());
+            preparedStatement.setDouble(3, location.getLongitude());
             preparedStatement.execute();
 
             try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {

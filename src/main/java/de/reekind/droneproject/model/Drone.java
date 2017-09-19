@@ -34,8 +34,8 @@ public class Drone {
         this.droneStatus = DroneStatus.GetValue(_droneStatus);
         this.depot = _droneDepot;
         if (this.depot != null) {
-            this.latitude = depot.getLocation().latitude;
-            this.longitude = depot.getLocation().longitude;
+            this.latitude = depot.getLatitude();
+            this.longitude = depot.getLongitude();
         }
     }
 
@@ -78,7 +78,7 @@ public class Drone {
         this.droneStatus = droneStatus;
 
         if (droneStatus == DroneStatus.GetValue(0)) {
-            setDroneStatus(droneStatus);
+            //setDroneStatus(droneStatus);
             RouteCalculator routeCalc = new RouteCalculator();
             routeCalc.calculateRoute();
         }
@@ -99,8 +99,8 @@ public class Drone {
     public void setDepot(Depot depot) {
         this.depot = depot;
         if (this.depot != null) {
-            this.latitude = depot.getLocation().latitude;
-            this.longitude = depot.getLocation().longitude;
+            this.latitude = depot.getLatitude();
+            this.longitude = depot.getLongitude();
         }
     }
 
@@ -138,7 +138,7 @@ public class Drone {
 
     public VehicleImpl toJspritVehicle() {
         VehicleImpl.Builder vehicleBuilder = VehicleImpl.Builder.newInstance(Integer.toString(droneId));
-        vehicleBuilder.setStartLocation(depot.getLocation().toJspritLocation());
+        vehicleBuilder.setStartLocation( com.graphhopper.jsprit.core.problem.Location.newInstance(this.latitude, this.longitude));
         vehicleBuilder.setType(droneType.toJspritVehicleType());
         return vehicleBuilder.build();
     }

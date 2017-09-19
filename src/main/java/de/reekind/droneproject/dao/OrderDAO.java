@@ -4,6 +4,7 @@ import de.reekind.droneproject.DbUtil;
 import de.reekind.droneproject.model.Location;
 import de.reekind.droneproject.model.Order;
 import de.reekind.droneproject.model.OrderHistoryPoint;
+import de.reekind.droneproject.model.OrderImport;
 import de.reekind.droneproject.model.enumeration.OrderStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -148,6 +149,13 @@ public class OrderDAO {
         return orderMap.get(orderId);
     }
 
+
+    public static Order addOrderImport(OrderImport orderImport) {
+        //Vorgelagert, Damit Location etc schon stimmen.
+        Order order = new Order(orderImport.OrderTime, orderImport.LocationName, orderImport.Weight);
+        return OrderDAO.addOrder(order);
+    }
+
     /**
      * Füge neue Bestellung in DAO/Map ein
      *
@@ -157,18 +165,15 @@ public class OrderDAO {
     public static Order addOrder(Order order) {
 
         //Validiere Bestellung
-        if (order.validateOrder())
-            orderMap.put(order.getOrderId(), order);
-        else
+        if (!order.validateOrder())
             _log.error(String.format("Bestellung mit orderId %d ist nicht valide.",order.getOrderId()));
 
         try {
             String sqlStatement;
             PreparedStatement preparedStatement;
 
-            Location _location = order.getLocation();
             //Existierende Location mit LocationID aus DB holen oder neue erstellen
-            _location = LocationDAO.addLocation(_location);
+            order.setLocation(LocationDAO.addLocation( order.getLocation()));
             sqlStatement = "INSERT INTO orders (orderTime, locationId" +
                     ", weight, orderStatus, orderRouteStopId) VALUES (?,?,?,?,?)";
             preparedStatement = dbConnection.prepareStatement(
@@ -179,7 +184,7 @@ public class OrderDAO {
             else
                 preparedStatement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
 
-            preparedStatement.setInt(2, _location.locationId);
+            preparedStatement.setInt(2, order.getLocation().locationId);
 
             preparedStatement.setInt(3, order.getWeight());
 
@@ -203,7 +208,7 @@ public class OrderDAO {
             _log.error("Fehler beim Hinzufügen einer Bestellung", e);
         }
 
-        //Füge Drohne in DAO ein
+        //Füge Order in DAO ein
         orderMap.put(order.getOrderId(), order);
 
         return order;
@@ -250,9 +255,14 @@ public class OrderDAO {
      *
      * @param orderId Bestellnummer
      */
-    public static void deleteOrder(Integer orderId) {
-        //TODO Lösche Drohne in DB
-        orderMap.remove(orderId);
+    public static boolean deleteOrder(Integer orderId) {
+        if (orderMap.containsKey(orderId)) {
+            //TODO Lösche Drohne in DB
+            orderMap.remove(orderId);
+            return true;
+        }else {
+            return false;
+        }
     }
 
     /**
