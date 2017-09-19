@@ -100,12 +100,12 @@ public class Order {
         this.weight = weight;
     }
 
-    public OrderStatus getStatus() {
+    public OrderStatus getOrderStatus() {
         return orderStatus;
     }
 
-    public void setStatus(int orderStatus) {
-        this.orderStatus = OrderStatus.values()[orderStatus];
+    public void setOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
     }
 
     public Location getLocation() {

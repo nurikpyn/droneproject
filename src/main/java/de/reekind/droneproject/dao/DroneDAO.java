@@ -124,7 +124,6 @@ public class DroneDAO {
         } catch (SQLException e) {
             _log.error("Fehler beim Updaten der Drohne", e);
         }
-
         droneMap.put(drone.getDroneId(), drone);
         return drone;
     }

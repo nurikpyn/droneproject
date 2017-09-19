@@ -17,6 +17,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Created by timbe on 12.08.2017.
@@ -26,34 +27,11 @@ public class ProblemSolverHelper {
 
     public static void main(String[] args) {
         RouteCalculator calculator = new RouteCalculator();
-        VehicleRoutingProblemSolution bestSolution = calculator.calculateRoute();
-        DeliveryPlan plan = new DeliveryPlan();
-        // For each route in in the best solution...
-        for (VehicleRoute jspritRoute : bestSolution.getRoutes()) {
-            Route route = new Route();
-            route.Drone = DroneDAO.getDrone(Integer.parseInt(jspritRoute.getVehicle().getId()));
-            //route.StartTime = Timestamp.from(Instant.ofEpochMilli((long)jspritRoute.getDepartureTime()));
-            //route.EndTime =  Timestamp.from(Instant.ofEpochMilli((long)jspritRoute.getEnd().getEndTime()));
+        ArrayList<Route> bestSolution = calculator.calculateRoute();
 
-            route.StartTime = DateTime.now();
-            route.EndTime = DateTime.now();
-            // for each point in the route...
-            for (TourActivity activity : jspritRoute.getActivities()) {
-                String jobId = "-1";
-                if (activity instanceof TourActivity.JobActivity) {
-                    jobId = ((TourActivity.JobActivity) activity).getJob().getId();
-                }
-                RouteStop stop = new RouteStop();
-                stop.Orders.add(OrderDAO.getOrder(Integer.parseInt(jobId)));
-                stop.Location = LocationDAO.getLocation(activity.getLocation().getCoordinate());
-                //stop.ArrivalTime = activity.getArrTime();
-                route.RouteStops.add(stop);
-            }
-            plan.Routes.add(RouteDAO.addRoute(route));
-        }
         ObjectMapper mapper = new ObjectMapper();
         try {
-            System.out.println(mapper.writeValueAsString(plan));
+            System.out.println(mapper.writeValueAsString(bestSolution));
         } catch (IOException ex) {
             _log.error("Fehler beim Mappen der Objekte in JSON", ex);
         }

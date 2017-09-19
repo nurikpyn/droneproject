@@ -1,5 +1,8 @@
 package de.reekind.droneproject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,16 +10,17 @@ import java.util.Properties;
 
 public class DbUtil {
     private static Connection dbConnection = null;
+    private final static Logger _log = LogManager.getLogger();
 
     public static Connection getConnection() {
-        if (dbConnection != null) {
-            return dbConnection;
-        } else {
-            try {
+        try {
+            if (dbConnection != null && dbConnection.isValid(1)) {
+                return dbConnection;
+            } else {
+
                 InputStream inputStream = DbUtil.class.getClassLoader()
                         .getResourceAsStream("db.properties");
                 Properties properties = new Properties();
-                if (properties != null) {
                     properties.load(inputStream);
 
                     String dbDriver = properties.getProperty("dbDriver");
@@ -28,12 +32,10 @@ public class DbUtil {
                     Class.forName(dbDriver).newInstance();
                     dbConnection = DriverManager.getConnection(connectionUrl,
                             userName, password);
-                    //dbConnection.setNetworkTimeout(,5000);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-            return dbConnection;
+        } catch (Exception e) {
+            _log.error("Fehler beim Laden der Datenbankverbindung", e);
         }
+        return dbConnection;
     }
 }

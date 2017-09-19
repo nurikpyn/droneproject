@@ -3,6 +3,7 @@ package de.reekind.droneproject.dao;
 import de.reekind.droneproject.DbUtil;
 import de.reekind.droneproject.model.Location;
 import de.reekind.droneproject.model.Order;
+import de.reekind.droneproject.model.OrderHistoryPoint;
 import de.reekind.droneproject.model.enumeration.OrderStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -182,8 +183,8 @@ public class OrderDAO {
 
             preparedStatement.setInt(3, order.getWeight());
 
-            if (order.getStatus() != null)
-                preparedStatement.setInt(4, order.getStatus().GetID());
+            if (order.getOrderStatus() != null)
+                preparedStatement.setInt(4, order.getOrderStatus().GetID());
             else
                 preparedStatement.setInt(4, 0);
 
@@ -225,8 +226,8 @@ public class OrderDAO {
                 preparedStatement.setInt(1, order.getLocation().locationId);
             else
                 preparedStatement.setInt(1, 0);
-            if (order.getStatus() != null)
-                preparedStatement.setInt(2, order.getStatus().GetID());
+            if (order.getOrderStatus() != null)
+                preparedStatement.setInt(2, order.getOrderStatus().GetID());
             else
                 preparedStatement.setInt(2, 0);
             preparedStatement.setInt(3, order.getRouteStopId());
@@ -271,7 +272,7 @@ public class OrderDAO {
         Collection<Order> orderCollection = orderMap.values();
         List<Order> list = new ArrayList<>();
         orderCollection.forEach((Order order) -> {
-            if (order.getStatus() == _status) {
+            if (order.getOrderStatus() == _status) {
                 list.add(order);
             }
         });
@@ -293,5 +294,31 @@ public class OrderDAO {
             }
         });
         return list;
+    }
+
+    public static List<OrderHistoryPoint> getOrderHistory(int orderId) {
+        List<OrderHistoryPoint> history = new ArrayList<>();
+
+        OrderHistoryPoint point1 = new OrderHistoryPoint();
+        point1.Caption = "Bestellung eingegangen";
+        point1.Details = "Ihre Bestellung ist an unser System übermittelt worden und wartet nun auf die Abfertigung.";
+        point1.OrderHistoryPointType = 0;
+        OrderHistoryPoint point2 = new OrderHistoryPoint();
+        point2.Caption = "Vorbereitung";
+        point2.Details = "Ihre Bestellung wird für den Versand vorbereitet.";
+        point2.OrderHistoryPointType = 1;
+        OrderHistoryPoint point3 = new OrderHistoryPoint();
+        point3.Caption = "In Zustellung";
+        point3.Details = "Ihre Bestellung wird gerade zugestellt.";
+        point3.OrderHistoryPointType = 2;
+        OrderHistoryPoint point4 = new OrderHistoryPoint();
+        point4.Caption = "Zugestellt";
+        point4.Details = "Ihre Bestellung wurde erfolgreich zugestellt.";
+        point4.OrderHistoryPointType = 3;
+        history.add(point1);
+        history.add(point2);
+        history.add(point3);
+        history.add(point4);
+        return history;
     }
 }

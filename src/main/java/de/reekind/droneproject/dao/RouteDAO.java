@@ -70,6 +70,48 @@ public class RouteDAO {
         return list;
     }
 
+    public static List<Route> getAllRoutesWithStatus(RouteStatus routeStatus) {
+        _log.debug("Laden aller Routen");
+        List<Route> list = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = dbConnection.prepareStatement("SELECT routeID, droneId" +
+                    ", startTime, endTime, routeStatus " +
+                    "FROM routes WHERE routeStatus = ?");
+            preparedStatement.setInt(1,routeStatus.GetID());
+            ResultSet resultSet = preparedStatement.executeQuery(
+                    );
+            while (resultSet.next()) {
+                PreparedStatement routeStopsStatement = dbConnection.prepareStatement("SELECT routeStopId, locationId, arrivalTime" +
+                        " FROM routestops WHERE routeId = ?");
+                routeStopsStatement.setInt(1, resultSet.getInt("routeID"));
+                ResultSet routeStopResults = routeStopsStatement.executeQuery();
+                ArrayList<RouteStop> routeStops = new ArrayList<>();
+                while (routeStopResults.next()) {
+                    ArrayList<Order> orders = (ArrayList<Order>) OrderDAO.getOrdersWithRouteStopId(routeStopResults.getInt("routeStopId"));
+
+                    RouteStop stop = new RouteStop(routeStopResults.getInt("routeStopId")
+                            , new DateTime(routeStopResults.getTimestamp("arrivalTime"))
+                            , LocationDAO.getLocation(routeStopResults.getInt("locationId"))
+                            , orders
+                    );
+                    routeStops.add(stop);
+                }
+                Route route = new Route(resultSet.getInt("routeID")
+                        , DroneDAO.getDrone(resultSet.getInt("droneId"))
+                        , new DateTime(resultSet.getTimestamp("startTime"))
+                        , new DateTime(resultSet.getTimestamp("endTime"))
+                        , routeStops
+                        , RouteStatus.GetValue(resultSet.getInt("routeStatus")));
+
+                list.add(route);
+            }
+            _log.debug("Insgesamt {} Routen geladen", list.size());
+        } catch (SQLException e) {
+            _log.error("Fehler beim Auflisten der Routen", e);
+        }
+        return list;
+    }
+
     /**
      * Auflisten einer bestimmten Route
      *
@@ -159,6 +201,44 @@ public class RouteDAO {
                             throw new SQLException("Creating order failed, no ID obtained.");
                         }
                     }
+
+                    //Speichere RouteStopId in Bestellungen
+                    for (Order order : routeStop.Orders) {
+                        order.setRouteStopId(routeStop.getRouteStopId());
+                        OrderDAO.updateOrder(order);
+                    }
+                }
+            } catch (SQLException e) {
+                _log.error("Fehler beim Hinzufügen einer Route", e);
+            }
+        }
+        return route;
+    }
+
+    public static Route updateRoute(Route route) {
+        if (route != null) {
+            try {
+                PreparedStatement statement = dbConnection.prepareStatement(
+                        "UPDATE  routes SET startTime = ?, endTime = ?, droneID  = ?, routeStatus = ? " +
+                                " WHERE routeId = ?");
+                statement.setTimestamp(1, new Timestamp(route.StartTime.getMillis()));
+                statement.setTimestamp(2, new Timestamp(route.EndTime.getMillis()));
+                statement.setInt(3, route.Drone.getDroneId());
+                statement.setInt(4, route.getRouteStatus().GetID());
+                statement.setInt(5,route.RouteId);
+                statement.execute();
+
+                for (RouteStop routeStop : route.RouteStops) {
+                    PreparedStatement routeStopsStatement = dbConnection.prepareStatement(
+                            "UPDATE routestops SET routeId = ?, locationId = ? WHERE routeStopId = ?");
+                    routeStopsStatement.setInt(1, route.RouteId);
+                    if (routeStop.Location != null)
+                        routeStopsStatement.setInt(2, routeStop.Location.locationId);
+                    else
+                        routeStopsStatement.setInt(2, 0);
+                    routeStopsStatement.setInt(3,routeStop.getRouteStopId());
+                    routeStopsStatement.execute();
+
 
                     //Speichere RouteStopId in Bestellungen
                     for (Order order : routeStop.Orders) {

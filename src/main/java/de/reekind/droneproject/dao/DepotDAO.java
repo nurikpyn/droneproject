@@ -28,7 +28,6 @@ public class DepotDAO {
         Depot depot = null;
         PreparedStatement stmt = null;
         ResultSet resultSet;
-        List<DroneType> list = new ArrayList<>();
         try {
             stmt = dbConnection.prepareStatement("SELECT depots.depotId, depots.depotName, depots.latitude, depots.longitude " +
                     "FROM depots " +
