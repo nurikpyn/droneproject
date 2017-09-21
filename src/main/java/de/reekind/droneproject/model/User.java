@@ -9,52 +9,52 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class User {
-    private int UserId;
-    private String Username;
+    private int userId;
+    private String username;
     @JsonIgnore
-    private String Password;
-    private UserRole UserRole;
+    private String password;
+    private UserRole userRole;
 
     public User() {
 
     }
 
     public User(int userId, String username, String password, UserRole userRole) {
-        this.UserId = userId;
-        this.Username = username;
-        this.Password = password;
-        this.UserRole = userRole;
+        this.userId = userId;
+        this.username = username;
+        this.password = password;
+        this.userRole = userRole;
     }
 
     public int getUserId() {
-        return UserId;
+        return userId;
     }
 
     public void setUserId(int userId) {
-        UserId = userId;
+        this.userId = userId;
     }
 
     public String getUsername() {
-        return Username;
+        return username;
     }
 
     public void setUsername(String username) {
-        Username = username;
+        this.username = username;
     }
 
     public String getPassword() {
-        return Password;
+        return password;
     }
 
     public void setPassword(String password) {
-        Password = password;
+        this.password = password;
     }
 
     public UserRole getUserRole() {
-        return UserRole;
+        return userRole;
     }
 
     public void setUserRole(de.reekind.droneproject.model.UserRole userRole) {
-        UserRole = userRole;
+        this.userRole = userRole;
     }
 }
