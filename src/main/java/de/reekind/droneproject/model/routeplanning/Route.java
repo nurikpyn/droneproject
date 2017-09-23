@@ -14,17 +14,19 @@ public class Route {
     public DateTime EndTime;
     public ArrayList<RouteStop> RouteStops = new ArrayList<>();
     private RouteStatus routeStatus = RouteStatus.Geplant;
+    public Location StartLocation;
 
     public Route() {
     }
 
-    public Route(int routeId, Drone drone, DateTime startTime, DateTime endTime, ArrayList<RouteStop> routeStops, RouteStatus routeStatus) {
+    public Route(int routeId, Drone drone, DateTime startTime, DateTime endTime, ArrayList<RouteStop> routeStops, RouteStatus routeStatu, Location startLocation) {
         this.RouteId = routeId;
         this.Drone = drone;
         this.StartTime = startTime;
         this.EndTime = endTime;
         this.RouteStops = routeStops;
         this.routeStatus = routeStatus;
+        this.StartLocation = startLocation;
     }
 
     public RouteStatus getRouteStatus() {
@@ -41,16 +43,28 @@ public class Route {
         System.out.println("NewRouteDist!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         double totalDistance = 0;
         RouteStop prevRS = null;
+        int counter = 0;
         for (RouteStop rs: route.RouteStops)
         {
-            if (prevRS != null)
-            {
+            //Erster Stop --> Depot zur ersten Location
+            if (counter == 0){
                 totalDistance += Location.distanceInKm(rs.Location.getLatitude(), rs.Location.getLongitude(),
-                                                        prevRS.Location.getLatitude(), prevRS.Location.getLongitude());
-                System.out.println("Route Distance = " + totalDistance);
+                        route.StartLocation.getLatitude(),  route.StartLocation.getLongitude());
+            //Normaler Stop --> Vorherige Location zur jetzigen
+            } else {
+                totalDistance += Location.distanceInKm(rs.Location.getLatitude(), rs.Location.getLongitude(),
+                            prevRS.Location.getLatitude(), prevRS.Location.getLongitude());
             }
+            //Letzter Stop --> Adde Location zu Depot
+            if (counter == route.RouteStops.size() - 1)
+                totalDistance += Location.distanceInKm(rs.Location.getLatitude(), rs.Location.getLongitude(),
+                        route.StartLocation.getLatitude(),  route.StartLocation.getLongitude());
             prevRS = rs;
+            counter++;
+
+            System.out.println("Route Distance = " + totalDistance);
         }
+
         return totalDistance;
     }
 }

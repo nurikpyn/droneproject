@@ -80,7 +80,9 @@ public class RouteCalculator {
             route.Drone = DroneDAO.getDrone(Integer.parseInt(jspritRoute.getVehicle().getId()));
             //route.StartTime = Timestamp.from(Instant.ofEpochMilli((long)jspritRoute.getDepartureTime()));
             //route.EndTime =  Timestamp.from(Instant.ofEpochMilli((long)jspritRoute.getEnd().getEndTime()));
+            com.graphhopper.jsprit.core.problem.Location startLocation = jspritRoute.getStart().getLocation();
 
+            route.StartLocation = new Location(startLocation.getCoordinate().getX(),startLocation.getCoordinate().getY());
             route.StartTime = DateTime.now();
             route.EndTime = DateTime.now();
             // for each point in the route...

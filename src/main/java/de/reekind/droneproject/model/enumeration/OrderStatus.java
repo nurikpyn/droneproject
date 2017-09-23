@@ -1,7 +1,7 @@
 package de.reekind.droneproject.model.enumeration;
 
 public enum OrderStatus {
-    Eingegangen(0), Bereit(1), InAuslieferung(2), Ausgeliefert(3);
+    Eingegangen(0), InVorbereitung(1), Bereit(2), InAuslieferung(3), Ausgeliefert(4);
     int id;
 
     OrderStatus(int i) {

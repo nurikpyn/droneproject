@@ -308,27 +308,82 @@ public class OrderDAO {
 
     public static List<OrderHistoryPoint> getOrderHistory(int orderId) {
         List<OrderHistoryPoint> history = new ArrayList<>();
+        try {
+            PreparedStatement preparedStatement = dbConnection.prepareStatement(
+                    "SELECT orderHistoryId, orderId, caption, detail, statusId, timestamp " +
+                            "FROM orderhistory WHERE orderId = ?");
+            preparedStatement.setInt(1,orderId);
+            ResultSet resultSet = preparedStatement.executeQuery();
 
-        OrderHistoryPoint point1 = new OrderHistoryPoint();
-        point1.Caption = "Bestellung eingegangen";
-        point1.Details = "Ihre Bestellung ist an unser System übermittelt worden und wartet nun auf die Abfertigung.";
-        point1.OrderHistoryPointType = 0;
-        OrderHistoryPoint point2 = new OrderHistoryPoint();
-        point2.Caption = "Vorbereitung";
-        point2.Details = "Ihre Bestellung wird für den Versand vorbereitet.";
-        point2.OrderHistoryPointType = 1;
-        OrderHistoryPoint point3 = new OrderHistoryPoint();
-        point3.Caption = "In Zustellung";
-        point3.Details = "Ihre Bestellung wird gerade zugestellt.";
-        point3.OrderHistoryPointType = 2;
-        OrderHistoryPoint point4 = new OrderHistoryPoint();
-        point4.Caption = "Zugestellt";
-        point4.Details = "Ihre Bestellung wurde erfolgreich zugestellt.";
-        point4.OrderHistoryPointType = 3;
-        history.add(point1);
-        history.add(point2);
-        history.add(point3);
-        history.add(point4);
+            while(resultSet.next()) {
+                OrderHistoryPoint orderHistoryPoint = new OrderHistoryPoint(
+                        resultSet.getInt("orderHistoryId")
+                        , resultSet.getString("caption")
+                        , resultSet.getString("detail")
+                        , new DateTime(resultSet.getTimestamp("timestamp"))
+                        , resultSet.getInt("statusId"));
+                history.add(orderHistoryPoint);
+            }
+
+        } catch (SQLException e) {
+           _log.error("Fehler beim Laden der Historie", e);
+        }
+
         return history;
+    }
+
+        /**
+     * Füge einen neuen Historieneintrag zur Bestelldetails hinzu
+     * @param order Bestellung, die einen neuen Eintrag bekommt
+     * @return Historieneintrag
+     */
+    public static OrderHistoryPoint addOrderHistoryPoint(Order order) {
+        String caption = "";
+        String details = "";
+        switch (order.getOrderStatus()) {
+            case Eingegangen:
+                caption = "Bestellung eingegangen";
+                details = "Ihre Bestellung ist an unser System übermittelt worden und wartet nun auf die Abfertigung.";
+                break;
+            case InVorbereitung:
+                caption = "Vorbereitung";
+                details = "Ihre Bestellung wird für den Versand vorbereitet.";
+                break;
+            case InAuslieferung:
+                caption = "In Zustellung";
+                details = "Ihre Bestellung wird gerade zugestellt.";
+                break;
+            case Ausgeliefert:
+                caption = "Zugestellt";
+                details = "Ihre Bestellung wurde an den gewünschten Lieferort zugestellt.";
+                break;
+            default:
+                break;
+        }
+        OrderHistoryPoint point = new OrderHistoryPoint(caption, details,order.getOrderStatus().GetID() );
+
+        try {
+            PreparedStatement preparedStatement;
+            preparedStatement = dbConnection.prepareStatement(
+                    "INSERT INTO orderhistory (orderId, caption, detail, statusId) VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+
+            preparedStatement.setInt(1, order.getOrderId());
+            preparedStatement.setString(2,caption);
+            preparedStatement.setString(3,details);
+            preparedStatement.setInt(4, order.getOrderStatus().GetID());
+
+            preparedStatement.execute();
+
+            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                   point.OrderHistoryPointId =generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("Creating order failed, no ID obtained.");
+                }
+            }
+        } catch (SQLException e) {
+            _log.error("Fehler beim Hinzufügen eines Status", e);
+        }
+        return point;
     }
 }

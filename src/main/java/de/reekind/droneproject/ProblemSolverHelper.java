@@ -37,5 +37,8 @@ public class ProblemSolverHelper {
         } catch (IOException ex) {
             _log.error("Fehler beim Mappen der Objekte in JSON", ex);
         }
+
+        OrderDAO.getOrderHistory(603);
+
     }
 }

@@ -3,6 +3,7 @@ package de.reekind.droneproject.model;
 import com.graphhopper.jsprit.core.problem.job.Service;
 import de.reekind.droneproject.dao.DepotDAO;
 import de.reekind.droneproject.dao.DroneTypeDAO;
+import de.reekind.droneproject.dao.OrderDAO;
 import de.reekind.droneproject.model.enumeration.OrderStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -53,7 +54,7 @@ public class Order {
         this.orderTime = _orderTime;
         this.location = _location;
         this.weight = _weight;
-        this.orderStatus = OrderStatus.values()[_orderStatus];
+        this.setOrderStatus(OrderStatus.values()[_orderStatus]);
         this.routeStopId = _routeStopId;
     }
 
@@ -108,6 +109,7 @@ public class Order {
 
     public void setOrderStatus(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
+        OrderDAO.addOrderHistoryPoint(this);
     }
 
     public Location getLocation() {

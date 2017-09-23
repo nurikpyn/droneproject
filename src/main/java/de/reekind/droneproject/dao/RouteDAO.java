@@ -1,6 +1,8 @@
 package de.reekind.droneproject.dao;
 
 import de.reekind.droneproject.DbUtil;
+import de.reekind.droneproject.model.Drone;
+import de.reekind.droneproject.model.Location;
 import de.reekind.droneproject.model.Order;
 import de.reekind.droneproject.model.enumeration.RouteStatus;
 import de.reekind.droneproject.model.routeplanning.Route;
@@ -54,12 +56,16 @@ public class RouteDAO {
                     );
                     routeStops.add(stop);
                 }
+
+                Drone drone = DroneDAO.getDrone(resultSet.getInt("droneId"));
+
                 Route route = new Route(resultSet.getInt("routeID")
-                        , DroneDAO.getDrone(resultSet.getInt("droneId"))
+                        , drone
                         , new DateTime(resultSet.getTimestamp("startTime"))
                         , new DateTime(resultSet.getTimestamp("endTime"))
                         , routeStops
-                        , RouteStatus.GetValue(resultSet.getInt("routeStatus")));
+                        , RouteStatus.GetValue(resultSet.getInt("routeStatus"))
+                        , new Location(drone.getDepot().getLatitude(), drone.getDepot().getLongitude()));
 
                 list.add(route);
             }
@@ -96,12 +102,15 @@ public class RouteDAO {
                     );
                     routeStops.add(stop);
                 }
+
+                Drone drone = DroneDAO.getDrone(resultSet.getInt("droneId"));
                 Route route = new Route(resultSet.getInt("routeID")
-                        , DroneDAO.getDrone(resultSet.getInt("droneId"))
-                        , new DateTime(resultSet.getTimestamp("startTime"))
-                        , new DateTime(resultSet.getTimestamp("endTime"))
-                        , routeStops
-                        , RouteStatus.GetValue(resultSet.getInt("routeStatus")));
+                    , drone
+                    , new DateTime(resultSet.getTimestamp("startTime"))
+                    , new DateTime(resultSet.getTimestamp("endTime"))
+                    , routeStops
+                    , RouteStatus.GetValue(resultSet.getInt("routeStatus"))
+                , new Location(drone.getDepot().getLatitude(), drone.getDepot().getLongitude()));
 
                 list.add(route);
             }
@@ -144,13 +153,14 @@ public class RouteDAO {
                     );
                     routeStops.add(stop);
                 }
-
+                Drone drone = DroneDAO.getDrone(resultSet.getInt("droneId"));
                 route = new Route(resultSet.getInt("routeID")
                         , DroneDAO.getDrone(resultSet.getInt("droneId"))
                         , new DateTime(resultSet.getTimestamp("startTime"))
                         , new DateTime(resultSet.getTimestamp("endTime"))
                         , routeStops
-                        , RouteStatus.GetValue(resultSet.getInt("routeStatus")));
+                        , RouteStatus.GetValue(resultSet.getInt("routeStatus"))
+                , new Location(drone.getDepot().getLatitude(), drone.getDepot().getLongitude()));
             }
         } catch (SQLException e) {
             _log.error("Laden einer bestimmten Route", e);

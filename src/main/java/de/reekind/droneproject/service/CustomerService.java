@@ -11,10 +11,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
-@Path("/public/customerservice")
+@Path("/public/orderinfo")
 public class CustomerService {
     @GET
-    @Path("/orderinfo/{orderId}")
+    @Path("/{orderId}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public List<OrderHistoryPoint> getOrderInfo(@PathParam("orderId") Integer orderId) {
         return OrderDAO.getOrderHistory(orderId);
