@@ -4,10 +4,12 @@ import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
 import com.google.maps.model.GeocodingResult;
 import com.graphhopper.jsprit.core.util.Coordinate;
+import de.reekind.droneproject.model.routeplanning.RouteStop;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
 
 @XmlType(name = "ownLocation")
 public class Location {
@@ -64,7 +66,8 @@ public class Location {
     }
 
 
-    static double distanceInKm(double lat1, double lon1, double lat2, double lon2) {
+
+    public static double distanceInKm(double lat1, double lon1, double lat2, double lon2) {
         int radius = 6371;
 
         double lat = Math.toRadians(lat2 - lat1);
@@ -94,4 +97,6 @@ public class Location {
     public void setName(String name) {
         getCoordinatesFromAdress(name);
     }
+
+
 }

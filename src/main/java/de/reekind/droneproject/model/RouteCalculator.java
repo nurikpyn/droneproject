@@ -60,10 +60,6 @@ public class RouteCalculator {
         }
         vrpBuilder.setFleetSize(VehicleRoutingProblem.FleetSize.FINITE);
 
-        //TODO Set cost /speed
-        VehicleRoutingTransportCostsMatrix.Builder costMatrixBuilder;
-        costMatrixBuilder = VehicleRoutingTransportCostsMatrix.Builder.newInstance(true);
-
         VehicleRoutingProblem problem = vrpBuilder.build();
 
         VehicleRoutingAlgorithm algorithm = Jsprit.createAlgorithm(problem);
@@ -75,6 +71,7 @@ public class RouteCalculator {
         // Debug
         SolutionPrinter.print(problem, bestSolution, SolutionPrinter.Print.VERBOSE);
 
+        // Writing back the solution in Routes
         ArrayList<Route> routes = new ArrayList<>();
 
         // For each route in in the best solution...
@@ -117,6 +114,7 @@ public class RouteCalculator {
                 }
             }
             RouteDAO.updateRoute(route);
+            route.Drone.setReturnTimerFromDistance(Route.getTotalRouteDistance(route));
         }
     }
 }

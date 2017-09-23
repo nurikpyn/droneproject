@@ -1,6 +1,7 @@
 package de.reekind.droneproject.model.routeplanning;
 
 import de.reekind.droneproject.model.Drone;
+import de.reekind.droneproject.model.Location;
 import de.reekind.droneproject.model.enumeration.RouteStatus;
 import org.joda.time.DateTime;
 
@@ -32,5 +33,24 @@ public class Route {
 
     public void setRouteStatus(RouteStatus routeStatus) {
         this.routeStatus = routeStatus;
+    }
+
+    // Get the total distance from beginning to end of the route
+    public static double getTotalRouteDistance(Route route)
+    {
+        System.out.println("NewRouteDist!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        double totalDistance = 0;
+        RouteStop prevRS = null;
+        for (RouteStop rs: route.RouteStops)
+        {
+            if (prevRS != null)
+            {
+                totalDistance += Location.distanceInKm(rs.Location.getLatitude(), rs.Location.getLongitude(),
+                                                        prevRS.Location.getLatitude(), prevRS.Location.getLongitude());
+                System.out.println("Route Distance = " + totalDistance);
+            }
+            prevRS = rs;
+        }
+        return totalDistance;
     }
 }

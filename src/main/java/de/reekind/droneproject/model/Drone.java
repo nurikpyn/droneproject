@@ -142,4 +142,10 @@ public class Drone {
         vehicleBuilder.setType(droneType.toJspritVehicleType());
         return vehicleBuilder.build();
     }
+
+    public void setReturnTimerFromDistance(double distance)
+    {
+        // TODO: Start async timer here
+        System.out.println("Distance: " + distance);
+    }
 }
