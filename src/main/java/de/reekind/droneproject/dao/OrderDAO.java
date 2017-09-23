@@ -50,6 +50,8 @@ public class OrderDAO {
                 if (order.validateOrder())
                     orderMap.put(order.getOrderId(), order);
                 else
+                    order.setOrderStatus(OrderStatus.Fehler);
+                    OrderDAO.addOrderHistoryPoint(order);
                     _log.error(String.format("Bestellung mit orderId %d ist nicht valide.",order.getOrderId()));
             }
         } catch (SQLException e) {
@@ -356,6 +358,10 @@ public class OrderDAO {
             case Ausgeliefert:
                 caption = "Zugestellt";
                 details = "Ihre Bestellung wurde an den gewünschten Lieferort zugestellt.";
+                break;
+            case Fehler:
+                caption = "Fehler bei der Lieferung";
+                details = "Leider gab es Komplikationen in Verbindung mit Ihrer Bestellung. Für Details wenden Sie sich bitte an Ihren Kundenbetreuer.";
                 break;
             default:
                 break;
