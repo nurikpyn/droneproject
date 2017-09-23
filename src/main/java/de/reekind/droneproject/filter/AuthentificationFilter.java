@@ -10,7 +10,7 @@ import java.io.IOException;
  * JavaEE Webserver Authentifizierungsfilter
  */
 public class AuthentificationFilter implements Filter {
-    public static final String AUTHENTICATION_HEADER = "Authorization";
+    private static final String AUTHENTICATION_HEADER = "Authorization";
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,

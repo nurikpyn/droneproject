@@ -10,9 +10,9 @@ public enum RouteStatus {
 
     public static RouteStatus GetValue(int _id) {
         RouteStatus[] As = RouteStatus.values();
-        for (int i = 0; i < As.length; i++) {
-            if (As[i].Compare(_id))
-                return As[i];
+        for (RouteStatus A : As) {
+            if (A.Compare(_id))
+                return A;
         }
         return RouteStatus.Geplant;
     }

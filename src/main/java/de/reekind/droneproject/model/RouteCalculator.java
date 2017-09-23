@@ -10,7 +10,6 @@ import com.graphhopper.jsprit.core.problem.solution.route.activity.TourActivity;
 import com.graphhopper.jsprit.core.problem.vehicle.Vehicle;
 import com.graphhopper.jsprit.core.reporting.SolutionPrinter;
 import com.graphhopper.jsprit.core.util.Solutions;
-import com.graphhopper.jsprit.core.util.VehicleRoutingTransportCostsMatrix;
 import de.reekind.droneproject.DbUtil;
 import de.reekind.droneproject.dao.DroneDAO;
 import de.reekind.droneproject.dao.LocationDAO;
@@ -19,7 +18,6 @@ import de.reekind.droneproject.dao.RouteDAO;
 import de.reekind.droneproject.model.enumeration.DroneStatus;
 import de.reekind.droneproject.model.enumeration.OrderStatus;
 import de.reekind.droneproject.model.enumeration.RouteStatus;
-import de.reekind.droneproject.model.routeplanning.DeliveryPlan;
 import de.reekind.droneproject.model.routeplanning.Route;
 import de.reekind.droneproject.model.routeplanning.RouteStop;
 import org.joda.time.DateTime;
@@ -112,6 +110,7 @@ public class RouteCalculator {
             route.setRouteStatus(RouteStatus.InAuslieferung);
             for(RouteStop routeStop : route.RouteStops) {
                 for(Order order : routeStop.Orders){
+
                     order.setOrderStatus(OrderStatus.InAuslieferung);
                 }
             }

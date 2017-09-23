@@ -10,9 +10,9 @@ public enum OrderStatus {
 
     public static OrderStatus GetValue(int _id) {
         OrderStatus[] As = OrderStatus.values();
-        for (int i = 0; i < As.length; i++) {
-            if (As[i].Compare(_id))
-                return As[i];
+        for (OrderStatus A : As) {
+            if (A.Compare(_id))
+                return A;
         }
         return OrderStatus.Eingegangen;
     }

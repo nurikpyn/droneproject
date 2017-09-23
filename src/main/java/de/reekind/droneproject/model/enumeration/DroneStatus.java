@@ -10,9 +10,9 @@ public enum DroneStatus {
 
     public static DroneStatus GetValue(int _id) {
         DroneStatus[] As = DroneStatus.values();
-        for (int i = 0; i < As.length; i++) {
-            if (As[i].Compare(_id))
-                return As[i];
+        for (DroneStatus A : As) {
+            if (A.Compare(_id))
+                return A;
         }
         return DroneStatus.Bereit;
     }

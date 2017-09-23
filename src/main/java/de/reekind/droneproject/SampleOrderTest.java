@@ -1,6 +1,5 @@
 package de.reekind.droneproject;
 
-import de.reekind.droneproject.dao.LocationDAO;
 import de.reekind.droneproject.dao.OrderDAO;
 import de.reekind.droneproject.model.Location;
 import de.reekind.droneproject.model.Order;
