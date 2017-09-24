@@ -4,7 +4,7 @@ import com.graphhopper.jsprit.core.problem.vehicle.VehicleImpl;
 import de.reekind.droneproject.model.enumeration.DroneStatus;
 import de.reekind.droneproject.model.enumeration.RouteStatus;
 import de.reekind.droneproject.model.routeplanning.Route;
-import org.joda.time.DateTime;
+import org.joda.time.*;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -22,6 +22,7 @@ public class Drone {
     private Double latitude;
     private Double longitude;
     private Depot depot;
+    // TODO: Dynamically speed?
     private float speed = 60;
     private int uptime = 20;
 
@@ -141,11 +142,5 @@ public class Drone {
         vehicleBuilder.setStartLocation( com.graphhopper.jsprit.core.problem.Location.newInstance(this.latitude, this.longitude));
         vehicleBuilder.setType(droneType.toJspritVehicleType());
         return vehicleBuilder.build();
-    }
-
-    public void setReturnTimerFromDistance(double distance)
-    {
-        // TODO: Start async timer here
-        System.out.println("Distance: " + distance);
     }
 }

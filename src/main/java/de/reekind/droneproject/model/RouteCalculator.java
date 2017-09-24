@@ -18,18 +18,26 @@ import de.reekind.droneproject.dao.RouteDAO;
 import de.reekind.droneproject.model.enumeration.DroneStatus;
 import de.reekind.droneproject.model.enumeration.OrderStatus;
 import de.reekind.droneproject.model.enumeration.RouteStatus;
+import de.reekind.droneproject.model.routeplanning.DroneRestartTimer;
 import de.reekind.droneproject.model.routeplanning.Route;
 import de.reekind.droneproject.model.routeplanning.RouteStop;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Timer;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 // Hauptklasse für Verarbeitung
 public class RouteCalculator {
 
     private static Connection conn;
+    private static Logger _Log = LogManager.getLogger();
+    public static Timer timer = new Timer();
 
     public ArrayList<Service> listOfServices = new ArrayList<>();
     public ArrayList<Vehicle> listOfVehicles = new ArrayList<>();
@@ -115,7 +123,14 @@ public class RouteCalculator {
                 }
             }
             RouteDAO.updateRoute(route);
-            route.Drone.setReturnTimerFromDistance(Route.getTotalRouteDistance(route));
+
+            // Get duration in hours, then schedule task execution ahead from now.
+            double durationInHours = Route.getTotalRouteDistance(route)/route.Drone.getDroneType().getMaxSpeed();
+            long timerDurationInMillis = Math.round(DateTimeConstants.MILLIS_PER_HOUR * durationInHours);
+            DroneRestartTimer drt = new DroneRestartTimer(route.Drone);
+            timer.schedule(drt, timerDurationInMillis);
+            // Debug
+            _Log.info("Started timer for drone " + route.Drone.getDroneId() + " duration: " + timerDurationInMillis/1000);
         }
     }
 }
