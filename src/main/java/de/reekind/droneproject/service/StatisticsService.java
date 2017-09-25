@@ -8,7 +8,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-
 @Path("/rest/statistics")
 public class StatisticsService {
 
@@ -19,6 +18,8 @@ public class StatisticsService {
         statistic.OrderCount = OrderDAO.countOrders();
         statistic.AverageWeight = OrderDAO.averageWeight();
         statistic.AverageOrdersPerDay = OrderDAO.countOrdersPerDay();
+        statistic.AverageDeviation = OrderDAO.averageDeviation();
+        statistic.AverageDeliveryTime = OrderDAO.averageDeliveryTime();
         return statistic;
     }
 }

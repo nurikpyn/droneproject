@@ -108,7 +108,7 @@ public class LocationDAO {
                         , resultSet.getDouble("longitude")
                 );
             } else {
-                _log.error("Kein Ort zu angegebenen Koordinaten X %,d?, Y %,d gefunden", coordinate.getX(), coordinate.getY());
+                _log.error("Kein Ort zu angegebenen Koordinaten X {}, Y {} gefunden", coordinate.getX(), coordinate.getY());
             }
 
         } catch (SQLException e) {

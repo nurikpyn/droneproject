@@ -66,7 +66,8 @@ public class RouteDAO {
                         , routeStops
                         , RouteStatus.GetValue(resultSet.getInt("routeStatus"))
                         , new Location(drone.getDepot().getLatitude(), drone.getDepot().getLongitude())
-                        , resultSet.getDouble("totalDistance"));
+                        , resultSet.getDouble("totalDistance")
+                );
 
                 list.add(route);
             }

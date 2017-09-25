@@ -41,28 +41,6 @@ public class Drone {
         }
     }
 
-    public void StartDrone(Route route) {
-        //Setze Drohnenstatus
-        //Location berechnen falls gefragt
-        //Wenn zeit von start dauer bis zum abladen: bestellstatus ändern
-        //5 min vor Ende calculator anwerfen
-        int MINUTES = 10; // The delay in minutes
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() { // Function runs every MINUTES minutes.
-                if (droneStatus == DroneStatus.InAuslieferung) {
-
-                    if (new DateTime(route.EndTime).minusMinutes(5).equals(new DateTime())) {
-                        droneStatus = DroneStatus.Bereit;
-                        route.setRouteStatus(RouteStatus.Beendet);
-                    }
-                }
-            }
-        }, 0, 1000 * 60 * MINUTES);
-    }
-
-
     public int getDroneId() {
         return droneId;
     }
@@ -79,10 +57,10 @@ public class Drone {
     public void setDroneStatus(DroneStatus droneStatus) {
         this.droneStatus = droneStatus;
 
-        if (droneStatus == DroneStatus.Bereit) {
+       /* if (droneStatus == DroneStatus.Bereit) {
             RouteCalculator routeCalc = new RouteCalculator();
             routeCalc.calculateRoute();
-        }
+        }*/
     }
 
     public DroneType getDroneType() {

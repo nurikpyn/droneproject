@@ -32,7 +32,7 @@ public class OrderDAO {
         try {
             Statement statement = dbConnection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT orderId, orderTime," +
-                    " weight, orderStatus, orderRouteStopId, locationId " +
+                    " weight, orderStatus, orderRouteStopId, locationId, deliveryTime " +
                     "FROM orders " +
                     "ORDER BY orderId ASC");
 
@@ -44,7 +44,9 @@ public class OrderDAO {
                         , LocationDAO.getLocation(resultSet.getInt("locationId"))
                         , resultSet.getInt("weight")
                         , resultSet.getInt("orderStatus")
-                        , resultSet.getInt("orderRouteStopId"));
+                        , resultSet.getInt("orderRouteStopId")
+                        , new DateTime(resultSet.getTimestamp("deliveryTime"))
+                );
 
                 if (order.validateOrder())
                     orderMap.put(order.getOrderId(), order);
@@ -63,7 +65,7 @@ public class OrderDAO {
         try {
             Statement statement = dbConnection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT orderId, orderTime," +
-                    " weight, orderStatus, orderRouteStopId, locationId " +
+                    " weight, orderStatus, orderRouteStopId, locationId, deliveryTime " +
                     "FROM orders " +
                     "ORDER BY orderId ASC");
 
@@ -77,7 +79,9 @@ public class OrderDAO {
                             , LocationDAO.getLocation(resultSet.getInt("locationId"))
                             , resultSet.getInt("weight")
                             , resultSet.getInt("orderStatus")
-                            , resultSet.getInt("orderRouteStopId"));
+                            , resultSet.getInt("orderRouteStopId")
+                            , new DateTime(resultSet.getTimestamp("deliveryTime"))
+                    );
                     orderMap.put(order.getOrderId(), order);
                 }
             }
@@ -168,8 +172,11 @@ public class OrderDAO {
     public static Order addOrder(Order order) {
 
         //Validiere Bestellung
-        if (!order.validateOrder())
+        if (!order.validateOrder()) {
             _log.error("Bestellung mit orderId {} ist nicht valide.",order.getOrderId());
+            return null;
+        }
+
 
         try {
             String sqlStatement;
@@ -178,7 +185,7 @@ public class OrderDAO {
             //Existierende Location mit LocationID aus DB holen oder neue erstellen
             order.setLocation(LocationDAO.addLocation( order.getLocation()));
             sqlStatement = "INSERT INTO orders (orderTime, locationId" +
-                    ", weight, orderStatus, orderRouteStopId) VALUES (?,?,?,?,?)";
+                    ", weight, orderStatus, orderRouteStopId, deliveryTime) VALUES (?,?,?,?,?,?)";
             preparedStatement = dbConnection.prepareStatement(
                     sqlStatement, Statement.RETURN_GENERATED_KEYS);
 
@@ -197,6 +204,10 @@ public class OrderDAO {
                 preparedStatement.setInt(4, 0);
 
             preparedStatement.setInt(5, order.getRouteStopId());
+            if (order.getDeliveryTime() != null)
+                preparedStatement.setTimestamp(6, new Timestamp(order.getDeliveryTime().getMillis()));
+            else
+                preparedStatement.setTimestamp(6,null);
 
             preparedStatement.execute();
 
@@ -210,6 +221,9 @@ public class OrderDAO {
         } catch (SQLException e) {
             _log.error("Fehler beim Hinzufügen einer Bestellung", e);
         }
+
+        //Erster Eintrag in der Historie
+        OrderDAO.addOrderHistoryPoint(order);
 
         //Füge Order in DAO ein
         orderMap.put(order.getOrderId(), order);
@@ -228,7 +242,7 @@ public class OrderDAO {
         try {
             PreparedStatement preparedStatement = dbConnection.prepareStatement(
                     "UPDATE orders " +
-                            "SET locationId = ?,orderStatus=?,orderRouteStopId=?,weight=? " +
+                            "SET locationId = ?,orderStatus=?,orderRouteStopId=?,weight=?, deliveryTime=? " +
                             "WHERE orderId = ?");
             if (order.getLocation() != null)
                 preparedStatement.setInt(1, order.getLocation().locationId);
@@ -240,7 +254,11 @@ public class OrderDAO {
                 preparedStatement.setInt(2, 0);
             preparedStatement.setInt(3, order.getRouteStopId());
             preparedStatement.setInt(4, order.getWeight());
-            preparedStatement.setInt(5, order.getOrderId());
+            if (order.getDeliveryTime() != null)
+                preparedStatement.setTimestamp(5, new Timestamp(order.getDeliveryTime().getMillis()));
+            else
+                preparedStatement.setTimestamp(5,null);
+            preparedStatement.setInt(6, order.getOrderId());
             preparedStatement.execute();
 
             orderMap.put(order.getOrderId(), order);
@@ -248,8 +266,6 @@ public class OrderDAO {
         } catch (SQLException e) {
             _log.error("Fehler beim Aktualisieren einer Bestellung", e);
         }
-
-
         return order;
     }
 
@@ -396,5 +412,27 @@ public class OrderDAO {
             _log.error("Fehler beim Hinzufügen eines Status", e);
         }
         return point;
+    }
+
+    public static int averageDeviation() {
+
+        return 0;
+    }
+
+    public static int averageDeliveryTime() {
+        int averageDeliveryTime = 0;
+        try {
+            Statement statement = dbConnection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT AVG(TIMESTAMPDIFF(MINUTE,orders.orderTime,orders.deliveryTime)) AS average " +
+                    "FROM orders WHERE deliveryTime IS NOT NULL AND orderTime IS NOT NULL");
+
+            // Only one line available
+            if (resultSet.first()) {
+                averageDeliveryTime = resultSet.getInt("average");
+            }
+        } catch (SQLException e) {
+            _log.error("Fehler beim Berechnen des Durchschnitts", e);
+        }
+        return averageDeliveryTime;
     }
 }

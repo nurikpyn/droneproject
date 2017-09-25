@@ -12,10 +12,10 @@ public class BackgroundJobManager implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent event) {
-        scheduler = Executors.newSingleThreadScheduledExecutor();
+        //scheduler = Executors.newSingleThreadScheduledExecutor();
         // scheduler.scheduleAtFixedRate(new DailyJob(), 0, 1, TimeUnit.DAYS);
         //Führe Job jede Minute aus
-        scheduler.scheduleAtFixedRate(new LookForOrdersJob(), 0, 1, TimeUnit.MINUTES);
+        //scheduler.scheduleAtFixedRate(new LookForOrdersJob(), 0, 1, TimeUnit.MINUTES);
         //scheduler.scheduleAtFixedRate(new MinJob(), 0, 1, TimeUnit.MINUTES);
         // scheduler.scheduleAtFixedRate(new SecJob(), 0, 15, TimeUnit.SECONDS);
     }

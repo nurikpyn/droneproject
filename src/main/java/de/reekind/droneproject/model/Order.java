@@ -6,6 +6,7 @@ import de.reekind.droneproject.dao.DroneTypeDAO;
 import de.reekind.droneproject.dao.OrderDAO;
 import de.reekind.droneproject.model.enumeration.OrderStatus;
 import de.reekind.droneproject.model.task.OrderTimer;
+import de.reekind.droneproject.model.task.RouteCalculatorTimer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
@@ -50,6 +51,10 @@ public class Order {
         //Setze OrderStatus nach 5 Minuten auf Bereit
         timer.schedule(orderTimer, this.getOrderReadyTime().getMillis() - DateTime.now().getMillis());
         this.orderStatus = OrderStatus.InVorbereitung;
+
+        //Lasse RouteCalc genau dann laufen, wenn Bestellung bereit
+        timer.schedule(new RouteCalculatorTimer(), this.getOrderReadyTime().getMillis() - DateTime.now().getMillis());
+
     }
 
     public Order(DateTime _orderTime, Location deliveryPlace, int weight) {
@@ -58,13 +63,14 @@ public class Order {
         this.weight = weight;
     }
 
-    public Order(int _orderId, DateTime _orderTime, Location _location, int _weight, int _orderStatus, int _routeStopId) {
+    public Order(int _orderId, DateTime _orderTime, Location _location, int _weight, int _orderStatus, int _routeStopId, DateTime _deliveryTime) {
         this.orderId = _orderId;
         this.orderTime = _orderTime;
         this.location = _location;
         this.weight = _weight;
         this.setOrderStatus(OrderStatus.values()[_orderStatus]);
         this.routeStopId = _routeStopId;
+        this.deliveryTime = _deliveryTime;
     }
 
     //TODO Validierung der Bestellungen: Zeitpunkt nicht vor 2017, Adresse irgendwie im Raum, Gewicht unter 4000
