@@ -4,6 +4,7 @@ import com.graphhopper.jsprit.core.problem.vehicle.VehicleImpl;
 import de.reekind.droneproject.model.enumeration.DroneStatus;
 import de.reekind.droneproject.model.enumeration.RouteStatus;
 import de.reekind.droneproject.model.routeplanning.Route;
+import de.reekind.droneproject.model.routeplanning.RouteCalculator;
 import org.joda.time.*;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -78,8 +79,7 @@ public class Drone {
     public void setDroneStatus(DroneStatus droneStatus) {
         this.droneStatus = droneStatus;
 
-        if (droneStatus == DroneStatus.GetValue(0)) {
-            //setDroneStatus(droneStatus);
+        if (droneStatus == DroneStatus.Bereit) {
             RouteCalculator routeCalc = new RouteCalculator();
             routeCalc.calculateRoute();
         }

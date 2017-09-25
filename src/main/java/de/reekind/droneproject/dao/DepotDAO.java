@@ -19,20 +19,17 @@ public class DepotDAO {
 
     /**
      * Laden eines bestimmten Depots
-     *
      * @param depotId Depot-Id
      * @return Depot
      */
-    public static Depot getDepot(Integer depotId) {
+    public static Depot getDepot(int depotId) {
         Depot depot = null;
-        PreparedStatement stmt = null;
-        ResultSet resultSet;
         try {
-            stmt = dbConnection.prepareStatement("SELECT depots.depotId, depots.depotName, depots.latitude, depots.longitude " +
+            PreparedStatement preparedStatement = dbConnection.prepareStatement("SELECT depots.depotId, depots.depotName, depots.latitude, depots.longitude " +
                     "FROM depots " +
                     "WHERE depots.depotID =  ?");
-            stmt.setInt(1, depotId);
-            resultSet = stmt.executeQuery();
+            preparedStatement.setInt(1, depotId);
+            ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.first()) {
                 depot = new Depot(
                         resultSet.getInt("depotId")
@@ -52,12 +49,10 @@ public class DepotDAO {
      * @return Liste mit allen Depots
      */
     public static List<Depot> getAllDepots() {
-        Statement stmt = null;
-        ResultSet resultSet;
         List<Depot> list = new ArrayList<>();
         try {
-            stmt = dbConnection.createStatement();
-            resultSet = stmt.executeQuery("SELECT depots.depotId, depots.depotName" +
+            Statement statement = dbConnection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT depots.depotId, depots.depotName" +
                     ", depots.latitude, depots.longitude " +
                     "FROM depots " +
                     "LEFT JOIN drones ON depots.depotId = drones.droneDepotId " +

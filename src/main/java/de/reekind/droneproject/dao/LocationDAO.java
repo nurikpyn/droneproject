@@ -36,13 +36,14 @@ public class LocationDAO {
                         resultSet.getInt("locationId")
                         , resultSet.getString("name")
                         , resultSet.getDouble("Latitude")
-                        , resultSet.getDouble("longitude"));
+                        , resultSet.getDouble("longitude")
+                );
             } else {
                 _log.info("Keine Treffer für Ort mit locationId {}", locationId);
                 return null;
             }
         } catch (SQLException e) {
-            _log.error("Fehler beim Laden der Orte", e);
+            _log.error("Fehler beim Laden einer Adresse anhand der Id", e);
             return null;
         }
     }
@@ -53,7 +54,6 @@ public class LocationDAO {
      * @param name Adresse
      * @return Location
      */
-    @SuppressWarnings("Duplicates")
     public static Location getLocation(String name) {
         try {
             PreparedStatement preparedStatement = dbConnection.prepareStatement("SELECT locationId , name" +
@@ -68,7 +68,8 @@ public class LocationDAO {
                         resultSet.getInt("locationId")
                         , resultSet.getString("name")
                         , resultSet.getDouble("latitude")
-                        , resultSet.getDouble("longitude"));
+                        , resultSet.getDouble("longitude")
+                );
             } else {
                 _log.info("Keine Treffer für Ort mit Adresse {}", name);
                 Location location = new Location(name);
@@ -104,7 +105,8 @@ public class LocationDAO {
                         resultSet.getInt("locationId")
                         , resultSet.getString("name")
                         , resultSet.getDouble("latitude")
-                        , resultSet.getDouble("longitude"));
+                        , resultSet.getDouble("longitude")
+                );
             } else {
                 _log.error("Kein Ort zu angegebenen Koordinaten X %,d?, Y %,d gefunden", coordinate.getX(), coordinate.getY());
             }
@@ -114,7 +116,6 @@ public class LocationDAO {
         }
         return location;
     }
-
 
     /**
      * Gebe Location mit angegebenen Koordinaten zurück
@@ -166,13 +167,11 @@ public class LocationDAO {
         if (location.validate())
             return location;
 
-
         //Location mit angegebener Adresse oder Koordinaten bereits vorhanden
         Location _existLocation = LocationDAO.exists(location);
-        //Wenn ja, dann gebe einfach diese Zurück
+        //Wenn ja, dann gebe einfach diese zurück
         if (_existLocation != null)
             return _existLocation;
-
 
         try {
             PreparedStatement preparedStatement;

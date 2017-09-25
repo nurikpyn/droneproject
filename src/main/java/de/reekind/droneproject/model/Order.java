@@ -5,6 +5,7 @@ import de.reekind.droneproject.dao.DepotDAO;
 import de.reekind.droneproject.dao.DroneTypeDAO;
 import de.reekind.droneproject.dao.OrderDAO;
 import de.reekind.droneproject.model.enumeration.OrderStatus;
+import de.reekind.droneproject.model.task.OrderTimer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
@@ -15,6 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Duration;
 import java.util.List;
+import java.util.Timer;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -23,7 +25,7 @@ public class Order {
     private int orderId;
     @XmlJavaTypeAdapter(XmlDateTimeAdapter.class)
     private DateTime orderTime;
-    private DateTime orderReadyTime;
+    private DateTime deliveryTime;
     private int weight;
     private int routeStopId;
     private OrderStatus orderStatus;
@@ -31,9 +33,10 @@ public class Order {
     private List<OrderHistoryPoint> orderHistoryPointList;
 
     public Order() {
+
     }
 
-
+    //Standardmethode über REST
     public Order(DateTime _orderTime, String deliveryPlace, int weight) {
         if (_orderTime != null)
             this.orderTime = _orderTime;
@@ -41,6 +44,12 @@ public class Order {
             this.orderTime = DateTime.now();
         this.location = new Location(deliveryPlace);
         this.weight = weight;
+
+        Timer timer = new Timer();
+        OrderTimer orderTimer = new OrderTimer(this, OrderStatus.Bereit);
+        //Setze OrderStatus nach 5 Minuten auf Bereit
+        timer.schedule(orderTimer, this.getOrderReadyTime().getMillis() - DateTime.now().getMillis());
+        this.orderStatus = OrderStatus.InVorbereitung;
     }
 
     public Order(DateTime _orderTime, Location deliveryPlace, int weight) {
@@ -153,5 +162,13 @@ public class Order {
 
     public void setRouteStopId(int routeStopId) {
         this.routeStopId = routeStopId;
+    }
+
+    public DateTime getDeliveryTime() {
+        return deliveryTime;
+    }
+
+    public void setDeliveryTime(DateTime deliveryTime) {
+        this.deliveryTime = deliveryTime;
     }
 }

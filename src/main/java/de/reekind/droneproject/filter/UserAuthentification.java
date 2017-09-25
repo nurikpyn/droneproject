@@ -2,8 +2,6 @@ package de.reekind.droneproject.filter;
 
 import de.reekind.droneproject.dao.UserDAO;
 import de.reekind.droneproject.model.User;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -13,7 +11,6 @@ import java.util.StringTokenizer;
  * Created by timbe on 11.08.2017.
  */
 public class UserAuthentification {
-    private final static Logger _log = LogManager.getLogger();
     public boolean authenticate(String authCredentials) {
 
         if (null == authCredentials)

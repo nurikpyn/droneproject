@@ -4,6 +4,7 @@ import de.reekind.droneproject.DbUtil;
 import de.reekind.droneproject.model.Depot;
 import de.reekind.droneproject.model.Drone;
 import de.reekind.droneproject.model.DroneType;
+import de.reekind.droneproject.model.enumeration.DroneStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,9 +51,18 @@ public class DroneDAO {
      * @return Liste aller Drohnen
      */
     public static List<Drone> getAllDrones() {
-        Collection<Drone> c = droneMap.values();
+        Collection<Drone> droneCollection = droneMap.values();
         List<Drone> list = new ArrayList<>();
-        list.addAll(c);
+        list.addAll(droneCollection);
+        return list;
+    }
+    public static List<Drone> getDronesWithStatus(DroneStatus droneStatus) {
+        Collection<Drone> droneCollection = droneMap.values();
+        List<Drone> list = new ArrayList<>();
+        for(Drone drone : droneCollection) {
+            if (drone.getDroneStatus() == droneStatus)
+                list.add(drone);
+        }
         return list;
     }
 

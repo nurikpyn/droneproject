@@ -1,7 +1,6 @@
 package de.reekind.droneproject.service;
 
 import de.reekind.droneproject.dao.OrderDAO;
-import de.reekind.droneproject.model.Order;
 import de.reekind.droneproject.model.OrderHistoryPoint;
 
 import javax.ws.rs.GET;

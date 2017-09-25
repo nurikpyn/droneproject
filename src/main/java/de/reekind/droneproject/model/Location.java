@@ -3,13 +3,10 @@ package de.reekind.droneproject.model;
 import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
 import com.google.maps.model.GeocodingResult;
-import com.graphhopper.jsprit.core.util.Coordinate;
-import de.reekind.droneproject.model.routeplanning.RouteStop;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.xml.bind.annotation.XmlType;
-import java.util.ArrayList;
 
 @XmlType(name = "ownLocation")
 public class Location {
@@ -66,6 +63,14 @@ public class Location {
     }
 
 
+    public static double distanceInKm(Location location1, Location location2) {
+        if (location1 != null && location2 != null) {
+            return distanceInKm(location1.getLatitude(), location1.getLongitude(), location2.getLatitude(), location2.getLongitude());
+        } else {
+            return 0;
+        }
+
+    }
 
     public static double distanceInKm(double lat1, double lon1, double lat2, double lon2) {
         int radius = 6371;

@@ -2,18 +2,24 @@ package de.reekind.droneproject.dao;
 
 import de.reekind.droneproject.DbUtil;
 import de.reekind.droneproject.model.User;
+import org.apache.logging.log4j.*;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class UserDAO {
     private static Connection dbConnection;
+    private final static Logger _log = LogManager.getLogger();
 
     static {
         dbConnection = DbUtil.getConnection();
     }
 
+    /**
+     * Laden eines Benutzers
+     * @param userId Benutzernummer
+     * @return Benutzer
+     */
     public static User getUser(Integer userId) {
         User user = null;
         try {
@@ -28,11 +34,16 @@ public class UserDAO {
                         , UserRoleDAO.getUserRole(resultSet.getInt("userRoleId")));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            _log.error("Fehler beim Laden eines Benutzers", e);
         }
         return user;
     }
 
+    /**
+     * Laden eines Benutzers
+     * @param userName Benutzername
+     * @return Benutzer
+     */
     public static User getUser(String userName) {
         User user = null;
         try {
@@ -44,14 +55,19 @@ public class UserDAO {
                 user = new User(resultSet.getInt("userID")
                         , resultSet.getString("name")
                         , resultSet.getString("password")
-                        , UserRoleDAO.getUserRole(resultSet.getInt("userRoleId")));
+                        , UserRoleDAO.getUserRole(resultSet.getInt("userRoleId"))
+                );
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            _log.error("Fehler beim Laden eines Benutzers", e);
         }
         return user;
     }
 
+    /**
+     * Laden aller Benutzer
+     * @return Liste mit allen Benutzern
+     */
     public static List<User> getAllUsers() {
         List<User> list = new ArrayList<>();
         try {
@@ -61,11 +77,12 @@ public class UserDAO {
                 User user = new User(resultSet.getInt("userID")
                         , resultSet.getString("name")
                         , resultSet.getString("password")
-                        , UserRoleDAO.getUserRole(resultSet.getInt("userRoleId")));
+                        , UserRoleDAO.getUserRole(resultSet.getInt("userRoleId"))
+                );
                 list.add(user);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            _log.error("Fehler beim Laden eines Benutzers", e);
         }
         return list;
     }

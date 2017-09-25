@@ -25,15 +25,13 @@ public class DroneTypeDAO {
      */
     public static DroneType getDroneType(Integer droneTypeId) {
         DroneType droneType = null;
-        PreparedStatement statement;
-        ResultSet resultSet;
         try {
-            statement = dbConnection.prepareStatement("SELECT droneTypeId, droneTypeName," +
+            PreparedStatement statement = dbConnection.prepareStatement("SELECT droneTypeId, droneTypeName," +
                     " maxWeightInGrams, maxPackageCount, maxRange, speed " +
                     "FROM dronetypes " +
                     "WHERE droneTypeID = ?");
             statement.setInt(1, droneTypeId);
-            resultSet = statement.executeQuery();
+            ResultSet resultSet = statement.executeQuery();
             if (resultSet.first()) {
                 droneType = new DroneType(
                         resultSet.getInt("droneTypeId")
@@ -41,7 +39,8 @@ public class DroneTypeDAO {
                         , resultSet.getInt("maxWeightInGrams")
                         , resultSet.getInt("maxPackageCount")
                         , resultSet.getFloat("maxRange")
-                        , resultSet.getInt("speed"));
+                        , resultSet.getInt("speed")
+                );
             }
         } catch (SQLException e) {
             _log.error(String.format("Fehler beim laden von Drohnentyp %d", droneTypeId), e);
@@ -55,12 +54,10 @@ public class DroneTypeDAO {
      * @return Liste mit allen Drohnentypen
      */
     public static List<DroneType> getAllDroneTypes() {
-        Statement statement;
-        ResultSet resultSet;
         List<DroneType> list = new ArrayList<>();
         try {
-            statement = dbConnection.createStatement();
-            resultSet = statement.executeQuery("SELECT dronetypes.droneTypeId, dronetypes.droneTypeName," +
+            Statement statement = dbConnection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT dronetypes.droneTypeId, dronetypes.droneTypeName," +
                     " maxWeightInGrams, maxPackageCount, dronetypes.maxRange, dronetypes.speed " +
                     "FROM dronetypes " +
                     "GROUP BY droneTypeId");
@@ -71,7 +68,8 @@ public class DroneTypeDAO {
                         , resultSet.getInt("maxWeightInGrams")
                         , resultSet.getInt("maxPackageCount")
                         , resultSet.getFloat("maxRange")
-                        , resultSet.getInt("speed"));
+                        , resultSet.getInt("speed")
+                );
                 list.add(droneType);
             }
         } catch (SQLException e) {

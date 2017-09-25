@@ -1,6 +1,5 @@
 package de.reekind.droneproject;
 
-import de.reekind.droneproject.model.Order;
 import de.reekind.droneproject.model.OrderImport;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
@@ -25,7 +24,7 @@ public class FileWatcher {
         try {
             WatchService watchService = FileSystems.getDefault().newWatchService();
             path.register(watchService, ENTRY_CREATE, ENTRY_MODIFY);
-            WatchKey watchKey = null;
+            WatchKey watchKey;
             while (true) {
                 watchKey = watchService.poll(10, TimeUnit.MINUTES);
                 if(watchKey != null) {

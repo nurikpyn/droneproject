@@ -1,7 +1,6 @@
 package de.reekind.droneproject.dao;
 
 import de.reekind.droneproject.DbUtil;
-import de.reekind.droneproject.model.Location;
 import de.reekind.droneproject.model.Order;
 import de.reekind.droneproject.model.OrderHistoryPoint;
 import de.reekind.droneproject.model.OrderImport;
@@ -49,10 +48,11 @@ public class OrderDAO {
 
                 if (order.validateOrder())
                     orderMap.put(order.getOrderId(), order);
-                else
+                else {
                     order.setOrderStatus(OrderStatus.Fehler);
                     OrderDAO.addOrderHistoryPoint(order);
-                    _log.error(String.format("Bestellung mit orderId %d ist nicht valide.",order.getOrderId()));
+                    _log.error("Bestellung mit orderId {} ist nicht valide.",order.getOrderId());
+                }
             }
         } catch (SQLException e) {
             _log.error("Fehler beim Neuladen der Bestellungen", e);
@@ -153,6 +153,7 @@ public class OrderDAO {
 
 
     public static Order addOrderImport(OrderImport orderImport) {
+        _log.debug("Anlage einer neuen Bestellung im OrderDAO");
         //Vorgelagert, Damit Location etc schon stimmen.
         Order order = new Order(orderImport.OrderTime, orderImport.LocationName, orderImport.Weight);
         return OrderDAO.addOrder(order);
@@ -168,7 +169,7 @@ public class OrderDAO {
 
         //Validiere Bestellung
         if (!order.validateOrder())
-            _log.error(String.format("Bestellung mit orderId %d ist nicht valide.",order.getOrderId()));
+            _log.error("Bestellung mit orderId {} ist nicht valide.",order.getOrderId());
 
         try {
             String sqlStatement;
@@ -350,6 +351,10 @@ public class OrderDAO {
             case InVorbereitung:
                 caption = "Vorbereitung";
                 details = "Ihre Bestellung wird für den Versand vorbereitet.";
+                break;
+            case Bereit:
+                caption = "Bereit";
+                details = "Ihre Bestellung ist bereit für den Versand und wird bald zugestellt.";
                 break;
             case InAuslieferung:
                 caption = "In Zustellung";

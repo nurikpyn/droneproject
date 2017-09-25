@@ -15,11 +15,12 @@ public class Route {
     public ArrayList<RouteStop> RouteStops = new ArrayList<>();
     private RouteStatus routeStatus = RouteStatus.Geplant;
     public Location StartLocation;
+    public double TotalDistance;
 
     public Route() {
     }
 
-    public Route(int routeId, Drone drone, DateTime startTime, DateTime endTime, ArrayList<RouteStop> routeStops, RouteStatus routeStatu, Location startLocation) {
+    public Route(int routeId, Drone drone, DateTime startTime, DateTime endTime, ArrayList<RouteStop> routeStops, RouteStatus routeStatus, Location startLocation, double totalDistance) {
         this.RouteId = routeId;
         this.Drone = drone;
         this.StartTime = startTime;
@@ -27,6 +28,7 @@ public class Route {
         this.RouteStops = routeStops;
         this.routeStatus = routeStatus;
         this.StartLocation = startLocation;
+        this.TotalDistance = totalDistance;
     }
 
     public RouteStatus getRouteStatus() {

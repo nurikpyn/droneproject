@@ -7,7 +7,6 @@ import de.reekind.droneproject.model.Order;
 import de.reekind.droneproject.model.enumeration.RouteStatus;
 import de.reekind.droneproject.model.routeplanning.Route;
 import de.reekind.droneproject.model.routeplanning.RouteStop;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
@@ -36,16 +35,16 @@ public class RouteDAO {
             Statement statement = dbConnection.createStatement();
             ResultSet resultSet = statement.executeQuery(
                     "SELECT routeID, droneId" +
-                            ", startTime, endTime, routeStatus " +
+                            ", startTime, endTime, routeStatus, totalDistance " +
                             "FROM routes");
             while (resultSet.next()) {
-                _log.printf(Level.DEBUG, "Lade Routenstops für Route %d", resultSet.getInt("routeID"));
-                PreparedStatement routeStopsStatement = dbConnection.prepareStatement("SELECT routeStopId, locationId, arrivalTime" +
+                _log.debug("Lade Routenstops für Route {}", resultSet.getInt("routeID"));
+                PreparedStatement routeStopsStatement = dbConnection.prepareStatement("SELECT routeStopId, locationId, arrivalTime, routeDistanceTillStop" +
                         " FROM routestops WHERE routeId = ?");
                 routeStopsStatement.setInt(1, resultSet.getInt("routeID"));
                 ResultSet routeStopResults = routeStopsStatement.executeQuery();
                 ArrayList<RouteStop> routeStops = new ArrayList<>();
-                _log.printf(Level.DEBUG, "Anzahl Routenstops %d", routeStopResults.getFetchSize());
+                _log.debug("Anzahl Routenstops {}", routeStopResults.getFetchSize());
                 while (routeStopResults.next()) {
                     ArrayList<Order> orders = (ArrayList<Order>) OrderDAO.getOrdersWithRouteStopId(routeStopResults.getInt("routeStopId"));
 
@@ -53,6 +52,7 @@ public class RouteDAO {
                             , new DateTime(routeStopResults.getTimestamp("arrivalTime"))
                             , LocationDAO.getLocation(routeStopResults.getInt("locationId"))
                             , orders
+                            , routeStopResults.getDouble("routeDistanceTillStop")
                     );
                     routeStops.add(stop);
                 }
@@ -65,11 +65,12 @@ public class RouteDAO {
                         , new DateTime(resultSet.getTimestamp("endTime"))
                         , routeStops
                         , RouteStatus.GetValue(resultSet.getInt("routeStatus"))
-                        , new Location(drone.getDepot().getLatitude(), drone.getDepot().getLongitude()));
+                        , new Location(drone.getDepot().getLatitude(), drone.getDepot().getLongitude())
+                        , resultSet.getDouble("totalDistance"));
 
                 list.add(route);
             }
-            _log.debug(String.format("Insgesamt %d Routen geladen", list.size()));
+            _log.debug("Insgesamt {} Routen geladen", list.size());
         } catch (SQLException e) {
             _log.error("Fehler beim Auflisten der Routen", e);
         }
@@ -81,13 +82,13 @@ public class RouteDAO {
         List<Route> list = new ArrayList<>();
         try {
             PreparedStatement preparedStatement = dbConnection.prepareStatement("SELECT routeID, droneId" +
-                    ", startTime, endTime, routeStatus " +
+                    ", startTime, endTime, routeStatus, totalDistance " +
                     "FROM routes WHERE routeStatus = ?");
             preparedStatement.setInt(1,routeStatus.GetID());
             ResultSet resultSet = preparedStatement.executeQuery(
                     );
             while (resultSet.next()) {
-                PreparedStatement routeStopsStatement = dbConnection.prepareStatement("SELECT routeStopId, locationId, arrivalTime" +
+                PreparedStatement routeStopsStatement = dbConnection.prepareStatement("SELECT routeStopId, locationId, arrivalTime, routeDistanceTillStop" +
                         " FROM routestops WHERE routeId = ?");
                 routeStopsStatement.setInt(1, resultSet.getInt("routeID"));
                 ResultSet routeStopResults = routeStopsStatement.executeQuery();
@@ -99,6 +100,7 @@ public class RouteDAO {
                             , new DateTime(routeStopResults.getTimestamp("arrivalTime"))
                             , LocationDAO.getLocation(routeStopResults.getInt("locationId"))
                             , orders
+                            , routeStopResults.getDouble("routeDistanceTillStop")
                     );
                     routeStops.add(stop);
                 }
@@ -110,7 +112,8 @@ public class RouteDAO {
                     , new DateTime(resultSet.getTimestamp("endTime"))
                     , routeStops
                     , RouteStatus.GetValue(resultSet.getInt("routeStatus"))
-                , new Location(drone.getDepot().getLatitude(), drone.getDepot().getLongitude()));
+                , new Location(drone.getDepot().getLatitude(), drone.getDepot().getLongitude())
+                        , resultSet.getDouble("totalDistance"));
 
                 list.add(route);
             }
@@ -131,13 +134,13 @@ public class RouteDAO {
         Route route = null;
         try {
             PreparedStatement statement = dbConnection.prepareStatement(
-                    "SELECT routeID, droneId, startTime, endTime, routeStatus " +
+                    "SELECT routeID, droneId, startTime, endTime, routeStatus, totalDistance " +
                             "FROM routes WHERE routeID = ?");
             statement.setInt(1, routeId);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 PreparedStatement routeStopsStatement = dbConnection.prepareStatement(
-                        "SELECT routeStopId, locationId, arrivalTime" +
+                        "SELECT routeStopId, locationId, arrivalTime, routeDistanceTillStop" +
                                 " FROM routestops WHERE routeId = ?");
                 routeStopsStatement.setInt(1, routeId);
                 ResultSet routeStopResults = routeStopsStatement.executeQuery();
@@ -150,6 +153,7 @@ public class RouteDAO {
                             , new DateTime(routeStopResults.getTimestamp("arrivalTime"))
                             , LocationDAO.getLocation(routeStopResults.getInt("locationId"))
                             , orders
+                            , routeStopResults.getDouble("routeDistanceTillStop")
                     );
                     routeStops.add(stop);
                 }
@@ -160,7 +164,8 @@ public class RouteDAO {
                         , new DateTime(resultSet.getTimestamp("endTime"))
                         , routeStops
                         , RouteStatus.GetValue(resultSet.getInt("routeStatus"))
-                , new Location(drone.getDepot().getLatitude(), drone.getDepot().getLongitude()));
+                , new Location(drone.getDepot().getLatitude(), drone.getDepot().getLongitude())
+                , resultSet.getDouble("totalDistance"));
             }
         } catch (SQLException e) {
             _log.error("Laden einer bestimmten Route", e);
@@ -178,29 +183,31 @@ public class RouteDAO {
         if (route != null) {
             try {
                 PreparedStatement statement = dbConnection.prepareStatement(
-                        "INSERT INTO routes (startTime, endTime, droneID, routeStatus)" +
-                                " VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                        "INSERT INTO routes (startTime, endTime, droneID, routeStatus, totalDistance)" +
+                                " VALUES (?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
                 statement.setTimestamp(1, new Timestamp(route.StartTime.getMillis()));
                 statement.setTimestamp(2, new Timestamp(route.EndTime.getMillis()));
                 statement.setInt(3, route.Drone.getDroneId());
                 statement.setInt(4, route.getRouteStatus().GetID());
+                statement.setDouble(5, route.TotalDistance);
                 statement.execute();
 
                 try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         route.RouteId = generatedKeys.getInt(1);
                     } else {
-                        throw new SQLException("Creating order failed, no ID obtained.");
+                        throw new SQLException("Fehler beim Erstellen der Route. Kein Primärschlüssel erhalten.");
                     }
                 }
                 for (RouteStop routeStop : route.RouteStops) {
                     PreparedStatement routeStopsStatement = dbConnection.prepareStatement(
-                            "INSERT INTO routestops (routeId, locationId) VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
+                            "INSERT INTO routestops (routeId, locationId, routeDistanceTillStop) VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
                     routeStopsStatement.setInt(1, route.RouteId);
                     if (routeStop.Location != null)
                         routeStopsStatement.setInt(2, routeStop.Location.locationId);
                     else
                         routeStopsStatement.setInt(2, 0);
+                    routeStopsStatement.setDouble(3, routeStop.RouteDistanceTillStop);
                     routeStopsStatement.execute();
 
                     //Speichere generierte Id des RouteStops
@@ -208,7 +215,7 @@ public class RouteDAO {
                         if (generatedKeys.next()) {
                             routeStop.setRouteStopId(generatedKeys.getInt(1));
                         } else {
-                            throw new SQLException("Creating order failed, no ID obtained.");
+                            throw new SQLException("Fehler beim Erstellen der RouteStops. Kein Primärschlüssel erhalten.");
                         }
                     }
 
@@ -225,30 +232,36 @@ public class RouteDAO {
         return route;
     }
 
+    /**
+     * Aktualisieren einer bestehenden Route
+     * @param route Aktualisierte Route
+     * @return Aktualisierte Route im DAO
+     */
     public static Route updateRoute(Route route) {
         if (route != null) {
             try {
                 PreparedStatement statement = dbConnection.prepareStatement(
-                        "UPDATE  routes SET startTime = ?, endTime = ?, droneID  = ?, routeStatus = ? " +
+                        "UPDATE  routes SET startTime = ?, endTime = ?, droneID  = ?, routeStatus = ?, totalDistance = ? " +
                                 " WHERE routeId = ?");
                 statement.setTimestamp(1, new Timestamp(route.StartTime.getMillis()));
                 statement.setTimestamp(2, new Timestamp(route.EndTime.getMillis()));
                 statement.setInt(3, route.Drone.getDroneId());
                 statement.setInt(4, route.getRouteStatus().GetID());
-                statement.setInt(5,route.RouteId);
+                statement.setDouble(5, route.TotalDistance);
+                statement.setInt(6,route.RouteId);
                 statement.execute();
 
                 for (RouteStop routeStop : route.RouteStops) {
                     PreparedStatement routeStopsStatement = dbConnection.prepareStatement(
-                            "UPDATE routestops SET routeId = ?, locationId = ? WHERE routeStopId = ?");
+                            "UPDATE routestops SET routeId = ?, locationId = ?, routeDistanceTillStop = ? WHERE routeStopId = ?");
                     routeStopsStatement.setInt(1, route.RouteId);
                     if (routeStop.Location != null)
                         routeStopsStatement.setInt(2, routeStop.Location.locationId);
                     else
                         routeStopsStatement.setInt(2, 0);
-                    routeStopsStatement.setInt(3,routeStop.getRouteStopId());
+                    routeStopsStatement.setDouble(3, routeStop.RouteDistanceTillStop);
+                    routeStopsStatement.setInt(4,routeStop.getRouteStopId());
                     routeStopsStatement.execute();
-
 
                     //Speichere RouteStopId in Bestellungen
                     for (Order order : routeStop.Orders) {
@@ -257,8 +270,10 @@ public class RouteDAO {
                     }
                 }
             } catch (SQLException e) {
-                _log.error("Fehler beim Hinzufügen einer Route", e);
+                _log.error("Fehler beim Aktualisieren einer Route", e);
             }
+        } else {
+            _log.error("UpdateRoute : Route ist Null");
         }
         return route;
     }

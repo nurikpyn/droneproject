@@ -11,14 +11,16 @@ public class RouteStop {
     public DateTime ArrivalTime;
     public Location Location;
     private int routeStopId;
+    public double RouteDistanceTillStop;
     public RouteStop() {
     }
 
-    public RouteStop(int routeStopId, DateTime arrivalTime, Location location, ArrayList<Order> orders) {
+    public RouteStop(int routeStopId, DateTime arrivalTime, Location location, ArrayList<Order> orders, double routeDistanceTillStop) {
         this.routeStopId = routeStopId;
         this.ArrivalTime = arrivalTime;
         this.Location = location;
         this.Orders = orders;
+        this.RouteDistanceTillStop = routeDistanceTillStop;
     }
 
     public int getRouteStopId() {
