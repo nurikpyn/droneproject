@@ -130,7 +130,7 @@ public class RouteCalculator {
             DroneRestartTimer drt = new DroneRestartTimer(route.Drone);
             timer.schedule(drt, timerDurationInMillis);
             // Debug
-            _Log.info("Started timer for drone " + route.Drone.getDroneId() + " duration: " + timerDurationInMillis/1000);
+            _Log.info("Started timer for drone " + route.Drone.getDroneId() + " duration: " + timerDurationInMillis/1000 + " seconds.");
         }
     }
 }
