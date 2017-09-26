@@ -10,7 +10,8 @@ public class OrderImport {
     public String LocationName;
     public int Weight;
 
-    public OrderImport(){}
+    public OrderImport() {
+    }
 
     public OrderImport(DateTime orderTime, String locationName, int weight) {
         this.OrderTime = orderTime;

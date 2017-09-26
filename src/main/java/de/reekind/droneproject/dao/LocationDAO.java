@@ -64,7 +64,7 @@ public class LocationDAO {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.first()) {
-                return  new Location(
+                return new Location(
                         resultSet.getInt("locationId")
                         , resultSet.getString("name")
                         , resultSet.getDouble("latitude")
@@ -112,7 +112,7 @@ public class LocationDAO {
             }
 
         } catch (SQLException e) {
-            _log.error("Fehler beim Laden anhand von Koordinaten",e);
+            _log.error("Fehler beim Laden anhand von Koordinaten", e);
         }
         return location;
     }
@@ -151,7 +151,7 @@ public class LocationDAO {
             }
 
         } catch (SQLException e) {
-            _log.error("Fehler beim Prüfen auf Existenz",e);
+            _log.error("Fehler beim Prüfen auf Existenz", e);
         }
         return _location;
     }

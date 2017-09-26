@@ -6,13 +6,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * XML-serialisable wrapper for joda datetime values.
  */
-@XmlRootElement(name="joda_datetime")
+@XmlRootElement(name = "joda_datetime")
 public class XmlDateTime {
 
-    @XmlElement(name="millis") public long millis;
+    @XmlElement(name = "millis")
+    public long millis;
 
-    public XmlDateTime() {}
+    public XmlDateTime() {
+    }
 
-    public XmlDateTime(long millis) { this.millis = millis; }
+    public XmlDateTime(long millis) {
+        this.millis = millis;
+    }
 
 }

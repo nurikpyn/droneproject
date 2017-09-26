@@ -22,15 +22,12 @@ import de.reekind.droneproject.model.enumeration.OrderStatus;
 import de.reekind.droneproject.model.enumeration.RouteStatus;
 import de.reekind.droneproject.model.task.DroneTimer;
 import de.reekind.droneproject.model.task.OrderTimer;
-import de.reekind.droneproject.model.routeplanning.Route;
-import de.reekind.droneproject.model.routeplanning.RouteStop;
 import de.reekind.droneproject.model.task.RouteTimer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Timer;
@@ -155,7 +152,6 @@ public class RouteCalculator {
     public void startDrones() {
         //Starte alle Drohnen für die die Route geplant wurde
         for (Route route : RouteDAO.getAllRoutesWithStatus(RouteStatus.Geplant)) {
-
 
             //Wir gehen davon aus, dass zu diesem Zeitpunkt die Drohne Bereit ist
             if (route.Drone.getDroneStatus() != DroneStatus.Bereit) {

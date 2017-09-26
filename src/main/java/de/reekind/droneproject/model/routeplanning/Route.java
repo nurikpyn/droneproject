@@ -13,9 +13,9 @@ public class Route {
     public DateTime StartTime;
     public DateTime EndTime;
     public ArrayList<RouteStop> RouteStops = new ArrayList<>();
-    private RouteStatus routeStatus = RouteStatus.Geplant;
     public Location StartLocation;
     public double TotalDistance;
+    private RouteStatus routeStatus = RouteStatus.Geplant;
 
     public Route() {
     }

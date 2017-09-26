@@ -18,13 +18,15 @@ public class OrderHistoryPoint {
     public OrderHistoryPoint() {
         this.Timestamp = DateTime.now();
     }
+
     public OrderHistoryPoint(String caption, String details, int orderHistoryPointType) {
         this.Timestamp = DateTime.now();
         this.Caption = caption;
         this.Details = details;
         this.OrderHistoryPointType = orderHistoryPointType;
     }
-    public OrderHistoryPoint( String caption, String details, DateTime timestamp, int orderHistoryPointType) {
+
+    public OrderHistoryPoint(String caption, String details, DateTime timestamp, int orderHistoryPointType) {
         this.Timestamp = timestamp;
         this.Caption = caption;
         this.Details = details;

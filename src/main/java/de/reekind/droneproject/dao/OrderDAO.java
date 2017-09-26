@@ -35,8 +35,8 @@ public class OrderDAO {
                     " weight, orderStatus, orderRouteStopId, locationId, deliveryTime " +
                     "FROM orders " +
                     "WHERE orderID = ? AND orderStatus  <> ?");
-            statement.setInt(1,orderId);
-            statement.setInt(2,OrderStatus.Fehler.GetID());
+            statement.setInt(1, orderId);
+            statement.setInt(2, OrderStatus.Fehler.GetID());
             ResultSet resultSet = statement.executeQuery();
 
             //Füge einzelne Bestellungen in DAO/Map ein
@@ -75,7 +75,7 @@ public class OrderDAO {
 
         //Validiere Bestellung
         if (!order.validateOrder()) {
-            _log.error("Bestellung mit orderId {} ist nicht valide.",order.getOrderId());
+            _log.error("Bestellung mit orderId {} ist nicht valide.", order.getOrderId());
             return null;
         }
 
@@ -84,7 +84,7 @@ public class OrderDAO {
             PreparedStatement preparedStatement;
 
             //Existierende Location mit LocationID aus DB holen oder neue erstellen
-            order.setLocation(LocationDAO.addLocation( order.getLocation()));
+            order.setLocation(LocationDAO.addLocation(order.getLocation()));
             sqlStatement = "INSERT INTO orders (orderTime, locationId" +
                     ", weight, orderStatus, orderRouteStopId, deliveryTime) VALUES (?,?,?,?,?,?)";
             preparedStatement = dbConnection.prepareStatement(
@@ -108,7 +108,7 @@ public class OrderDAO {
             if (order.getDeliveryTime() != null)
                 preparedStatement.setTimestamp(6, new Timestamp(order.getDeliveryTime().getMillis()));
             else
-                preparedStatement.setTimestamp(6,null);
+                preparedStatement.setTimestamp(6, null);
 
             preparedStatement.execute();
 
@@ -136,10 +136,10 @@ public class OrderDAO {
      */
     public static Order updateOrder(Order order) {
 
-        if (!order.validateOrder() ){
+        if (!order.validateOrder()) {
             order.setOrderStatus(OrderStatus.Fehler);
             OrderDAO.addOrderHistoryPoint(order);
-            _log.error("Bestellung mit orderId {} ist nicht valide.",order.getOrderId());
+            _log.error("Bestellung mit orderId {} ist nicht valide.", order.getOrderId());
             return null;
         }
 
@@ -161,7 +161,7 @@ public class OrderDAO {
             if (order.getDeliveryTime() != null)
                 preparedStatement.setTimestamp(5, new Timestamp(order.getDeliveryTime().getMillis()));
             else
-                preparedStatement.setTimestamp(5,null);
+                preparedStatement.setTimestamp(5, null);
             preparedStatement.setInt(6, order.getOrderId());
             preparedStatement.execute();
 
@@ -184,7 +184,7 @@ public class OrderDAO {
                     " weight, orderStatus, orderRouteStopId, locationId, deliveryTime " +
                     "FROM orders WHERE orderStatus <> ? " +
                     "ORDER BY orderId ASC");
-            statement.setInt(1,OrderStatus.Fehler.GetID());
+            statement.setInt(1, OrderStatus.Fehler.GetID());
             ResultSet resultSet = statement.executeQuery();
 
             //Füge einzelne Bestellungen in DAO/Map ein
@@ -202,7 +202,7 @@ public class OrderDAO {
                         , resultSet.getInt("orderRouteStopId")
                         , deliveryTime
                 );
-                    list.add(order);
+                list.add(order);
             }
         } catch (SQLException e) {
             _log.error("Fehler beim Neuladen der Bestellungen", e);
@@ -244,10 +244,10 @@ public class OrderDAO {
             PreparedStatement preparedStatement = dbConnection.prepareStatement(
                     "SELECT orderId, caption, detail, statusId, timestamp " +
                             "FROM orderhistory WHERE orderId = ?");
-            preparedStatement.setInt(1,orderId);
+            preparedStatement.setInt(1, orderId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            while(resultSet.next()) {
+            while (resultSet.next()) {
                 OrderHistoryPoint orderHistoryPoint = new OrderHistoryPoint(
                         resultSet.getString("caption")
                         , resultSet.getString("detail")
@@ -257,14 +257,15 @@ public class OrderDAO {
             }
 
         } catch (SQLException e) {
-           _log.error("Fehler beim Laden der Historie", e);
+            _log.error("Fehler beim Laden der Historie", e);
         }
 
         return history;
     }
 
-        /**
+    /**
      * Füge einen neuen Historieneintrag zur Bestelldetails hinzu
+     *
      * @param order Bestellung, die einen neuen Eintrag bekommt
      * @return Historieneintrag
      */
@@ -296,10 +297,14 @@ public class OrderDAO {
                 caption = "Fehler bei der Lieferung";
                 details = "Leider gab es Komplikationen in Verbindung mit Ihrer Bestellung. Für Details wenden Sie sich bitte an Ihren Kundenbetreuer.";
                 break;
+            case Geplant:
+                caption = "Geplant";
+                details = "Der Lieferplan für ihre Bestellung wurde erstellt.";
+                break;
             default:
                 break;
         }
-        OrderHistoryPoint point = new OrderHistoryPoint(caption, details,order.getOrderStatus().GetID() );
+        OrderHistoryPoint point = new OrderHistoryPoint(caption, details, order.getOrderStatus().GetID());
 
         try {
             PreparedStatement preparedStatement;
@@ -307,8 +312,8 @@ public class OrderDAO {
                     "INSERT INTO orderhistory (orderId, caption, detail, statusId) VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
 
             preparedStatement.setInt(1, order.getOrderId());
-            preparedStatement.setString(2,caption);
-            preparedStatement.setString(3,details);
+            preparedStatement.setString(2, caption);
+            preparedStatement.setString(3, details);
             preparedStatement.setInt(4, order.getOrderStatus().GetID());
 
             preparedStatement.execute();

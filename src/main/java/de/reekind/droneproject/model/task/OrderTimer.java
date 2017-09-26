@@ -6,7 +6,7 @@ import de.reekind.droneproject.model.enumeration.OrderStatus;
 
 import java.util.TimerTask;
 
-public class OrderTimer extends TimerTask{
+public class OrderTimer extends TimerTask {
     private Order order;
     private OrderStatus orderStatus;
 
@@ -14,6 +14,7 @@ public class OrderTimer extends TimerTask{
         this.order = order;
         this.orderStatus = statusToSet;
     }
+
     @Override
     public void run() {
         this.order.setOrderStatus(orderStatus);

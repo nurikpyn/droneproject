@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "ownLocation")
 public class Location {
     private final static Logger _log = LogManager.getLogger();
+    public int locationId;
     private double latitude;
     private double longitude;
-    public int locationId;
     private String name;
 
     public Location() {
@@ -22,6 +22,7 @@ public class Location {
     public Location(String adress) {
         getCoordinatesFromAdress(adress);
     }
+
     public Location(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
@@ -40,6 +41,28 @@ public class Location {
         this.locationId = locationId;
     }
 
+    public static double distanceInKm(Location location1, Location location2) {
+        if (location1 != null && location2 != null) {
+            return distanceInKm(location1.getLatitude(), location1.getLongitude(), location2.getLatitude(), location2.getLongitude());
+        } else {
+            return 0;
+        }
+
+    }
+
+    public static double distanceInKm(double lat1, double lon1, double lat2, double lon2) {
+        int radius = 6371;
+
+        double lat = Math.toRadians(lat2 - lat1);
+        double lon = Math.toRadians(lon2 - lon1);
+
+        double a = Math.sin(lat / 2) * Math.sin(lat / 2) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.sin(lon / 2) * Math.sin(lon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double d = radius * c;
+
+        return Math.abs(d);
+    }
+
     public boolean validate() {
         return this.name != null && !this.name.equals("") && this.locationId != 0 && this.latitude != 0 && this.longitude != 0;
     }
@@ -55,50 +78,34 @@ public class Location {
             this.longitude = results[0].geometry.location.lng;
             this.name = adress;
         } catch (Exception e) {
-            _log.error("Fehler beim Abruf der Koordinaten aus Adresse {}",e,adress);
+            _log.error("Fehler beim Abruf der Koordinaten aus Adresse {}", e, adress);
         }
     }
+
     com.graphhopper.jsprit.core.problem.Location toJspritLocation() {
         return com.graphhopper.jsprit.core.problem.Location.newInstance(this.latitude, this.longitude);
     }
 
-
-    public static double distanceInKm(Location location1, Location location2) {
-        if (location1 != null && location2 != null) {
-            return distanceInKm(location1.getLatitude(), location1.getLongitude(), location2.getLatitude(), location2.getLongitude());
-        } else {
-            return 0;
-        }
-
-    }
-
-    public static double distanceInKm(double lat1, double lon1, double lat2, double lon2) {
-        int radius = 6371;
-
-        double lat = Math.toRadians(lat2 - lat1);
-        double lon = Math.toRadians(lon2- lon1);
-
-        double a = Math.sin(lat / 2) * Math.sin(lat / 2) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.sin(lon / 2) * Math.sin(lon / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double d = radius * c;
-
-        return Math.abs(d);
-    }
     public double getLatitude() {
         return latitude;
     }
+
     public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
+
     public double getLongitude() {
         return longitude;
     }
+
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
+
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         getCoordinatesFromAdress(name);
     }

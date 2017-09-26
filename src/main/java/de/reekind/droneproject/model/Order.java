@@ -6,7 +6,6 @@ import de.reekind.droneproject.dao.DroneTypeDAO;
 import de.reekind.droneproject.dao.OrderDAO;
 import de.reekind.droneproject.model.enumeration.OrderStatus;
 import de.reekind.droneproject.model.task.OrderTimer;
-import de.reekind.droneproject.model.task.RouteCalculatorTimer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
@@ -78,12 +77,12 @@ public class Order {
             _log.error("Gewicht über 4000 g");
             return false;
         }
-        double distance =  Location.distanceInKm(
-            depotLocation.getLatitude(), depotLocation.getLongitude(),
-            location.getLatitude(),location.getLongitude());
+        double distance = Location.distanceInKm(
+                depotLocation.getLatitude(), depotLocation.getLongitude(),
+                location.getLatitude(), location.getLongitude());
 
-        if ( distance > (droneType.getMaxRange()/2)) {
-            _log.error("Distanz zu groß! Vorhanden: {} Maximal: {}",distance, droneType.getMaxRange()/2);
+        if (distance > (droneType.getMaxRange() / 2)) {
+            _log.error("Distanz zu groß! Vorhanden: {} Maximal: {}", distance, droneType.getMaxRange() / 2);
             return false;
         }
         return true;

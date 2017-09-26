@@ -9,7 +9,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class DroneDAO {
 
@@ -48,10 +50,11 @@ public class DroneDAO {
         }
         return droneList;
     }
+
     public static List<Drone> getDronesWithStatus(DroneStatus droneStatus) {
         Collection<Drone> droneCollection = getAllDrones();
         List<Drone> list = new ArrayList<>();
-        for(Drone drone : droneCollection) {
+        for (Drone drone : droneCollection) {
             if (drone.getDroneStatus() == droneStatus)
                 list.add(drone);
         }
@@ -70,7 +73,7 @@ public class DroneDAO {
             PreparedStatement preparedStatement = dbConnection.prepareStatement("SELECT droneId " +
                     ", droneTypeId, droneStatus, droneDepotId " +
                     "FROM drones WHERE droneID = ?");
-            preparedStatement.setInt(1,droneId);
+            preparedStatement.setInt(1, droneId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.first()) {
@@ -157,7 +160,7 @@ public class DroneDAO {
         Drone drone = DroneDAO.getDrone(droneId);
         if (drone.getDroneStatus() == DroneStatus.InAuslieferung) {
             _log.error("Drohne {} kann nicht entfernt werden, da sie gerade in Auslieferung ist.", droneId);
-           return;
+            return;
         }
 
         try {

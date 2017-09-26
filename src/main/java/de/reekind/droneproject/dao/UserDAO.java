@@ -2,14 +2,16 @@ package de.reekind.droneproject.dao;
 
 import de.reekind.droneproject.DbUtil;
 import de.reekind.droneproject.model.User;
-import org.apache.logging.log4j.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAO {
-    private static Connection dbConnection;
     private final static Logger _log = LogManager.getLogger();
+    private static Connection dbConnection;
 
     static {
         dbConnection = DbUtil.getConnection();
@@ -17,6 +19,7 @@ public class UserDAO {
 
     /**
      * Laden eines Benutzers
+     *
      * @param userId Benutzernummer
      * @return Benutzer
      */
@@ -41,6 +44,7 @@ public class UserDAO {
 
     /**
      * Laden eines Benutzers
+     *
      * @param userName Benutzername
      * @return Benutzer
      */
@@ -66,6 +70,7 @@ public class UserDAO {
 
     /**
      * Laden aller Benutzer
+     *
      * @return Liste mit allen Benutzern
      */
     public static List<User> getAllUsers() {

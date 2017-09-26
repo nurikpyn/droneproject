@@ -16,7 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static java.nio.file.StandardWatchEventKinds.*;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
 public class FileWatcher {
     public static void main(String[] args) {
@@ -27,11 +28,11 @@ public class FileWatcher {
             WatchKey watchKey;
             while (true) {
                 watchKey = watchService.poll(10, TimeUnit.MINUTES);
-                if(watchKey != null) {
+                if (watchKey != null) {
                     watchKey.pollEvents().forEach(event -> {
                         // Context for directory entry event is the file name of entry
                         @SuppressWarnings("unchecked")
-                        Path name = ((WatchEvent<Path>)event).context();
+                        Path name = ((WatchEvent<Path>) event).context();
                         Path child = path.resolve(name);
 
                         List<OrderImport> orders = readOrdersFromFile(child.toString());
@@ -48,7 +49,7 @@ public class FileWatcher {
                         client.register(feature);
                         WebTarget target = client.target("http://pphvs03.reekind.de:8080/rest").path("orders");
 
-                        for(OrderImport order : orders) {
+                        for (OrderImport order : orders) {
                             Invocation.Builder invocationBuilder =
                                     target.request(MediaType.APPLICATION_JSON);
                             invocationBuilder.header("accept", MediaType.APPLICATION_JSON);
@@ -82,7 +83,7 @@ public class FileWatcher {
                 // use comma as separator
                 String[] element = line.split(cvsSplitBy);
 
-                orders.add(new OrderImport(DateTime.parse(element[0]), element[1],Integer.parseInt(element[2])));
+                orders.add(new OrderImport(DateTime.parse(element[0]), element[1], Integer.parseInt(element[2])));
             }
             return orders;
 

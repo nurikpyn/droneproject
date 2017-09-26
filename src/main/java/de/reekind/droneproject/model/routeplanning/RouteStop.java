@@ -4,14 +4,13 @@ import de.reekind.droneproject.model.Location;
 import de.reekind.droneproject.model.Order;
 import org.joda.time.DateTime;
 
-import java.util.ArrayList;
-
 public class RouteStop {
     public Order Order;
     public DateTime ArrivalTime;
     public Location Location;
-    private int routeStopId;
     public double RouteDistanceTillStop;
+    private int routeStopId;
+
     public RouteStop() {
     }
 

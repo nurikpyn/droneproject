@@ -17,6 +17,7 @@ public class Depot {
 
     public Depot() {
     }
+
     public Depot(int _depotID, String _depotName, double _latitude, double _longitude) {
         this.depotID = _depotID;
         this.depotName = _depotName;

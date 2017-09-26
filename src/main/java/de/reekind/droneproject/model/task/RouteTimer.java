@@ -6,7 +6,7 @@ import de.reekind.droneproject.model.routeplanning.Route;
 
 import java.util.TimerTask;
 
-public class RouteTimer extends TimerTask{
+public class RouteTimer extends TimerTask {
     private Route route;
     private RouteStatus routeStatus;
 
@@ -14,6 +14,7 @@ public class RouteTimer extends TimerTask{
         this.route = route;
         this.routeStatus = statusToSet;
     }
+
     @Override
     public void run() {
         this.route.setRouteStatus(routeStatus);

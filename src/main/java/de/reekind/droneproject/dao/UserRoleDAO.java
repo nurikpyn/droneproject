@@ -5,7 +5,10 @@ import de.reekind.droneproject.model.UserRole;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class UserRoleDAO {
     private final static Logger _log = LogManager.getLogger();
@@ -17,6 +20,7 @@ public class UserRoleDAO {
 
     /**
      * Laden einer bestimmten Benutzerrolle
+     *
      * @param userRoleId Zu Ladene Benutzerrolle
      * @return Geladene Benutzerrolle
      */
@@ -24,7 +28,7 @@ public class UserRoleDAO {
         try {
             PreparedStatement statement = dbConnection.prepareStatement("SELECT userRoleId, userRoleName " +
                     "FROM userroles WHERE userRoleId = ?");
-            statement.setInt(1,userRoleId);
+            statement.setInt(1, userRoleId);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.first()) {
                 return new UserRole(

@@ -2,16 +2,10 @@ package de.reekind.droneproject.model;
 
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleImpl;
 import de.reekind.droneproject.model.enumeration.DroneStatus;
-import de.reekind.droneproject.model.enumeration.RouteStatus;
-import de.reekind.droneproject.model.routeplanning.Route;
-import de.reekind.droneproject.model.routeplanning.RouteCalculator;
-import org.joda.time.*;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Timer;
-import java.util.TimerTask;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -127,7 +121,7 @@ public class Drone {
 
     public VehicleImpl toJspritVehicle() {
         VehicleImpl.Builder vehicleBuilder = VehicleImpl.Builder.newInstance(Integer.toString(droneId));
-        vehicleBuilder.setStartLocation( com.graphhopper.jsprit.core.problem.Location.newInstance(this.latitude, this.longitude));
+        vehicleBuilder.setStartLocation(com.graphhopper.jsprit.core.problem.Location.newInstance(this.latitude, this.longitude));
         vehicleBuilder.setType(droneType.toJspritVehicleType());
         return vehicleBuilder.build();
     }

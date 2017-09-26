@@ -19,6 +19,7 @@ public class DepotDAO {
 
     /**
      * Laden eines bestimmten Depots
+     *
      * @param depotId Depot-Id
      * @return Depot
      */
