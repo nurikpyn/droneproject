@@ -15,30 +15,31 @@ import java.util.Date;
 
 public class OrderDAO {
 
-    private static final Map<Integer, Order> orderMap = new HashMap<>();
     private final static Logger _log = LogManager.getLogger();
     private static Connection dbConnection;
 
     static {
         dbConnection = DbUtil.getConnection();
-        initOrders();
     }
 
     /**
-     * Lade Bestellungen beim Start der Applikation
+     * Gebe Bestellung mit angegebener OrderId zurück
+     *
+     * @param orderId Bestellnummer
+     * @return Bestellung mit angegebener Bestellnummer
      */
-    private static void initOrders() {
-        _log.debug("Lade Bestellungen aus Datenbank");
+    public static Order getOrder(Integer orderId) {
+        Order order = null;
         try {
-            Statement statement = dbConnection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT orderId, orderTime," +
+            PreparedStatement statement = dbConnection.prepareStatement("SELECT orderId, orderTime," +
                     " weight, orderStatus, orderRouteStopId, locationId, deliveryTime " +
                     "FROM orders " +
-                    "ORDER BY orderId ASC");
+                    "WHERE orderID = ?");
+            ResultSet resultSet = statement.executeQuery();
 
             //Füge einzelne Bestellungen in DAO/Map ein
-            while (resultSet.next()) {
-                Order order = new Order(
+            if (resultSet.first()) {
+                order = new Order(
                         resultSet.getInt("orderId")
                         , new DateTime(resultSet.getTimestamp("orderTime"))
                         , LocationDAO.getLocation(resultSet.getInt("locationId"))
@@ -49,7 +50,7 @@ public class OrderDAO {
                 );
 
                 if (order.validateOrder())
-                    orderMap.put(order.getOrderId(), order);
+                    order = null;
                 else {
                     order.setOrderStatus(OrderStatus.Fehler);
                     OrderDAO.addOrderHistoryPoint(order);
@@ -59,100 +60,7 @@ public class OrderDAO {
         } catch (SQLException e) {
             _log.error("Fehler beim Neuladen der Bestellungen", e);
         }
-    }
-
-    private static void reloadOrders() {
-        try {
-            Statement statement = dbConnection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT orderId, orderTime," +
-                    " weight, orderStatus, orderRouteStopId, locationId, deliveryTime " +
-                    "FROM orders " +
-                    "ORDER BY orderId ASC");
-
-            //Füge einzelne Bestellungen in DAO/Map ein
-            while (resultSet.next()) {
-                // If order is not in the ordermap, create new order
-                if (!orderMap.containsKey(resultSet.getInt("orderId"))) {
-                    Order order = new Order(
-                            resultSet.getInt("orderId")
-                            , new DateTime(resultSet.getTimestamp("orderTime"))
-                            , LocationDAO.getLocation(resultSet.getInt("locationId"))
-                            , resultSet.getInt("weight")
-                            , resultSet.getInt("orderStatus")
-                            , resultSet.getInt("orderRouteStopId")
-                            , new DateTime(resultSet.getTimestamp("deliveryTime"))
-                    );
-                    orderMap.put(order.getOrderId(), order);
-                }
-            }
-        } catch (SQLException e) {
-            _log.error("Fehler beim Neuladen der Bestellungen", e);
-        }
-    }
-
-
-    public static int countOrders() {
-        int amountOfOrders = 0;
-        try {
-            Statement statement = dbConnection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT count(*) AS count " +
-                    "FROM orders ");
-
-            // Only one line available
-            if (resultSet.first()) {
-                amountOfOrders = resultSet.getInt("count");
-            }
-        } catch (SQLException e) {
-            _log.error("Fehler beim Zählen der Bestellungen", e);
-        }
-        return amountOfOrders;
-    }
-
-    public static int countOrdersPerDay() {
-        int amountOfOrders = 0;
-        try {
-            Statement statement = dbConnection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT CAST(AVG(count) AS INTEGER) AS average " +
-                    "FROM (SELECT COUNT(*) AS count FROM orders GROUP BY DATE(orderTime)) tbl");
-
-            // Only one line available
-            if (resultSet.first()) {
-                amountOfOrders = resultSet.getInt("average");
-            }
-        } catch (SQLException e) {
-            _log.error("Fehler beim Zählen der Bestellungen", e);
-        }
-        return amountOfOrders;
-    }
-
-    public static int averageWeight() {
-        int averageWeight = 0;
-        try {
-            Statement statement = dbConnection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT CAST(AVG(weight) AS INTEGER) AS average FROM orders");
-
-            // Only one line available
-            if (resultSet.first()) {
-                averageWeight = resultSet.getInt("average");
-            }
-        } catch (SQLException e) {
-            _log.error("Fehler beim Berechnen des Durchschnitts", e);
-        }
-        return averageWeight;
-    }
-
-    public static Map<Date, Integer> ordersPerDay() {
-        return null;
-    }
-
-    /**
-     * Gebe Bestellung mit angegebener OrderId zurück
-     *
-     * @param orderId Bestellnummer
-     * @return Bestellung mit angegebener Bestellnummer
-     */
-    public static Order getOrder(Integer orderId) {
-        return orderMap.get(orderId);
+        return order;
     }
 
 
@@ -176,7 +84,6 @@ public class OrderDAO {
             _log.error("Bestellung mit orderId {} ist nicht valide.",order.getOrderId());
             return null;
         }
-
 
         try {
             String sqlStatement;
@@ -224,10 +131,6 @@ public class OrderDAO {
 
         //Erster Eintrag in der Historie
         OrderDAO.addOrderHistoryPoint(order);
-
-        //Füge Order in DAO ein
-        orderMap.put(order.getOrderId(), order);
-
         return order;
     }
 
@@ -261,27 +164,10 @@ public class OrderDAO {
             preparedStatement.setInt(6, order.getOrderId());
             preparedStatement.execute();
 
-            orderMap.put(order.getOrderId(), order);
-
         } catch (SQLException e) {
             _log.error("Fehler beim Aktualisieren einer Bestellung", e);
         }
         return order;
-    }
-
-    /**
-     * Lösche Bestellung mit angegebener Bestellnummer
-     *
-     * @param orderId Bestellnummer
-     */
-    public static boolean deleteOrder(Integer orderId) {
-        if (orderMap.containsKey(orderId)) {
-            //TODO Lösche Drohne in DB
-            orderMap.remove(orderId);
-            return true;
-        }else {
-            return false;
-        }
     }
 
     /**
@@ -290,15 +176,43 @@ public class OrderDAO {
      * @return List<Order> mit allen Bestellungen
      */
     public static List<Order> getAllOrders() {
-        Collection<Order> c = orderMap.values();
         List<Order> list = new ArrayList<>();
-        list.addAll(c);
-        //Collections.sort(list);
+        _log.debug("Lade Bestellungen aus Datenbank");
+        try {
+            Statement statement = dbConnection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT orderId, orderTime," +
+                    " weight, orderStatus, orderRouteStopId, locationId, deliveryTime " +
+                    "FROM orders " +
+                    "ORDER BY orderId ASC");
+
+            //Füge einzelne Bestellungen in DAO/Map ein
+            while (resultSet.next()) {
+                Order order = new Order(
+                        resultSet.getInt("orderId")
+                        , new DateTime(resultSet.getTimestamp("orderTime"))
+                        , LocationDAO.getLocation(resultSet.getInt("locationId"))
+                        , resultSet.getInt("weight")
+                        , resultSet.getInt("orderStatus")
+                        , resultSet.getInt("orderRouteStopId")
+                        , new DateTime(resultSet.getTimestamp("deliveryTime"))
+                );
+
+                if (order.validateOrder())
+                    list.add(order);
+                else {
+                    order.setOrderStatus(OrderStatus.Fehler);
+                    OrderDAO.addOrderHistoryPoint(order);
+                    _log.error("Bestellung mit orderId {} ist nicht valide.",order.getOrderId());
+                }
+            }
+        } catch (SQLException e) {
+            _log.error("Fehler beim Neuladen der Bestellungen", e);
+        }
         return list;
     }
 
     public static List<Order> getOrdersWithStatus(OrderStatus _status) {
-        Collection<Order> orderCollection = orderMap.values();
+        Collection<Order> orderCollection = getAllOrders();
         List<Order> list = new ArrayList<>();
         orderCollection.forEach((Order order) -> {
             if (order.getOrderStatus() == _status) {
@@ -315,7 +229,7 @@ public class OrderDAO {
      * @return Bestellungen mit angegebener RouteStopId
      */
     public static List<Order> getOrdersWithRouteStopId(int _routeStopId) {
-        Collection<Order> orderCollection = orderMap.values();
+        Collection<Order> orderCollection = getAllOrders();
         List<Order> list = new ArrayList<>();
         orderCollection.forEach((Order order) -> {
             if (order.getRouteStopId() == _routeStopId) {
@@ -413,6 +327,61 @@ public class OrderDAO {
         }
         return point;
     }
+
+    public static int countOrders() {
+        int amountOfOrders = 0;
+        try {
+            Statement statement = dbConnection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT count(*) AS count " +
+                    "FROM orders ");
+
+            // Only one line available
+            if (resultSet.first()) {
+                amountOfOrders = resultSet.getInt("count");
+            }
+        } catch (SQLException e) {
+            _log.error("Fehler beim Zählen der Bestellungen", e);
+        }
+        return amountOfOrders;
+    }
+
+    public static int countOrdersPerDay() {
+        int amountOfOrders = 0;
+        try {
+            Statement statement = dbConnection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT CAST(AVG(count) AS INTEGER) AS average " +
+                    "FROM (SELECT COUNT(*) AS count FROM orders GROUP BY DATE(orderTime)) tbl");
+
+            // Only one line available
+            if (resultSet.first()) {
+                amountOfOrders = resultSet.getInt("average");
+            }
+        } catch (SQLException e) {
+            _log.error("Fehler beim Zählen der Bestellungen", e);
+        }
+        return amountOfOrders;
+    }
+
+    public static int averageWeight() {
+        int averageWeight = 0;
+        try {
+            Statement statement = dbConnection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT CAST(AVG(weight) AS INTEGER) AS average FROM orders");
+
+            // Only one line available
+            if (resultSet.first()) {
+                averageWeight = resultSet.getInt("average");
+            }
+        } catch (SQLException e) {
+            _log.error("Fehler beim Berechnen des Durchschnitts", e);
+        }
+        return averageWeight;
+    }
+
+    public static Map<Date, Integer> ordersPerDay() {
+        return null;
+    }
+
 
     public static int averageDeviation() {
 

@@ -38,14 +38,4 @@ public class OrderService {
         return OrderDAO.updateOrder(order);
     }
 
-    @DELETE
-    @Path("/{orderId}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response deleteOrder(@PathParam("orderId") Integer orderId) {
-        if (OrderDAO.deleteOrder(orderId))
-            return Response.ok().build();
-        else
-            return Response.status(Response.Status.NOT_FOUND).build();
-    }
-
 }

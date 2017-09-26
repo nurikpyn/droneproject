@@ -16,7 +16,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Duration;
-import java.util.List;
 import java.util.Timer;
 
 @XmlRootElement
@@ -31,7 +30,6 @@ public class Order {
     private int routeStopId;
     private OrderStatus orderStatus;
     private Location location;
-    private List<OrderHistoryPoint> orderHistoryPointList;
 
     public Order() {
 
