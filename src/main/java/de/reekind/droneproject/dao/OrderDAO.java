@@ -35,6 +35,7 @@ public class OrderDAO {
                     " weight, orderStatus, orderRouteStopId, locationId, deliveryTime " +
                     "FROM orders " +
                     "WHERE orderID = ?");
+            statement.setInt(1,orderId);
             ResultSet resultSet = statement.executeQuery();
 
             //Füge einzelne Bestellungen in DAO/Map ein

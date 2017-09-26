@@ -13,17 +13,21 @@ import java.util.*;
 
 public class DroneDAO {
 
-    private static final Map<Integer, Drone> droneMap = new HashMap<>();
     private final static Logger _log = LogManager.getLogger();
     private static Connection dbConnection;
 
     static {
         dbConnection = DbUtil.getConnection();
-        init();
     }
 
-    private static void init() {
+    /**
+     * Auflisten aller Drohnen
+     *
+     * @return Liste aller Drohnen
+     */
+    public static List<Drone> getAllDrones() {
         _log.info("Lade Drohnen aus Datenbank");
+        List<Drone> droneList = new ArrayList<>();
         try {
             Statement stmt = dbConnection.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT droneId " +
@@ -38,26 +42,15 @@ public class DroneDAO {
                         , droneType
                         , rs.getInt("droneStatus")
                         , depot);
-                droneMap.put(drone.getDroneId(), drone);
+                droneList.add(drone);
             }
         } catch (SQLException e) {
             _log.error("Fehler beim Laden der Depots", e);
         }
-    }
-
-    /**
-     * Auflisten aller Drohnen
-     *
-     * @return Liste aller Drohnen
-     */
-    public static List<Drone> getAllDrones() {
-        Collection<Drone> droneCollection = droneMap.values();
-        List<Drone> list = new ArrayList<>();
-        list.addAll(droneCollection);
-        return list;
+        return droneList;
     }
     public static List<Drone> getDronesWithStatus(DroneStatus droneStatus) {
-        Collection<Drone> droneCollection = droneMap.values();
+        Collection<Drone> droneCollection = getAllDrones();
         List<Drone> list = new ArrayList<>();
         for(Drone drone : droneCollection) {
             if (drone.getDroneStatus() == droneStatus)
@@ -73,7 +66,27 @@ public class DroneDAO {
      * @return Drohnenobjekt
      */
     public static Drone getDrone(Integer droneId) {
-        return droneMap.get(droneId);
+        Drone drone = null;
+        try {
+            PreparedStatement preparedStatement = dbConnection.prepareStatement("SELECT droneId " +
+                    ", droneTypeId, droneStatus, droneDepotId " +
+                    "FROM drones WHERE droneID = ?");
+            preparedStatement.setInt(1,droneId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.first()) {
+                DroneType droneType = DroneTypeDAO.getDroneType(resultSet.getInt("droneTypeID"));
+                Depot depot = DepotDAO.getDepot(resultSet.getInt("droneDepotID"));
+                drone = new Drone(
+                        resultSet.getInt("droneId")
+                        , droneType
+                        , resultSet.getInt("droneStatus")
+                        , depot);
+            }
+        } catch (SQLException e) {
+            _log.error("Fehler beim Laden der Depots", e);
+        }
+        return drone;
     }
 
     /**
@@ -104,7 +117,6 @@ public class DroneDAO {
         } else {
             throw new SQLException("Creating drone failed, no ID obtained.");
         }
-        droneMap.put(drone.getDroneId(), drone);
         return drone;
     }
 
@@ -134,7 +146,6 @@ public class DroneDAO {
         } catch (SQLException e) {
             _log.error("Fehler beim Updaten der Drohne", e);
         }
-        droneMap.put(drone.getDroneId(), drone);
         return drone;
     }
 
@@ -148,7 +159,6 @@ public class DroneDAO {
             PreparedStatement statement = dbConnection.prepareStatement("DELETE FROM drones WHERE droneId = ?");
             statement.setInt(1, droneId);
             statement.execute();
-            droneMap.remove(droneId);
         } catch (SQLException e) {
             _log.error(String.format("Fehler beim Löschen der Drohne %s", droneId), e);
         }

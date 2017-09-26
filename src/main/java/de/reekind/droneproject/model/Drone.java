@@ -23,9 +23,8 @@ public class Drone {
     private Double latitude;
     private Double longitude;
     private Depot depot;
-    // TODO: Dynamically speed?
-    private float speed = 60;
-    private int uptime = 20;
+    private float speed = 0;
+    private int uptime = 0;
 
     public Drone() {
     }
@@ -57,10 +56,18 @@ public class Drone {
     public void setDroneStatus(DroneStatus droneStatus) {
         this.droneStatus = droneStatus;
 
-       /* if (droneStatus == DroneStatus.Bereit) {
+        if (droneStatus == DroneStatus.Bereit) {
+            speed = 0;
+            uptime = 0;
+
             RouteCalculator routeCalc = new RouteCalculator();
             routeCalc.calculateRoute();
-        }*/
+        }
+        if (droneStatus == DroneStatus.InAuslieferung) {
+            speed = 60;
+            uptime = 10;
+        }
+
     }
 
     public DroneType getDroneType() {

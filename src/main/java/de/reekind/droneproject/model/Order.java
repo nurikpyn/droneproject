@@ -49,10 +49,6 @@ public class Order {
         //Setze OrderStatus nach 5 Minuten auf Bereit
         timer.schedule(orderTimer, this.getOrderReadyTime().getMillis() - DateTime.now().getMillis());
         this.orderStatus = OrderStatus.InVorbereitung;
-
-        //Lasse RouteCalc genau dann laufen, wenn Bestellung bereit
-        timer.schedule(new RouteCalculatorTimer(), this.getOrderReadyTime().getMillis() - DateTime.now().getMillis());
-
     }
 
     public Order(DateTime _orderTime, Location deliveryPlace, int weight) {

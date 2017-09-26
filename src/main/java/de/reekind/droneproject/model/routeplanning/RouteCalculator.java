@@ -38,7 +38,6 @@ import java.util.Timer;
 // Hauptklasse für Verarbeitung
 public class RouteCalculator {
 
-    private static Connection conn;
     private static Logger _log = LogManager.getLogger();
     private static Timer timer = new Timer();
 
@@ -116,8 +115,10 @@ public class RouteCalculator {
                     jobId = ((TourActivity.JobActivity) activity).getJob().getId();
                 }
                 RouteStop stop = new RouteStop();
-                stop.Orders.add(OrderDAO.getOrder(Integer.parseInt(jobId)));
-                //stop.ArrivalTime = activity.getArrTime(); //TODO Fix time
+                Order order = OrderDAO.getOrder(Integer.parseInt(jobId));
+                order.setOrderStatus(OrderStatus.Geplant);
+                OrderDAO.updateOrder(order);
+                stop.Orders.add(order);
                 stop.Location = LocationDAO.getLocation(activity.getLocation().getCoordinate());
 
                 //Berechnen der Distanz
@@ -157,22 +158,33 @@ public class RouteCalculator {
     private void startDrones() {
        //Starte alle Drohnen für die die Route geplant wurde
         for (Route route : RouteDAO.getAllRoutesWithStatus(RouteStatus.Geplant)) {
+
+
             //Wir gehen davon aus, dass zu diesem Zeitpunkt die Drohne Bereit ist
-            //Die Bestellungen müssen ebenfalls bereit sein.
+            if (route.Drone.getDroneStatus() != DroneStatus.Bereit)
+            {
+                return;
+            }
             route.Drone.setDroneStatus(DroneStatus.InAuslieferung);
             DroneDAO.updateDrone(route.Drone);
             route.setRouteStatus(RouteStatus.InAuslieferung);
             for(RouteStop routeStop : route.RouteStops) {
                 for(Order order : routeStop.Orders){
 
-                    order.setOrderStatus(OrderStatus.InAuslieferung);
+                    //Die Bestellungen müssen ebenfalls bereit sein.
+                    if (order.getOrderStatus() != OrderStatus.Bereit)
+                        return;
 
+                    order.setOrderStatus(OrderStatus.InAuslieferung);
                     // Timer, der sobald die Bestellung ausgelierfert ist diese auf ausgeliefert stellt
                     double durationInHours = routeStop.RouteDistanceTillStop/route.Drone.getDroneType().getMaxSpeed();
                     long timerDurationInMillis = Math.round(DateTimeConstants.MILLIS_PER_HOUR * durationInHours);
                     order.setDeliveryTime(DateTime.now().plusMinutes((int)durationInHours/60));
                     OrderTimer orderDeliveredTimer = new OrderTimer(order, OrderStatus.Ausgeliefert);
                     timer.schedule(orderDeliveredTimer, timerDurationInMillis);
+
+                    routeStop.ArrivalTime = DateTime.now().plusMillis((int)timerDurationInMillis);
+
                     _log.debug("Started timer for order " + order.getOrderId() + " duration: " + timerDurationInMillis/1000 + " seconds.");
                 }
             }
