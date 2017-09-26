@@ -17,6 +17,8 @@ public class ProblemSolverHelper {
 
         RouteCalculator calculator = new RouteCalculator();
         ArrayList<Route> bestSolution = calculator.calculateRoute();
+        //TODO geplante Routen werden hier sofort gestartet. Man sollte aber nur die Sofort starten, bei denen die Drohnen auch da sind
+        calculator.startDrones();
 
         /*ObjectMapper mapper = new ObjectMapper();
         try {

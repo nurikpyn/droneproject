@@ -7,7 +7,7 @@ import org.joda.time.DateTime;
 import java.util.ArrayList;
 
 public class RouteStop {
-    public ArrayList<Order> Orders = new ArrayList<>();
+    public Order Order;
     public DateTime ArrivalTime;
     public Location Location;
     private int routeStopId;
@@ -15,11 +15,11 @@ public class RouteStop {
     public RouteStop() {
     }
 
-    public RouteStop(int routeStopId, DateTime arrivalTime, Location location, ArrayList<Order> orders, double routeDistanceTillStop) {
+    public RouteStop(int routeStopId, DateTime arrivalTime, Location location, Order order, double routeDistanceTillStop) {
         this.routeStopId = routeStopId;
         this.ArrivalTime = arrivalTime;
         this.Location = location;
-        this.Orders = orders;
+        this.Order = order;
         this.RouteDistanceTillStop = routeDistanceTillStop;
     }
 

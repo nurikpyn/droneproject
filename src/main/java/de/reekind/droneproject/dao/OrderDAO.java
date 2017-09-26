@@ -34,8 +34,9 @@ public class OrderDAO {
             PreparedStatement statement = dbConnection.prepareStatement("SELECT orderId, orderTime," +
                     " weight, orderStatus, orderRouteStopId, locationId, deliveryTime " +
                     "FROM orders " +
-                    "WHERE orderID = ?");
+                    "WHERE orderID = ? AND orderStatus  <> ?");
             statement.setInt(1,orderId);
+            statement.setInt(2,OrderStatus.Fehler.GetID());
             ResultSet resultSet = statement.executeQuery();
 
             //Füge einzelne Bestellungen in DAO/Map ein
@@ -49,17 +50,9 @@ public class OrderDAO {
                         , resultSet.getInt("orderRouteStopId")
                         , new DateTime(resultSet.getTimestamp("deliveryTime"))
                 );
-
-                if (order.validateOrder())
-                    order = null;
-                else {
-                    order.setOrderStatus(OrderStatus.Fehler);
-                    OrderDAO.addOrderHistoryPoint(order);
-                    _log.error("Bestellung mit orderId {} ist nicht valide.",order.getOrderId());
-                }
             }
         } catch (SQLException e) {
-            _log.error("Fehler beim Neuladen der Bestellungen", e);
+            _log.error("Fehler beim Laden einer bestimmetn Bestellung", e);
         }
         return order;
     }
@@ -143,6 +136,13 @@ public class OrderDAO {
      */
     public static Order updateOrder(Order order) {
 
+        if (!order.validateOrder() ){
+            order.setOrderStatus(OrderStatus.Fehler);
+            OrderDAO.addOrderHistoryPoint(order);
+            _log.error("Bestellung mit orderId {} ist nicht valide.",order.getOrderId());
+            return null;
+        }
+
         try {
             PreparedStatement preparedStatement = dbConnection.prepareStatement(
                     "UPDATE orders " +
@@ -180,14 +180,19 @@ public class OrderDAO {
         List<Order> list = new ArrayList<>();
         _log.debug("Lade Bestellungen aus Datenbank");
         try {
-            Statement statement = dbConnection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT orderId, orderTime," +
+            PreparedStatement statement = dbConnection.prepareStatement("SELECT orderId, orderTime," +
                     " weight, orderStatus, orderRouteStopId, locationId, deliveryTime " +
-                    "FROM orders " +
+                    "FROM orders WHERE orderStatus <> ? " +
                     "ORDER BY orderId ASC");
+            statement.setInt(1,OrderStatus.Fehler.GetID());
+            ResultSet resultSet = statement.executeQuery();
 
             //Füge einzelne Bestellungen in DAO/Map ein
             while (resultSet.next()) {
+                DateTime deliveryTime = null;
+                if (resultSet.getTimestamp("deliveryTime") != null)
+                    deliveryTime = new DateTime(resultSet.getTimestamp("deliveryTime"));
+
                 Order order = new Order(
                         resultSet.getInt("orderId")
                         , new DateTime(resultSet.getTimestamp("orderTime"))
@@ -195,16 +200,9 @@ public class OrderDAO {
                         , resultSet.getInt("weight")
                         , resultSet.getInt("orderStatus")
                         , resultSet.getInt("orderRouteStopId")
-                        , new DateTime(resultSet.getTimestamp("deliveryTime"))
+                        , deliveryTime
                 );
-
-                if (order.validateOrder())
                     list.add(order);
-                else {
-                    order.setOrderStatus(OrderStatus.Fehler);
-                    OrderDAO.addOrderHistoryPoint(order);
-                    _log.error("Bestellung mit orderId {} ist nicht valide.",order.getOrderId());
-                }
             }
         } catch (SQLException e) {
             _log.error("Fehler beim Neuladen der Bestellungen", e);
@@ -213,7 +211,7 @@ public class OrderDAO {
     }
 
     public static List<Order> getOrdersWithStatus(OrderStatus _status) {
-        Collection<Order> orderCollection = getAllOrders();
+        Collection<Order> orderCollection = OrderDAO.getAllOrders();
         List<Order> list = new ArrayList<>();
         orderCollection.forEach((Order order) -> {
             if (order.getOrderStatus() == _status) {
@@ -244,15 +242,14 @@ public class OrderDAO {
         List<OrderHistoryPoint> history = new ArrayList<>();
         try {
             PreparedStatement preparedStatement = dbConnection.prepareStatement(
-                    "SELECT orderHistoryId, orderId, caption, detail, statusId, timestamp " +
+                    "SELECT orderId, caption, detail, statusId, timestamp " +
                             "FROM orderhistory WHERE orderId = ?");
             preparedStatement.setInt(1,orderId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while(resultSet.next()) {
                 OrderHistoryPoint orderHistoryPoint = new OrderHistoryPoint(
-                        resultSet.getInt("orderHistoryId")
-                        , resultSet.getString("caption")
+                        resultSet.getString("caption")
                         , resultSet.getString("detail")
                         , new DateTime(resultSet.getTimestamp("timestamp"))
                         , resultSet.getInt("statusId"));
@@ -316,15 +313,8 @@ public class OrderDAO {
 
             preparedStatement.execute();
 
-            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                   point.OrderHistoryPointId =generatedKeys.getInt(1);
-                } else {
-                    throw new SQLException("Creating order failed, no ID obtained.");
-                }
-            }
         } catch (SQLException e) {
-            _log.error("Fehler beim Hinzufügen eines Status", e);
+            _log.info("Fehler beim Hinzufügen eines Status Order {} Status {}", order.getOrderId(), order.getOrderStatus());
         }
         return point;
     }

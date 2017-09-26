@@ -25,6 +25,7 @@ public class Order {
     private int orderId;
     @XmlJavaTypeAdapter(XmlDateTimeAdapter.class)
     private DateTime orderTime;
+    @XmlJavaTypeAdapter(XmlDateTimeAdapter.class)
     private DateTime deliveryTime;
     private int weight;
     private int routeStopId;
@@ -62,7 +63,7 @@ public class Order {
         this.orderTime = _orderTime;
         this.location = _location;
         this.weight = _weight;
-        this.setOrderStatus(OrderStatus.values()[_orderStatus]);
+        this.orderStatus = OrderStatus.values()[_orderStatus];
         this.routeStopId = _routeStopId;
         this.deliveryTime = _deliveryTime;
     }
@@ -117,8 +118,10 @@ public class Order {
     }
 
     public void setOrderStatus(OrderStatus orderStatus) {
-        this.orderStatus = orderStatus;
-        OrderDAO.addOrderHistoryPoint(this);
+        if (this.orderStatus != orderStatus) {
+            this.orderStatus = orderStatus;
+            OrderDAO.addOrderHistoryPoint(this);
+        }
     }
 
     public Location getLocation() {

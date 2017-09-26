@@ -38,6 +38,13 @@ public class Drone {
             this.latitude = depot.getLatitude();
             this.longitude = depot.getLongitude();
         }
+        if (droneStatus == DroneStatus.Bereit) {
+            speed = 0;
+            uptime = 0;
+        } else if (droneStatus == DroneStatus.InAuslieferung) {
+            speed = 60;
+            uptime = 10;
+        }
     }
 
     public int getDroneId() {
@@ -59,11 +66,7 @@ public class Drone {
         if (droneStatus == DroneStatus.Bereit) {
             speed = 0;
             uptime = 0;
-
-            RouteCalculator routeCalc = new RouteCalculator();
-            routeCalc.calculateRoute();
-        }
-        if (droneStatus == DroneStatus.InAuslieferung) {
+        } else if (droneStatus == DroneStatus.InAuslieferung) {
             speed = 60;
             uptime = 10;
         }

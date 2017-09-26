@@ -10,7 +10,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OrderHistoryPoint {
-    public int OrderHistoryPointId;
     public String Details;
     public String Caption;
     public int OrderHistoryPointType;
@@ -25,11 +24,10 @@ public class OrderHistoryPoint {
         this.Details = details;
         this.OrderHistoryPointType = orderHistoryPointType;
     }
-    public OrderHistoryPoint(int orderHistoryPointId, String caption, String details, DateTime timestamp, int orderHistoryPointType) {
+    public OrderHistoryPoint( String caption, String details, DateTime timestamp, int orderHistoryPointType) {
         this.Timestamp = timestamp;
         this.Caption = caption;
         this.Details = details;
         this.OrderHistoryPointType = orderHistoryPointType;
-        this.OrderHistoryPointId = orderHistoryPointId;
     }
 }

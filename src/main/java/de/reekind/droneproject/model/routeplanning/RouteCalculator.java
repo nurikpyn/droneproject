@@ -103,7 +103,7 @@ public class RouteCalculator {
             //route.StartTime = Timestamp.from(Instant.ofEpochMilli((long)jspritRoute.getDepartureTime()));
             //route.EndTime =  Timestamp.from(Instant.ofEpochMilli((long)jspritRoute.getEnd().getEndTime()));
             com.graphhopper.jsprit.core.problem.Location startLocation = jspritRoute.getStart().getLocation();
-            route.StartLocation = new Location(startLocation.getCoordinate().getX(),startLocation.getCoordinate().getY());
+            route.StartLocation = new Location(startLocation.getCoordinate().getX(), startLocation.getCoordinate().getY());
             route.StartTime = DateTime.now();
             route.EndTime = DateTime.now();
 
@@ -118,14 +118,14 @@ public class RouteCalculator {
                 Order order = OrderDAO.getOrder(Integer.parseInt(jobId));
                 order.setOrderStatus(OrderStatus.Geplant);
                 OrderDAO.updateOrder(order);
-                stop.Orders.add(order);
+                stop.Order = order;
                 stop.Location = LocationDAO.getLocation(activity.getLocation().getCoordinate());
 
                 //Berechnen der Distanz
                 //Erster Stop --> Depot zur ersten Location
-                if (counter == 0){
+                if (counter == 0) {
                     totalDistance += Location.distanceInKm(stop.Location.getLatitude(), stop.Location.getLongitude(),
-                            route.StartLocation.getLatitude(),  route.StartLocation.getLongitude());
+                            route.StartLocation.getLatitude(), route.StartLocation.getLongitude());
                     distanceToStop = totalDistance;
                     //Normaler Stop --> Vorherige Location zur jetzigen
                 } else {
@@ -136,7 +136,7 @@ public class RouteCalculator {
                 //Letzter Stop --> Adde Location zu Depot
                 if (counter == jspritRoute.getActivities().size() - 1)
                     totalDistance += Location.distanceInKm(stop.Location.getLatitude(), stop.Location.getLongitude(),
-                            route.StartLocation.getLatitude(),  route.StartLocation.getLongitude());
+                            route.StartLocation.getLatitude(), route.StartLocation.getLongitude());
                 prevRS = stop;
                 counter++;
                 stop.RouteDistanceTillStop = distanceToStop;
@@ -148,61 +148,55 @@ public class RouteCalculator {
             route.TotalDistance = totalDistance;
             route = RouteDAO.addRoute(route);
             routes.add(route);
-
-            //TODO geplante Routen werden hier sofort gestartet. Man sollte aber nur die Sofort starten, bei denen die Drohnen auch da sind
-            startDrones();
         }
         return routes;
     }
 
-    private void startDrones() {
-       //Starte alle Drohnen für die die Route geplant wurde
+    public void startDrones() {
+        //Starte alle Drohnen für die die Route geplant wurde
         for (Route route : RouteDAO.getAllRoutesWithStatus(RouteStatus.Geplant)) {
 
 
             //Wir gehen davon aus, dass zu diesem Zeitpunkt die Drohne Bereit ist
-            if (route.Drone.getDroneStatus() != DroneStatus.Bereit)
-            {
+            if (route.Drone.getDroneStatus() != DroneStatus.Bereit) {
                 return;
             }
             route.Drone.setDroneStatus(DroneStatus.InAuslieferung);
             DroneDAO.updateDrone(route.Drone);
             route.setRouteStatus(RouteStatus.InAuslieferung);
-            for(RouteStop routeStop : route.RouteStops) {
-                for(Order order : routeStop.Orders){
+            for (RouteStop routeStop : route.RouteStops) {
+                //Die Bestellungen müssen ebenfalls bereit sein.
+                if (routeStop.Order.getOrderStatus() != OrderStatus.Geplant)
+                    return;
 
-                    //Die Bestellungen müssen ebenfalls bereit sein.
-                    if (order.getOrderStatus() != OrderStatus.Bereit)
-                        return;
+                routeStop.Order.setOrderStatus(OrderStatus.InAuslieferung);
+                // Timer, der sobald die Bestellung ausgelierfert ist diese auf ausgeliefert stellt
+                double durationInHours = routeStop.RouteDistanceTillStop / route.Drone.getDroneType().getMaxSpeed();
+                long timerDurationInMillis = Math.round(DateTimeConstants.MILLIS_PER_HOUR * durationInHours);
+                routeStop.Order.setDeliveryTime(DateTime.now().plusMinutes((int) (durationInHours / 60)));
+                OrderTimer orderDeliveredTimer = new OrderTimer(routeStop.Order, OrderStatus.Ausgeliefert);
+                timer.schedule(orderDeliveredTimer, timerDurationInMillis);
 
-                    order.setOrderStatus(OrderStatus.InAuslieferung);
-                    // Timer, der sobald die Bestellung ausgelierfert ist diese auf ausgeliefert stellt
-                    double durationInHours = routeStop.RouteDistanceTillStop/route.Drone.getDroneType().getMaxSpeed();
-                    long timerDurationInMillis = Math.round(DateTimeConstants.MILLIS_PER_HOUR * durationInHours);
-                    order.setDeliveryTime(DateTime.now().plusMinutes((int)durationInHours/60));
-                    OrderTimer orderDeliveredTimer = new OrderTimer(order, OrderStatus.Ausgeliefert);
-                    timer.schedule(orderDeliveredTimer, timerDurationInMillis);
+                routeStop.ArrivalTime = DateTime.now().plusMillis((int) timerDurationInMillis);
 
-                    routeStop.ArrivalTime = DateTime.now().plusMillis((int)timerDurationInMillis);
-
-                    _log.debug("Started timer for order " + order.getOrderId() + " duration: " + timerDurationInMillis/1000 + " seconds.");
-                }
+                _log.debug("Started timer for order " + routeStop.Order.getOrderId() + " duration: " + timerDurationInMillis / 1000 + " seconds.");
+                OrderDAO.updateOrder(routeStop.Order);
             }
             RouteDAO.updateRoute(route);
 
             // Get duration in hours, then schedule task execution ahead from now.
             //double durationInHours = Route.getTotalRouteDistance(route)/route.Drone.getDroneType().getMaxSpeed();
-            double durationInHours = route.TotalDistance/route.Drone.getDroneType().getMaxSpeed();
+            double durationInHours = route.TotalDistance / route.Drone.getDroneType().getMaxSpeed();
             long timerDurationInMillis = Math.round(DateTimeConstants.MILLIS_PER_HOUR * durationInHours);
             DroneTimer droneTimer = new DroneTimer(route.Drone, DroneStatus.Bereit);
             timer.schedule(droneTimer, timerDurationInMillis);
             // Debug
-            _log.debug("Started timer for drone " + route.Drone.getDroneId() + " duration: " + timerDurationInMillis/1000 + " seconds.");
+            _log.debug("Started timer for drone " + route.Drone.getDroneId() + " duration: " + timerDurationInMillis / 1000 + " seconds.");
 
             RouteTimer routeTimer = new RouteTimer(route, RouteStatus.Beendet);
             timer.schedule(routeTimer, timerDurationInMillis);
             // Debug
-            _log.debug("Started timer for route " + route.RouteId + " duration: " + timerDurationInMillis/1000 + " seconds.");
+            _log.debug("Started timer for route " + route.RouteId + " duration: " + timerDurationInMillis / 1000 + " seconds.");
         }
     }
 }

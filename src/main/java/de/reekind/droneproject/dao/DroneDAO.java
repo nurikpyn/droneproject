@@ -26,7 +26,6 @@ public class DroneDAO {
      * @return Liste aller Drohnen
      */
     public static List<Drone> getAllDrones() {
-        _log.info("Lade Drohnen aus Datenbank");
         List<Drone> droneList = new ArrayList<>();
         try {
             Statement stmt = dbConnection.createStatement();
@@ -155,6 +154,12 @@ public class DroneDAO {
      * @param droneId Id der Drohne, welche gelöscht werden soll
      */
     public static void deleteDrone(Integer droneId) {
+        Drone drone = DroneDAO.getDrone(droneId);
+        if (drone.getDroneStatus() == DroneStatus.InAuslieferung) {
+            _log.error("Drohne {} kann nicht entfernt werden, da sie gerade in Auslieferung ist.", droneId);
+           return;
+        }
+
         try {
             PreparedStatement statement = dbConnection.prepareStatement("DELETE FROM drones WHERE droneId = ?");
             statement.setInt(1, droneId);
